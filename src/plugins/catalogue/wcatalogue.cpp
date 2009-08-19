@@ -41,7 +41,7 @@
 #include "wdbtable.h"
 #include "wgrouptree.h"
 #include "alog.h"
-
+//#include "deditdialog.h"
 //extern aCfg *plugins_aCfg;
 
 
@@ -54,6 +54,8 @@ wCatalogue::wCatalogue( QWidget *parent, Qt::WFlags fl )
 {
 	setInited( false );
 	setFormMode( 0 );
+	item = 0;
+        //connect(this,SIGNAL(getCurrentMd(DomCfgItem*)),parent,SLOT(getMd(DomCfgItem*)));
 }
 
 
@@ -62,14 +64,14 @@ wCatalogue::~wCatalogue()
 }
 
 
-
 void
 wCatalogue::initObject( aDatabase *adb )
 {
 	aWidget::initObject( adb );
 	QObject *obj;
-	QObjectList lb = this->queryList( "QWidget" );
-	QListIterator<QObject*> itb( lb ); // iterate over all wDBFields
+	//QObjectList lb = this->findChild( "QWidget" );
+	QList<QWidget*> lb = this->findChildren<QWidget *>();
+	QListIterator<QWidget*> itb( lb ); // iterate over all wDBFields
 	while ( itb.hasNext() )
 	{
 		obj = itb.next();
@@ -127,17 +129,18 @@ wCatalogue::initObject( aDatabase *adb )
 void
 wCatalogue::valueChanged( const QVariant & value )
 {
+qDebug() << "wCatalogue::valueChanged";
 	if ( sender()->className() != QString("wDBField") ) return;
 	wDBField * fld = ( wDBField * ) sender();
-	aCfgItem o_field,o_parent;
+	DomCfgItem *o_field,*o_parent;
 	QString parent_name;
 	QVariant val = value;
 
-	o_field = md->find(fld->getId());
-	o_parent = md->parent(o_field);
+	o_field = item->findObjectById(fld->getId());
+	o_parent = o_field->parent();
 	const QString fname = fld->getFieldName();
 
-	parent_name = md->objClass( o_parent );
+	parent_name =  o_parent->node().nodeValue();
 	if( parent_name == QString(md_group) )
 	{
 
@@ -250,7 +253,7 @@ wCatalogue::displayString()
  * Create aDocument database object.
  */
 aObject *
-wCatalogue::createDBObject(  aCfgItem obj, aDatabase *adb )
+wCatalogue::createDBObject(  DomCfgItem *obj, aDatabase *adb )
 {
 //        printf("cat form mode = %i\n",formMode() );
 //	if ( formMode() == CATALOGUEFORMMODE_GROUP ) return new aCatGroup( obj, adb );
@@ -333,7 +336,7 @@ wCatalogue::NewValues()
 	QListIterator<QObject*> it( l );
 	QObject *obj;
 	//--obj = it.toFirst();
-	aCfgItem o_field,o_parent;
+	DomCfgItem *o_field,*o_parent;
 	QString parent_name;
 	while ( it.hasNext() )
 	{
@@ -341,10 +344,10 @@ wCatalogue::NewValues()
 		//obj = it.current();
 		obj= it.next();
 		fname=((wDBField *)obj)->getFieldName();
-		o_field = md->find(((wDBField *)obj)->getId());
-		o_parent = md->parent(o_field);
+		o_field = item->findObjectById(((wDBField *)obj)->getId());
+		o_parent = o_field->parent();
 		//printf( "field name %s\n",(const char*)fname.local8Bit() );
-		parent_name = md->objClass( o_parent );
+		parent_name = o_parent->node().nodeName();
 		//printf("parent_name = %s\n", (const char*)parent_name );
 		if( parent_name == QString(md_group) )
 		{
@@ -379,8 +382,8 @@ wCatalogue::setFormMode( int Mode )
 /*!
  * Create toolbar for Catalogue.
  */
-Q3ToolBar*
-wCatalogue::createToolBar( Q3MainWindow * owner )
+QToolBar*
+wCatalogue::createToolBar( QMainWindow * owner )
 {
 	/*
 	QAction *a;

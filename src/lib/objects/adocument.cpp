@@ -55,10 +55,10 @@
  *	\param adb - \en ananas database for working. \_en \ru
  *					ссылка на базу данных.\_ru
 */
-aDocument::aDocument( aCfgItem context, aDatabase * adb )
+aDocument::aDocument( DomCfgItem *context, aDatabase * adb )
 :aObject( context, adb, 0, "aDocument")
 {
-	if ( context.isNull() ) concrete = false;
+	if ( context==0 ) concrete = false;
 	else concrete = true;
 	initObject();
 	sysJournal = new aDocJournal(adb);
@@ -156,7 +156,7 @@ aDocument::trSysName( const QString & sname )
 ERR_Code
 aDocument::initObject()
 {
-	aCfgItem o, og;
+	DomCfgItem *o, *og;
 	int i, nt;
 	QString tdbname, tname;
 
@@ -164,16 +164,17 @@ aDocument::initObject()
 	ERR_Code error = aObject::initObject();
 	if ( error )
 		return error;
-	og = md->find( obj, md_header );
-	error =  tableInsert( aDatabase::tableDbName( *md, og ), og );
+	og = md->find( md_header );
+	error =  tableInsert( aDatabase::tableDbName( md, og ), og );
 	if ( error )
 		return error;
-        og = md->find( obj, md_tables );
-        nt = md->count( og, md_table );
+        og = md->find( md_tables );
+        nt = md->childCount();
         for ( i=0; i< nt; i++ ) {
-                o = md->find( og, md_table, i );
-                tdbname = aDatabase::tableDbName( *md, o );
-                tname = md->attr( o, mda_name );
+                o = md->child( i );
+		if (o->node().nodeName()!=md_table) continue;
+                tdbname = aDatabase::tableDbName( md, o );
+                tname = o->attr( mda_name );
                 error = tableInsert( tdbname, o, tname );
 				if ( error )
 					return error;
@@ -325,15 +326,15 @@ aDocument::New()
 		aLog::print(aLog::Error, tr("aDocument aObject::New() ended with error code = %1").arg(err));
 		return err;
 	}
-	if ( obj.isNull() )
+	if ( obj==0 )
 	{
 		aLog::print(aLog::Error, tr("aDocument metaobject is null=%1"));
 		return err_noobject;
 	}
 	qulonglong Uid = getUid();
-	SetPrefix(md->attr(obj,mda_name));
-	aLog::print(aLog::Debug, tr("aDocument new type = %1").arg(md->id(obj)));
-	err = sysJournal->New( Uid, Prefix(), md->id(obj) );
+	SetPrefix(obj->attr(mda_name));
+	aLog::print(aLog::Debug, tr("aDocument new type = %1").arg(obj->attr(mda_id)));
+	err = sysJournal->New( Uid, Prefix(), obj->attr(mda_id).toInt() );
 	if ( err )
 	{
 		aLog::print(aLog::Error, tr("aDocument New() error while added record in sysJournal =%1").arg(err));
@@ -432,14 +433,14 @@ aDocument::Delete()
 	aLog::print(aLog::Debug, tr("aDocument delete from sysjournal"));
 	db->markDeleted( uid );
 	aLog::print(aLog::Debug, tr("aDocument delete from unicues"));
-	aCfgItem tobj;
-	uint n = md->count( obj, md_table );
+	DomCfgItem *tobj;
+	uint n = obj->childCount();
 	for ( uint i = 0; i < n; i++ )
 	{
-		tobj = md->find(obj,md_table,i);
-		if ( tobj.isNull() ) continue;
-		tableDeleteLines( md->attr(tobj,mda_name) );
-		aLog::print(aLog::Debug, tr("aDocument delete table %1").arg(md->attr(tobj,mda_name)));
+		tobj = obj->child(i);
+		if ( tobj->node().nodeName()!=md_table ) continue;
+		tableDeleteLines( tobj->attr(mda_name) );
+		aLog::print(aLog::Debug, tr("aDocument delete table %1").arg(tobj->attr(mda_name)));
 	}
 	return aObject::Delete();
 }
@@ -603,14 +604,15 @@ aDocument::TableUpdate( const QString & tablename )
 		return err_docconducted;
 	}
 	if ( tablename != "" ) return aObject::TableUpdate(tablename);
-	aCfgItem tobj;
-	uint n = md->count( obj, md_table );
+	DomCfgItem *tobj,*tables;
+	tables = obj->find(md_tables);
+	uint n = tables->childCount();
 	ERR_Code err = 0;
 	for ( uint i = 0; i < n; i++ )
 	{
-		tobj = md->find(obj,md_table,i);
-		if ( tobj.isNull() ) continue;
-		err += aObject::TableUpdate( md->attr(tobj,mda_name) );
+		tobj = tables->child(i);
+		if ( tobj->node().nodeName()!=md_table ) continue;
+		err += aObject::TableUpdate( tobj->attr(mda_name) );
 	}
 	return err;
 }
@@ -765,7 +767,7 @@ aDocument::Select( QDateTime from, QDateTime to )
 	aSQLTable * t = table();
 	if ( !t ) return err_notable;
 	QString query, dname = "", jFltr;
-	if ( concrete ) dname = md->attr(obj, mda_name);
+	if ( concrete ) dname = obj->attr( mda_name);
 	jFltr = sysJournal->selectionFilter( from, to, dname, true );
 	if ( jFltr == "" ) return err_selecterror;
 	query = QString("SELECT %1.* FROM %2, a_journ WHERE a_journ.idd=%3.id AND %4").arg(t->tableName).arg(t->tableName).arg(t->tableName).arg( jFltr );
@@ -811,7 +813,7 @@ aDocument::Select( const QString & num )
 	aSQLTable * t = table();
 	if ( !t ) return err_notable;
 	QString query, dname = "", jFltr;
-	if ( concrete ) dname = md->attr(obj, mda_name);
+	if ( concrete ) dname = obj->attr( mda_name);
 	jFltr = sysJournal->selectionFilter( num, dname, true );
 	if ( jFltr == "" ) return err_selecterror;
 	query = QString("SELECT %1.* FROM %2, a_journ WHERE a_journ.idd=%3.id AND %4").arg(t->tableName).arg(t->tableName).arg(t->tableName).arg( jFltr );
@@ -945,7 +947,7 @@ aDocument::Copy()
 	ERR_Code err = aObject::Copy();
 	if ( err ) return err;
 	qulonglong Uid = getUid();
-	err = sysJournal->New( Uid, nowPrefix, md->id(obj) );
+	err = sysJournal->New( Uid, nowPrefix, obj->attr(mda_id).toInt());
 	if ( err )
 	{
 		table()->exec(QString("DELETE FROM %1 WHERE id=%2").arg(table()->tableName).arg(Uid));
@@ -955,39 +957,40 @@ aDocument::Copy()
 	aDocument doc( obj, db );
 	err = doc.select(oldUid);
 	if ( err ) return err;
-	aCfgItem tObj, fObj;
+	DomCfgItem *tObj, *fObj,*tables;
 	QString tname, query, tdbname, fname ;
-	uint n = md->count(obj,md_table), m;
+	tables = obj->find(md_tables);
+	uint n = tObj->childCount();
 	for ( uint i = 0; i < n; i++ )
 	{
-		tObj = md->find( doc.obj, md_table, i );
-		if ( tObj.isNull() ) continue;
-		tname = md->attr( tObj, mda_name );
+		tObj = tables->child( i );
+		if ( tObj->node().nodeName()!=md_table ) continue;
+		tname =tObj->attr( mda_name );
 		if ( !doc.TableSelect(tname) )
 		{
 			TableNewLine(tname);
-			m = md->count( tObj, md_field );
+			int m = tObj->childCount();
 			for ( uint j = 0; j < m; j++ )
 			{
-				fObj = md->find( tObj, md_field, j );
-				if ( fObj.isNull() ) continue;
-				fname = md->attr( fObj, mda_name );
+				fObj = tObj->child(j);
+				if ( fObj->node().nodeName()!=md_field ) continue;
+				fname = fObj->attr( mda_name );
 				TableSetValue( tname, fname, doc.TableValue( tname, fname ) );
 			}
 			TableUpdate( tname );
-			while ( doc.TableNext( tname ) )
-			{
-				TableNewLine(tname);
-				m = md->count( tObj, md_field );
-				for ( uint j = 0; j < m; j++ )
-				{
-					fObj = md->find( tObj, md_field, j );
-					if ( fObj.isNull() ) continue;
-					fname = md->attr( fObj, mda_name );
-					TableSetValue( tname, fname, doc.TableValue( tname, fname ) );
-				}
-				TableUpdate( tname );
-			}
+// 			while ( doc.TableNext( tname ) )
+// 			{
+// 				TableNewLine(tname);
+// 				m = md->count( tObj, md_field );
+// 				for ( uint j = 0; j < m; j++ )
+// 				{
+// 					fObj = md->find( tObj, md_field, j );
+// 					if ( fObj.isNull() ) continue;
+// 					fname = md->attr( fObj, mda_name );
+// 					TableSetValue( tname, fname, doc.TableValue( tname, fname ) );
+// 				}
+// 				TableUpdate( tname );
+// 			}
 		}
 	}
 	return err_noerror;
@@ -1331,15 +1334,15 @@ aDocument::SignOut()
 	aIRegister * reg = new aIRegister("",db);
 	reg->deleteDocument(this);
 	delete reg;
-	aCfgItem aReg, aRegs;
-	aRegs= md->find(md->find(md->find(mdc_metadata),md_registers,0),md_aregisters,0);
-	if ( aRegs.isNull() ) return 1; //TODO: set error code
-	uint n = md->count( aRegs, md_aregister );
+	DomCfgItem *aReg, *aRegs;
+	aRegs= obj->find(md_aregisters);
+	if ( aRegs==0) return 1; //TODO: set error code
+	uint n = obj->childCount();
 	aARegister *areg;
 	for ( uint i = 0; i < n; i++  )
 	{
-		aReg = md->find( aRegs, md_aregister, i );
-		if ( aReg.isNull() ) continue;
+		aReg = aRegs->child( i );
+		if ( aReg==0 ) continue;
 		areg = new aARegister(aReg,db);
 		areg->deleteDocument(this);
 		aLog::print(aLog::Debug, tr("aDocument delete from accumulation register"));
@@ -1399,13 +1402,13 @@ aDocument::select( qulonglong uid)
 	if(res != err_noerror) return res;
 	idd = sysJournal->findDocument(uid);
 	if (idd == 0) return err_nodocument;
-	aCfgItem tobj;
-	uint n = md->count( obj, md_table );
+	DomCfgItem *tobj;
+	uint n = obj->childCount( );
 	for ( uint i = 0; i < n; i++ )
 	{
-		tobj = md->find(obj,md_table,i);
-		if ( tobj.isNull() ) continue;
-		tableSelect(md->attr(tobj,mda_name), uid);
+		tobj = obj->child(i);
+		if ( tobj->node().nodeValue()!=md_table ) continue;
+		tableSelect(tobj->attr(mda_name), uid);
 //		aObject::select( QString("idd=%1").arg(uid), md->attr(tobj,mda_name) );
 	}
 	return res;

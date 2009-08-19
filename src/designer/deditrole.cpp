@@ -1,12 +1,16 @@
+#include <QtCore>
+#include <QtGui>
+#include "acfg.h"
+//#include "awindowslist.h"
 #include "deditrole.h"
 
-#include <qvariant.h>
-#include <qimage.h>
-#include <qpixmap.h>
+//#include <qvariant.h>
+//#include <qimage.h>
+//#include <qpixmap.h>
 
 #include "acfg.h"
-#include <qstatusbar.h>
-#include <qmessagebox.h>
+//#include <qstatusbar.h>
+//#include <qmessagebox.h>
 
 /*
  *  Constructs a dEditRole as a child of 'parent', with the
@@ -14,7 +18,7 @@
  *
  */
 dEditRole::dEditRole(QWidget* parent, const char* name, Qt::WindowFlags fl)
-    : Q3MainWindow(parent, name, fl)
+    : QMainWindow(parent, name, fl)
 {
     setupUi(this);
 
@@ -40,9 +44,9 @@ void dEditRole::languageChange()
     retranslateUi(this);
 }
 
-extern aCfg cfg;
+//extern aCfg cfg;
 
-void dEditRole::setData( CfgForm *c, aCfgItem o )
+void dEditRole::setData( CfgForm *c, DomCfgItem *o)
 {
 //    aCfgItem alias;
 //    int i, n, count;
@@ -50,9 +54,9 @@ void dEditRole::setData( CfgForm *c, aCfgItem o )
     cf = c;
     obj = o;
 
-    setCaption( tr("Role:") + cf->cfg.attr( obj, mda_name ) );
-    eName->setText( cf->cfg.attr( obj, mda_name ) );
-    eDescription->setText( cf->cfg.sText( obj, md_description ) );
+    setCaption( tr("Role:") + obj->attr(mda_name));
+    eName->setText( obj->attr(mda_name));
+    eDescription->setText(obj->attr(md_description));
 }
 
 void dEditRole::init()
@@ -63,14 +67,14 @@ void dEditRole::init()
 void dEditRole::destroy()
 {
     updateMD();
-    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
+    //( (MainForm*)this->topLevelWidget() )->removeTab(name());
 }
 void
 dEditRole::updateMD()
 {
-    cf->cfg.setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
-    cf->cfg.setSText( obj, md_description, eDescription->text() );
-    cf->initRoles();
-    ( (MainForm*)this->topLevelWidget() )->wl->remove( this );
+    obj->node().toElement().setAttribute(mda_name, eName->text().stripWhiteSpace());
+    obj->node().toElement().setAttribute(md_description, eDescription->text() );
+    //cf->initRoles();
+    //( (MainForm*)this->topLevelWidget() )->wl->remove( this );
 }
 

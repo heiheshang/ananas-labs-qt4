@@ -13,11 +13,5 @@ CONFIG	+= plugin
 LIBS	+= -L../../../lib -lananas4
 INCLUDEPATH	+= ../../lib 
 LANGUAGE	= C++
-win32:DESTDIR = ..
-
-unix{
-        libext.path = $(LIBDIR)/ananas
-        libext.files = libaexttext.so
-        INSTALLS += libext
-}
-
+DESTDIR     		= ..
+#win32:DLLDESTDIR	= ..

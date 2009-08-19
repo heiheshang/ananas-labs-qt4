@@ -44,23 +44,27 @@ void eSelectDocType::init()
 }
 
 
-void eSelectDocType::setJournal( aCfg *md, int id )
+void eSelectDocType::setJournal( DomCfgItem *md, int id )
 {
-    aCfgItem obj, dobj;
+    DomCfgItem *obj, *dobj;
     int i, cnt, t, did;
     QString name;
 
     listDocs->clear();
     dlist.clear();
-    obj = md->find( id );
-    if ( !obj.isNull() ) {
-	dlist = md->getJournalDocuments( obj );
+    obj = md->findObjectById( id );
+    if ( obj!=0 ) {
+	//dlist = md->getJournalDocuments( obj );
+	for (int ij=0;ij<obj->childCount();ij++) {
+		if (obj->child(ij)->nodeName()==md_used_doc)
+			dlist << obj->child(ij)->node().nodeValue();
+	}
 //	printf("docs=%s\n", ( const char *) dlist.join("\n") );
 	for (i=0;i< dlist.count();i++) {
 	    did = dlist[i].toInt();
-	    dobj = md->find( did );
-	    if ( !dobj.isNull() ) {
-		name = md->attr( dobj, mda_name );
+	    dobj = md->findObjectById( did );
+	    if ( dobj!=0 ) {
+		name = dobj->attr( mda_name );
 		new Q3ListViewItem( listDocs, name, dlist[i] );
 	    }
 	}

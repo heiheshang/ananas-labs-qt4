@@ -30,14 +30,14 @@
 
 #ifndef QAFIELD_H
 #define QAFIELD_H
-
-#include <qwidget.h>
-#include <qwidgetplugin.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <q3datetimeedit.h>
-#include <qcheckbox.h>
-#include "qlineedit.h"
+#include <QtGui>
+//#include <qwidget.h>
+//#include <qwidgetplugin.h>
+//#include <qpushbutton.h>
+//#include <qlabel.h>
+//#include <q3datetimeedit.h>
+//#include <qcheckbox.h>
+//#include "qlineedit.h"
 //Added by qt3to4:
 #include <QKeyEvent>
 #include "wdateedit.h"

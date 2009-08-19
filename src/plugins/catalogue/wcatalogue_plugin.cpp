@@ -25,7 +25,7 @@
 
 #include "wcatalogue_taskmenu.h"
 #include "wcatalogue.h"
-
+#include "alog.h"
 
 wCataloguePlugin::wCataloguePlugin(QObject *parent)
     : QObject(parent), m_initialized(false)
@@ -55,11 +55,14 @@ void wCataloguePlugin::initialize(QDesignerFormEditorInterface *core)
                                 Q_TYPEID(QDesignerTaskMenuExtension));
 
     m_initialized = true;
+printf("wCatalogue inited\n");
 }
 
 QWidget *wCataloguePlugin::createWidget(QWidget *parent)
 {
+printf("Создаем wCatalogue");
     wCatalogue *w = new wCatalogue(parent, 0);
+printf("Создали wCatalogue");
     return w;
 }
 
@@ -96,5 +99,5 @@ QIcon wCataloguePlugin::icon() const
 
 QString wCataloguePlugin::domXml() const
 {
-    return "<widget class=\"wCatalogue\" name=\"wCatalogue_1\">\n</widget>\n";
+    return "<widget class=\"wCatalogue\" name=\"wCatalogue\">\n</widget>\n";
 }

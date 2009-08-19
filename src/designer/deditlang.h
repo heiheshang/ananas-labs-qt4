@@ -4,7 +4,7 @@
 #include "ui_deditlang.h"
 
 
-class dEditLang : public Q3MainWindow, public Ui::dEditLang
+class dEditLang : public QMainWindow, public Ui::dEditLang
 {
     Q_OBJECT
 
@@ -13,14 +13,14 @@ public:
     ~dEditLang();
 
 public slots:
-    virtual void setData( CfgForm * c, aCfgItem o );
+    virtual void setData(CfgForm *c, DomCfgItem *o);
     virtual void updateMD();
 
 protected slots:
     virtual void languageChange();
 
 private:
-    aCfgItem obj;
+    DomCfgItem *obj;
     int langCount;
     CfgForm *cf;
 

@@ -32,97 +32,132 @@
 
 #include "amenubar.h"
 //Added by qt3to4:
-#include <Q3PopupMenu>
+#include <QtGui>
 #include <QPixmap>
+#include "alog.h"
 
-
-AMenuBar::AMenuBar( QWidget* parent , const char* name  )
-	:QMenuBar( parent, name ) {
+AMenuBar::AMenuBar( QWidget* parent  )
+	:QMenuBar( parent ) {
 
 }
 
-AMenuBar::AMenuBar( aCfg *cfg, QWidget* parent , const char* name  )
-:QMenuBar( parent, name )
+AMenuBar::AMenuBar( DomCfgItem *cfg, QWidget* parent )
+:QMenuBar( parent )
 {
 	md = cfg;
-	ReadMenu( md->find( md->find( mdc_interface ), md_mainmenu) );
+	QDomNode nodel = cfg->node();
+	DomCfgItemInterfaces *mdl = new DomCfgItemInterfaces(nodel,0,0);
+	DomCfgItem *obj = 0;
+	obj = mdl->root()->find(md_interface)->find(md_mainmenu);
+	ReadMenu(obj);
 }
 
 void
-AMenuBar::ReadMenu( aCfgItem obj )
+AMenuBar::ReadMenu( DomCfgItem *obj )
 {
-	aCfgItem	cobj;
-	Q3PopupMenu	*parent;
+	DomCfgItem	*cobj;
+	QMenu	*parent;
 	QString		text, aKey ;
 	long 		id;
 
 	if ( !md )
 		return;
-	cobj = md->firstChild ( obj );
-	while ( !cobj.isNull() )
+	//cobj = obj->child(0);
+	//aLog::print(aLog::Debug,QString("menubar\n"));
+	//aLog::print(aLog::Debug,QString::number(obj->childCount()));
+	for (int i=0;i<obj->childCount();i++)
 	{
-		id = md->id( cobj );
-		if ( md->objClass ( cobj ) == md_submenu )
+		cobj = obj->child(i);
+		id = cobj->attr(mda_id).toInt();
+		//aLog::print(aLog::Debug,QString("menubar ")+cobj->nodeName()+"\n"); 
+		if ( cobj->nodeName() == md_submenu )
 		{
-			parent = new Q3PopupMenu ();
-			insertItem( md->attr( cobj, mda_name ), parent );
+			//parent = new QMenu ();
+			//insertItem( md->attr( cobj, mda_name ), parent );
+			QMenu *parent = addMenu(cobj->attr(mda_name));
 			ReadMenu( parent, cobj );
 		}
-		if ( md->objClass ( cobj ) == md_command )
+		if ( cobj->nodeName() == md_command )
 		{
-			text = md->sText ( cobj, md_menutext );
-			if ( text == "" ) text = md->attr( cobj, mda_name );
-			aKey = md->sText ( cobj, md_key );
-			QMenuBar::insertItem( text, this, SLOT(on_Item()), QKeySequence( aKey ), id );
+			text = cobj->attr(md_menutext) ;
+			if ( text == "" ) text = cobj->attr(mda_name);
+			aKey = cobj->attr(md_key);
+			//QMenuBar::insertItem( text, this, //SLOT(on_Item()), QKeySequence( aKey ), id );
+			QAction *currentMenu = addAction(text);
+			currentMenu->setShortcut(QKeySequence( aKey ));
+			connect(currentMenu, SIGNAL(triggered()), this, SLOT(on_Item()));
+
 		}
-		if ( md->objClass ( cobj ) == md_separator )
+		if ( cobj->nodeName() == md_separator )
 		{
-			insertSeparator();
+			addSeparator();
 		}
-		cobj = md->nextSibling ( cobj );
+		//cobj = md->nextSibling ( cobj );
 	}
 
 }
 
 void
-AMenuBar::ReadMenu( Q3PopupMenu *parent, aCfgItem obj )
+AMenuBar::ReadMenu( QMenu *parent, DomCfgItem *obj )
 {
-	aCfgItem	cobj, apix;
-	Q3PopupMenu	*mparent;
-	QString		text, aKey;
-	long id, pid;
-    QPixmap		pix;
+	DomCfgItem *cobj;
+	DomCfgItem *apix;
+	DomCfgItem *pict;
+	QMenu	*mparent;
+	QString		text, aKey,pid;
+	long id;
+    	QPixmap		pix;
 
 	if ( !md )
 		return;
 
-	cobj = md->firstChild ( obj );
-	while ( !cobj.isNull() )
+	//cobj = md->firstChild ( obj );
+	for (int i=0;i<obj->childCount();i++ )
 	{
-		id = md->id( cobj );
-		if ( md->objClass ( cobj ) == md_submenu )
+		cobj=obj->child(i);
+		id = cobj->attr(mda_id).toInt();
+		if (cobj->nodeName() == md_submenu )
 		{
-			mparent = new Q3PopupMenu ();
-			parent->insertItem( md->attr ( cobj, mda_name ), mparent );
+			//mparent = new QMenu ();
+			//parent->insertItem( md->attr ( cobj, mda_name ), //mparent );
+			QMenu *mparent = parent->addMenu(cobj->attr(mda_name));
 			ReadMenu( mparent, cobj );
 		}
-		if ( md->objClass ( cobj ) == md_command )
+		if (cobj->nodeName() == md_command )
 		{
-			text = md->sText ( cobj, md_menutext );
+aLog::print(aLog::Debug,"md_menutext\n");
+			//QDomNode mdmenutext = cobj->child(md_menutext);
+			text = cobj->child(md_menutext)->nodeValue();
+			//if (mdmenutext==0)
 			if ( text == "" )
-				text = md->attr( cobj, mda_name );
-			aKey = md->sText ( cobj, md_key );
-			pid = md->text( md->findChild( cobj, md_comaction, 0 ) ).toLong();
-			apix = md->findChild( md->find( pid ), md_active_picture, 0 );
-			pix.loadFromData( md->binary( apix ) );
-			parent->insertItem( pix, text, this, SLOT(on_Item()), QKeySequence( aKey ), id );
+				text = cobj->attr(mda_name);
+			aKey = cobj->child(md_key)->nodeValue();
+			pid = cobj->child(md_comaction)->nodeValue();
+			QDomNode nodel = md->node();
+			apix = new DomCfgItemActions(nodel,0,0);
+			pict = apix->root()->findObjectById(pid)->child(md_active_picture);
+//Вернуться
+			QAction *currentMenu = 0;
+	if (pict!=0) {
+//aLog::print(aLog::Debug,"apix "+pict->nodeName());
+			pix.loadFromData( pict->binary());
+			//parent->insertItem( pix, text, this, //SLOT(on_Item()), QKeySequence( aKey ), id );
+			currentMenu = //parent->addAction(pix,text);Вернуться
+			parent->addAction(QIcon(pix),text);
+	}
+	else
+			currentMenu = parent->addAction(text);
+
+			currentMenu->setShortcut(QKeySequence( aKey ));
+			currentMenu->setData(pid);
+			//connect(currentMenu,SIGNAL(triggered(QAction*)), this, SLOT(on_Item(QAction*)));
 			pix = 0;
 		}
-		if ( md->objClass ( cobj ) == md_separator )
+		if (cobj->nodeName() == md_separator )
 		{
-			parent->insertSeparator();
+			parent->addSeparator();
 		}
-		cobj = md->nextSibling ( cobj );
+		//cobj = md->nextSibling ( cobj );
 	}
 
 }
@@ -131,53 +166,6 @@ AMenuBar::ReadMenu( Q3PopupMenu *parent, aCfgItem obj )
 AMenuBar::~AMenuBar(){
 }
 
-int AMenuBar::insertItem ( const QString & text, Q3PopupMenu * popup, int id, int index ) {
+int AMenuBar::insertItem ( const QString & text, QMenu * popup, int id, int index ) {
 	return QMenuBar::insertItem ( text, popup, id, index);
 };
-
-/*
-int
-AMenuBar::insertItem ( const QString & text, const QObject * receiver, const char * member, const QKeySequence & accel, int id , int index ) {
-	return QMenuBar::insertItem( text, receiver, member, accel, id, index);
-}
-int
-AMenuBar::insertItem ( const QPixmap & pixmap, const QObject * receiver, const char * member, const QKeySequence & accel , int id , int index ) {
-	return QMenuBar::insertItem ( pixmap, receiver, member, accel,  id, index);
-}
-int AMenuBar::insertItem ( const QIconSet & icon, const QPixmap & pixmap, const QObject * receiver, const char * member, const QKeySequence & accel , int id , int index  ) {
-	return QMenuBar::insertItem ( icon, pixmap, receiver, member, accel,  id, index);
-};
-int AMenuBar::insertItem ( const QString & text, int id , int index  ) {
-	return QMenuBar::insertItem( text, id, index );
-};
-int AMenuBar::insertItem ( const QIconSet & icon, const QString & text, int id , int index  ) {
-	return QMenuBar::insertItem ( icon, text,  id, index);
-};
-int AMenuBar::insertItem ( const QIconSet & icon, const QString & text, QPopupMenu * popup, int id, int index ) {
-	return QMenuBar::insertItem ( icon, text, popup,  id, index);
-};
-int AMenuBar::insertItem ( const QPixmap & pixmap, int id , int index ) {
-	return QMenuBar::insertItem ( pixmap, id, index);
-};
-int AMenuBar::insertItem ( const QIconSet & icon, const QPixmap & pixmap, int id , int index ) {
-	return QMenuBar::insertItem ( icon, pixmap, id, index);
-};
-int AMenuBar::insertItem ( const QPixmap & pixmap, QPopupMenu * popup, int id, int index ) {
-	return QMenuBar::insertItem ( pixmap, popup,  id, index);
-};
-int AMenuBar::insertItem ( const QIconSet & icon, const QPixmap & pixmap, QPopupMenu * popup, int id , int index ) {
-	return QMenuBar::insertItem ( icon, pixmap, popup,  id, index);
-};
-int AMenuBar::insertItem ( QWidget * widget, int id, int index ) {
-	return QMenuBar::insertItem ( widget,  id, index);
-};
-int AMenuBar::insertItem ( const QIconSet & icon, QCustomMenuItem * custom, int id , int index ) {
-	return QMenuBar::insertItem ( icon, custom, id, index);
-};
-int AMenuBar::insertItem ( QCustomMenuItem * custom, int id , int index ) {
-	return QMenuBar::insertItem ( custom,  id, index);
-};
-int AMenuBar::insertSeparator ( int index ) {
-	return QMenuBar::insertSeparator ( index);
-};
-*/

@@ -13,11 +13,4 @@ LIBS	+= -L../../../lib -lananas4
 CONFIG		+= plugin
 INCLUDEPATH	+= ../../lib 
 LANGUAGE	= C++
-win32:DESTDIR = ..
-
-unix{
-        libmeta.path = $(LIBDIR)/ananas
-        libmeta.files = libaext_meta.so
-        INSTALLS += libmeta
-}
-
+DESTDIR     		= ..

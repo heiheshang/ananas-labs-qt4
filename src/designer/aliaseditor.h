@@ -39,12 +39,12 @@ class aAliasEditor : public QObject
 {
 	Q_OBJECT
 public:
-    aCfg *ac;
-    aCfgItem obj;
-    Q3Table *tAliases;
+    QDomNode ac;
+    DomCfgItem *obj;
+    QTableWidget *tAliases;
     int langCount;
 
-    aAliasEditor( aCfg *c, aCfgItem o, Q3Table *tAliases );
+    aAliasEditor( DomCfgItem *o, QTableWidget *tAliases );
     ~aAliasEditor();
 
     void setData();

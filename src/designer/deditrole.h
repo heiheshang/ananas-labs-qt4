@@ -4,7 +4,7 @@
 #include "ui_deditrole.h"
 
 
-class dEditRole : public Q3MainWindow, public Ui::dEditRole
+class dEditRole : public QMainWindow, public Ui::dEditRole
 {
     Q_OBJECT
 
@@ -13,14 +13,14 @@ public:
     ~dEditRole();
 
 public slots:
-    virtual void setData( CfgForm * c, aCfgItem o );
+    virtual void setData( CfgForm * c, DomCfgItem *o );
     virtual void updateMD();
 
 protected slots:
     virtual void languageChange();
 
 private:
-    aCfgItem obj;
+    DomCfgItem *obj;
     CfgForm *cf;
     int roleCount;
 

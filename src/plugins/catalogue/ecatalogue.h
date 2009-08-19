@@ -16,8 +16,8 @@ public:
 
 public slots:
     virtual void init();
-    virtual void setData( QWidget * o, aCfg * md );
-    virtual void getData( QWidget * o );
+    virtual void setData( QWidget *o, DomCfgItem *md );
+    virtual void getData( QWidget *o );
 
 protected slots:
     virtual void languageChange();

@@ -27,19 +27,19 @@
 **
 **********************************************************************/
 
-#include <q3header.h>
+//#include <q3header.h>
 #include "aliaseditor.h"
 #include "acfg.h"
 
 
-aAliasEditor::aAliasEditor( aCfg *c, aCfgItem o, Q3Table *t )
+aAliasEditor::aAliasEditor( DomCfgItem *o, QTableWidget *t )
 {
-    ac = c;
+    ac = o->node();
     obj = o;
     tAliases = t;
-    tAliases->setNumRows( 0 );
-    tAliases->setNumCols( 1 );
-    tAliases->horizontalHeader()->setLabel( 0, tr("Name") );
+    tAliases->setRowCount( 0 );
+    tAliases->setColumnCount( 1 );
+    tAliases->setHorizontalHeaderLabels(QStringList() << tr("Name"));
 }
 
 aAliasEditor::~aAliasEditor()
@@ -49,40 +49,40 @@ aAliasEditor::~aAliasEditor()
 void aAliasEditor::setData()
 {
     int i, j, n;
-    aCfgItem alias, langs, lang;
-    QString langtag;
-
-    langs = ac->find( ac->find( mdc_root ), md_languages, 0 );
-    langCount = ac->count( langs, md_language );
-    n = ac->countChild( obj, md_alias );
-    tAliases->setNumRows( langCount );
+    QDomNode alias, langs,lang,node;
+    QStringList langtag;
+    node = obj->root()->node();
+    langs = node.namedItem(md_languages);
+    langCount = langs.childNodes().count();
+    //n = ac.countChild( obj, md_alias );
+    tAliases->setRowCount( langCount );
 	for ( i = 0; i < langCount; i++ ) {
-	    lang = ac->findChild( langs, md_language, i );
-	    langtag = ac->attr( lang, mda_tag );
-	    tAliases->verticalHeader()->setLabel( i, langtag );
-	    for ( j = 0; j < n; j++) {
-		alias = ac->findChild( obj, md_alias, j );
-		if ( langtag == ac->attr( alias, mda_tag ) ) {
-		    tAliases->setText( i, 0, ac->attr( alias, mda_name ) );
-		}
+	    lang = langs.childNodes().item(i);
+	    langtag << lang.attributes().namedItem(mda_tag).nodeValue();
+	    //for ( j = 0; j < n; j++) {
+		//alias = ;
+		//if ( langtag == ac->attr( alias, mda_tag ) ) {
+		//    tAliases->setText( i, 0, ac->attr( alias, mda_name ) );
+		//}
 	    }
-	}
+	//}
+tAliases->setHorizontalHeaderLabels(langtag);
 }
 
 void aAliasEditor::updateMD()
 {
-    int i;
-    aCfgItem alias;
+    //int i;
+    //aCfgItem alias;
 
-    do {
-	alias = ac->findChild( obj, md_alias, 0 ) ;
-	if ( !alias.isNull() ) ac->remove( alias );
-    } while ( !alias.isNull() );
-    for (i = 0; i < tAliases->numRows(); i++ ) {
-	if ( tAliases->text( i, 0 ) != "" ) {
-	    alias = ac->insert( obj, md_alias, tAliases->text( i, 0 ), -1 );
-	   ac->setAttr( alias, mda_tag, tAliases->verticalHeader()->label( i ));
-	}
-    }
+//     do {
+// 	alias = ac->findChild( obj, md_alias, 0 ) ;
+// 	if ( !alias.isNull() ) ac->remove( alias );
+//     } while ( !alias.isNull() );
+//     for (i = 0; i < tAliases->numRows(); i++ ) {
+// 	if ( tAliases->text( i, 0 ) != "" ) {
+// 	    alias = ac->insert( obj, md_alias, tAliases->text( i, 0 ), -1 );
+// 	   ac->setAttr( alias, mda_tag, tAliases->verticalHeader()->label( i ));
+// 	}
+//     }
 }
 

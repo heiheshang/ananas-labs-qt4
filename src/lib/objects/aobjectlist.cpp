@@ -95,7 +95,7 @@ aObjectList::aObjectList( const QString &oname, aDatabase *adb, QObject *parent,
 	db = adb;
 	if ( adb )
 	{
-		obj = adb->cfg.find( oname );
+		obj = adb->cfg->find( oname );
 		setObject( obj );
 	}
 }
@@ -109,7 +109,7 @@ aObjectList::aObjectList( const QString &oname, aDatabase *adb, QObject *parent,
  *	\param parent - parent object
  *	\param name - name of object
  */
-aObjectList::aObjectList( aCfgItem context, aDatabase *adb, QObject *parent, const char *name )
+aObjectList::aObjectList( DomCfgItem *context, aDatabase *adb, QObject *parent, const char *name )
 :QObject( parent, name )
 {
 	filtred = false;
@@ -152,7 +152,7 @@ aObjectList::init()
  *	\return error code
  */
 ERR_Code
-aObjectList::setObject( aCfgItem newobject )
+aObjectList::setObject( DomCfgItem *newobject )
 {
 	setInited( false );
 	obj = newobject;
@@ -169,19 +169,19 @@ aObjectList::setObject( aCfgItem newobject )
 ERR_Code
 aObjectList::initObject()
 {
-	aCfgItem fg, f;
+	DomCfgItem *fg, *f;
 	QString tname;
 
 	setInited( true );
 //	db = adb;
 	md = 0;
-	if ( db ) md = &db->cfg;
+	if ( db ) md = db->cfg;
 	else
 	{
 		aLog::print(aLog::Error, tr("aObjectList have no database!"));
 		return err_nodatabase;
 	}
-	if ( obj.isNull() )
+	if ( obj==0 )
 	{
 		aLog::print(aLog::Error, tr("aObjectList md object not found"));
 		return err_objnotfound;
@@ -326,8 +326,8 @@ aObjectList::select( qulonglong id )
 //	if ( concrete && ( otype != t->getMdObjId() ) ) return err_incorrecttype;
 //	if ( !concrete )
 //	{
-		aCfgItem tmpObj = md->find( otype );
-		if ( tmpObj.isNull() ) return err_objnotfound;
+		DomCfgItem *tmpObj = md->find( QString::number(otype) );
+		if ( tmpObj==0 ) return err_objnotfound;
 		setObject ( tmpObj );
 //	}
 	if ( t->select( QString("id=%1").arg(id), false ) )
@@ -499,7 +499,7 @@ aObjectList::displayString()
 {
 	QString res="***";
         int stdfc = 0, fid;
-        aCfgItem sw, f;
+        DomCfgItem *sw, *f;
 
 	sw = displayStringContext();
 //	if ( md->objClass( obj ) == md_catalogue ) {
@@ -507,11 +507,11 @@ aObjectList::displayString()
 //	} else {
 //        	sw = md->find( obj, md_string_view );
 //	}
-        if ( !sw.isNull() ) {
-                stdfc = md->attr( sw, mda_stdf ).toInt();
+        if ( sw!=0 ) {
+                stdfc = sw->attr( mda_stdf ).toInt();
                 switch ( stdfc ) {
                 case 0:
-                        fid = md->sText( sw, md_fieldid ).toInt();
+                        fid = sw->attr(md_fieldid ).toInt();
                         res = table->sysValue( QString( "uf%1" ).arg( fid ) ).toString();
 //printf("fid=%i res=%s\n",fid, ( const char *) res );
                         break;
@@ -533,10 +533,10 @@ aObjectList::displayString()
 
 
 
-aCfgItem
+DomCfgItem*
 aObjectList::displayStringContext()
 {
-       return md->find( obj, md_string_view );
+       return obj->find( md_string_view );
 }
 
 

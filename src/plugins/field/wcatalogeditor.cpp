@@ -106,7 +106,7 @@ wCatalogEditor::~wCatalogEditor()
 void
 wCatalogEditor::initCat(aDatabase * adb)
 {
-	md = &adb->cfg;
+	md = adb->cfg;
 	db = adb;
 }
 
@@ -117,7 +117,7 @@ wCatalogEditor::initCat(aDatabase * adb)
  * \ru	Обработчик события нажатия кнопки,
  * 	которая является второй составной частью виджета.
  * 	Сигнал коннектится в объекте wField.
- * 	Создает и отображет в рабочем пространстве енжина форму для
+ * 	Создает и отображет в рабочем пространстве виджета форму для
  * 	редактирования каталога или выбора из каталога.
  * 	Производит заполнение дерева групп и элементов группами и формирует
  * 	данные для передачи в форму редактирования каталога.
@@ -175,11 +175,11 @@ wCatalogEditor::openForm(const bool toSelect)
 	connect( newform, 	SIGNAL(destroyed()),
   	  	 this,		SLOT(on_destroyed_form()));
 
-	aCatalogue *cat = new aCatalogue(md->find(catId),db);
+	aCatalogue *cat = new aCatalogue(md->findObjectById(catId),db);
 	int count=0;
 	bool est=true;
 	QMap<qulonglong,Q3ListViewItem*> map, map_el;
-	aCfgItem tmp, tmp_f,tmp_el,tmp_group, o;
+	DomCfgItem *tmp, *tmp_f,*tmp_el,*tmp_group, *o;
 	Q3ListViewItem * item;
 	Q3ListViewItem * p_item;
 	qulonglong idGrForm=0, idElForm=0;
@@ -187,27 +187,27 @@ wCatalogEditor::openForm(const bool toSelect)
 	newform->ListHint->hide();
 	QPixmap pixmap(newform->getGroupPixmap());
 	QPixmap pixmap_mark_deleted(newform->getMarkDeletedPixmap());
-	tmp = md->find(catId);
-	newform->setCaption(md->attr(tmp,mda_name));
-	o = md->findChild(tmp, md_forms); // get obj forms
-  	if(!o.isNull())
+	tmp = md->findObjectById(catId);
+	newform->setCaption(tmp->attr(mda_name));
+	o = tmp->child(md_forms); // get obj forms
+  	if(o!=0)
   	{
-		count = md->count(o,md_form);
+		count = o->childCount();
 		for(int i=0; i<count; i++)
 		{
-			tmp_f = md->findChild(o,md_form,i);
-			if(!tmp_f.isNull()
-			   && atoi(md->attr(tmp_f,mda_type).ascii())==md_form_elem)
+			tmp_f = o->child(md_form);
+			if(tmp_f!=0
+			   && atoi(tmp_f->attr(mda_type).ascii())==md_form_elem)
 	 		{
 				aLog::print(aLog::Debug, tr("wCatalog Editor found element forms"));
-				idElForm = md->id(tmp_f);
+				idElForm = tmp_f->attr(mda_id).toInt();
 //				 continue;
 	 		}
-			if(!tmp_f.isNull()
-			   && atoi(md->attr(tmp_f,mda_type).ascii())==md_form_group)
+			if(tmp_f!=0
+			   && atoi(tmp_f->attr(mda_type).ascii())==md_form_group)
 	 		{
 				aLog::print(aLog::Debug, tr("wCatalog Editor found group forms"));
-				idGrForm = md->id(tmp_f);
+				idGrForm = tmp_f->attr(mda_id).toInt();
 	 		}
 		}
   	}
@@ -215,10 +215,10 @@ wCatalogEditor::openForm(const bool toSelect)
 	{
 		aLog::print(aLog::Error, tr("wCatalog Editor meta object forms not found"));
 	}
-	tmp_el = md->findChild(tmp, md_element);
-	tmp_group = md->findChild(tmp,md_group);
-	tmp = md->findChild(tmp_el, md_field);
-	int count_fields = md->count(tmp_el,md_field);
+	tmp_el = tmp->child(md_element);
+	tmp_group = tmp->child(md_group);
+	tmp = tmp_el->child(md_field);
+	int count_fields = tmp_el->childCount();
 	listPosGroup = cat->getGroupUserFields();
 	int i,level = 0;
 	cat->Select();
@@ -276,8 +276,8 @@ wCatalogEditor::openForm(const bool toSelect)
 		}
 		if(fid)
 		{
-			tmp = md->find(fid);
-			newform->ListView->addColumn(md->attr(tmp,mda_name));
+			tmp = md->findObjectById(fid);
+			newform->ListView->addColumn(tmp->attr(mda_name));
 		}
   	}
 
@@ -305,14 +305,15 @@ wCatalogEditor::openForm(const bool toSelect)
 void
 wCatalogEditor::checkUserFields( QStringList &lst)
 {
-	aCfgItem item = md->find(catId);
+	DomCfgItem *item = md->findObjectById(catId);
 	int fid;
-	if(item.isNull()) return;
-	item = md->findChild(item,md_element);
-	for(int i=0; i< md->count(item,md_field); i++)
+	if(item==0) return;
+	item = item->child(md_element);
+	for(int i=0; i< item->childCount(); i++)
   	{
-		aCfgItem mdi = md->findChild(item,md_field,i);
-		int ind = lst.findIndex(QString("uf%1").arg(md->attr(mdi,mda_id)));
+		DomCfgItem *mdi = item->child(i);
+		if (mdi->node().nodeName()!=md_field) continue;
+		int ind = lst.findIndex(QString("uf%1").arg(mdi->attr(mda_id)));
 		if(ind!=-1)
 		{
 			//--lst.insert(lst.at(i),lst[ind]);
@@ -322,7 +323,7 @@ wCatalogEditor::checkUserFields( QStringList &lst)
 		}
 		else
 		{
-			ind = lst.findIndex(QString("text_uf%1").arg(md->attr(mdi,mda_id)));
+			ind = lst.findIndex(QString("text_uf%1").arg(mdi->attr(mda_id)));
 			if(ind!=-1)
 			{
 				//--lst.insert(lst.at(i),lst[ind]);

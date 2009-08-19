@@ -1,3 +1,4 @@
+
 /****************************************************************************
 ** $Id: acfg.h,v 1.1 2008/11/05 21:16:28 leader Exp $
 **
@@ -37,10 +38,11 @@ Ananas configuration objects.
 #define ACFG_H
 
 #include "ananasglobal.h"
-
+#include <QtGui>
 #include <qdom.h>
+#include <QHash>
 //#include <qdict.h>
-#include <q3intdict.h>
+//#include <q3intdict.h>
 #include "acfgrc.h"
 
 #ifdef __BORLANDC__
@@ -53,7 +55,7 @@ Ananas configuration objects.
 extern void (*cfg_messageproc)(int , const char *);
 void ANANAS_EXPORT cfg_message(int msgtype, const char *msgfmt,...);
 void ANANAS_EXPORT debug_message(const char *msgfmt,...);
-
+ 
 class QObject;
 
 /*!
@@ -310,7 +312,84 @@ System object id
 
 #define aCfgItem 		QDomElement
 
+#define md_row_count		8
 
+class ANANAS_EXPORT DomCfgItem : public QObject
+{
+    Q_OBJECT
+public:
+    DomCfgItem(QDomNode &node, int row, DomCfgItem *parent = 0);
+    ~DomCfgItem();
+    aCfgRc *rc;
+    virtual DomCfgItem *root();
+    virtual DomCfgItem *child(int i);
+    virtual DomCfgItem *child(QString f);
+    virtual DomCfgItem *child(QString f,int j);
+    DomCfgItem *parent();
+    //virtual DomCfgItem *parentObject();//Возвращает владельца объекта конфигурации
+    void insert(DomCfgItem *context,QString &otype,QString &name,long id);
+    QDomNode node() const;
+    QString nodeName() const;
+    QString nodeValue() const;
+    QString cfgName() const;
+    QIcon iconNode();
+    int row();
+    virtual bool hasChildren() const;
+    QMenu *menu() const;
+    QString attr(QString attrName) const;
+    QStringList types(QStringList filter = QStringList("base"));
+    QString getNameByType(QStringList type);
+    QString configName();//Возвращает полное имя объекта
+    virtual DomCfgItem *findObjectById(QString id);
+    virtual DomCfgItem *findObjectById(int id);
+    DomCfgItem *findByName(QString name);
+    DomCfgItem *find(QString f);
+    virtual int childCount();
+    QByteArray binary();
+    long nextID();
+    bool modified();
+    void setModified();
+    long getDefaultFormId(DomCfgItem *owner,int actiontype,int mode);
+    void setText(const QString &name,const QString &value );
+    void setAttr(const QString &name, const QString &value);
+    void setSText(const QString & subname, const QString &value);
+protected:
+	QDomNode domNode;
+	QHash<int,DomCfgItem*> childItems;
+    	QHash<QString,DomCfgItem*> hashId;
+        DomCfgItem *rootNode;
+private:
+    DomCfgItem *parentItem;	
+    int rowNumber;
+    bool fCompressed, fModified;
+
+};
+
+class ANANAS_EXPORT DomCfgItemInterfaces : public DomCfgItem
+{
+    Q_OBJECT
+public:
+    DomCfgItemInterfaces(QDomNode &node, int row, DomCfgItemInterfaces *parent = 0);
+    virtual DomCfgItem *child(int i);
+    virtual DomCfgItem *child(QString f);
+    virtual DomCfgItem *child(QString f,int j);
+    virtual bool hasChildren() const;
+    virtual int childCount();
+};
+
+class ANANAS_EXPORT DomCfgItemActions : public DomCfgItem
+{
+    Q_OBJECT
+public:
+    DomCfgItemActions(QDomNode &node, int row, DomCfgItemActions *parent = 0);
+    virtual DomCfgItem *child(int i);
+    virtual DomCfgItem *child(QString f);
+    virtual DomCfgItem *child(QString f,int j);
+    virtual bool hasChildren() const;
+    virtual int childCount();
+   // virtual DomCfgItemActions *findObjectById(QString id);
+    //virtual DomCfgItemActions *findObjectById(int id);
+};
 
 /*!
  * \en
@@ -387,7 +466,7 @@ class ANANAS_EXPORT aCfg: public QObject //QDomDocument
 public:
     enum fieldType { ftUnknown, ftChar, ftNumberic, ftDate, ftObject };
     aCfgRc rc;
-
+    QDomDocument xml;
     aCfg();
     ~aCfg();
 
@@ -479,17 +558,19 @@ signals:
 	void message( int messageType, const QString & messageText );
 
 private:
-    QDomDocument xml;
+    
     bool fCompressed, fModified;
     //	QDomElement root;
     aCfgItem rootnode, cfginfo, md,
     iface,
     actions;
-    Q3IntDict <aCfgItemContaner> idcache;
+    QHash<long, aCfgItemContaner*> idcache;
     long nextID();
     void init();
 
     void addTypes( QStringList &list, aCfgItem context, const QString &tobject, const QString &tname);
 };
+
+
 
 #endif

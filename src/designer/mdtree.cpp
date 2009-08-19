@@ -515,7 +515,7 @@ void
 aListViewItem::edit()
 {
     QWorkspace *ws = mainform->ws;
-    aWindowsList *wl = mainform->wl;
+    QList<QWidget> *wl = mainform->wl;
     QString oclass = md->objClass( obj );
     int objid = md->id( obj );
     if ( wl->find( objid ) ) {

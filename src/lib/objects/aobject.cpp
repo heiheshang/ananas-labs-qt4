@@ -95,7 +95,7 @@ aObject::aObject( const QString &oname, aDatabase *adb, QObject *parent, const c
 	db = adb;
 	if ( adb )
 	{
-		obj = adb->cfg.find( oname );
+		obj = adb->cfg->find( oname );
 		setObject( obj );
 	}
 }
@@ -109,11 +109,12 @@ aObject::aObject( const QString &oname, aDatabase *adb, QObject *parent, const c
  *	\param parent - parent object
  *	\param name - name of object
  */
-aObject::aObject( aCfgItem context, aDatabase *adb, QObject *parent, const char *name )
+aObject::aObject( DomCfgItem *context, aDatabase *adb, QObject *parent, const char *name )
 :QObject( parent, name )
 {
 	filtred = false;
 	vInited = false;
+	selectFlag = false;
 	db = adb;
 	if ( adb )
 	{
@@ -152,7 +153,7 @@ aObject::init()
  *	\return error code
  */
 ERR_Code
-aObject::setObject( aCfgItem newobject )
+aObject::setObject( DomCfgItem *newobject )
 {
 	setInited( false );
 	obj = newobject;
@@ -169,19 +170,19 @@ aObject::setObject( aCfgItem newobject )
 ERR_Code
 aObject::initObject()
 {
-	aCfgItem fg, f;
+	DomCfgItem *fg, *f;
 	QString tname;
 
 	setInited( true );
 //	db = adb;
 	md = 0;
-	if ( db ) md = &db->cfg;
+	if ( db ) md = db->cfg;
 	else
 	{
 		aLog::print(aLog::Error, tr("aObject have no database!"));
 		return err_nodatabase;
 	}
-	if ( obj.isNull() )
+	if ( obj==0 )
 	{
 		aLog::print(aLog::Error, tr("aObject md object not found"));
 		return err_objnotfound;
@@ -210,7 +211,7 @@ aObject::checkStructure()
 aDataTable *
 aObject::table( const QString &name )
 {
-	if ( !dbtables[ name ] )
+	if ( !dbtables.contains( name ) )
 	{
 		if (name!="" && !name.isEmpty())
 		{
@@ -237,7 +238,7 @@ aObject::table( const QString &name )
  *	/return error code
  */
 ERR_Code
-aObject::tableInsert( const QString &dbname,  aCfgItem obj, const QString &name )
+aObject::tableInsert( const QString &dbname,  DomCfgItem *obj, const QString &name )
 {
 	if ( db )
 	{
@@ -701,8 +702,8 @@ aObject::select( qulonglong id )
 	if ( concrete && ( otype != t->getMdObjId() ) ) return err_incorrecttype;
 	if ( !concrete )
 	{
-		aCfgItem tmpObj = md->find( otype );
-		if ( tmpObj.isNull() ) return err_objnotfound;
+		DomCfgItem *tmpObj = md->find( QString::number(otype) );
+		if ( tmpObj!=0 ) return err_objnotfound;
 		setObject ( tmpObj );
 	}
 	if ( t->select( QString("id=%1").arg(id), false ) )
@@ -944,6 +945,7 @@ aObject::getUid()
 void
 aObject::setSelected( bool sel, const QString & tablename )
 {
+qDebug() << "aObject::setSelected " << sel;
 	if ( tablename == "" ) selectFlag = sel;
 	else table(tablename)->selected = sel;
 }
@@ -956,6 +958,7 @@ aObject::setSelected( bool sel, const QString & tablename )
 bool
 aObject::selected( const QString & tablename )
 {
+qDebug() << "aObject::selected " << selectFlag;
 	if ( tablename == "" ) return selectFlag;
 	else return table(tablename)->selected;
 }
@@ -1077,7 +1080,7 @@ aObject::displayString()
 {
 	QString res="***";
         int stdfc = 0, fid;
-        aCfgItem sw, f;
+        DomCfgItem *sw, *f;
 
 	sw = displayStringContext();
 //	if ( md->objClass( obj ) == md_catalogue ) {
@@ -1085,11 +1088,11 @@ aObject::displayString()
 //	} else {
 //        	sw = md->find( obj, md_string_view );
 //	}
-        if ( !sw.isNull() ) {
-                stdfc = md->attr( sw, mda_stdf ).toInt();
+        if ( sw!=0 ) {
+                stdfc = sw->attr(mda_stdf ).toInt();
                 switch ( stdfc ) {
                 case 0:
-                        fid = md->sText( sw, md_fieldid ).toInt();
+                        fid = sw->attr( md_fieldid ).toInt();
                         res = table()->sysValue( QString( "uf%1" ).arg( fid ) ).toString();
 //printf("fid=%i res=%s\n",fid, ( const char *) res );
                         break;
@@ -1111,10 +1114,10 @@ aObject::displayString()
 
 
 
-aCfgItem
+DomCfgItem*
 aObject::displayStringContext()
 {
-       return md->find( obj, md_string_view );
+       return md->find( md_string_view );
 }
 
 
@@ -1127,7 +1130,7 @@ aObject::displayStringContext()
 QString
 aObject::Kind( const QString & name )
 {
-	QString wasKind = md->objClass( obj );
+	QString wasKind = md->node().nodeValue();
 	if ( !name.isEmpty() ) {
 	// Set new kind.
 

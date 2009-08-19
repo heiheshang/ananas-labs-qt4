@@ -28,22 +28,22 @@
 **
 **********************************************************************/
 
-#include <qlineedit.h>
-#include <qlayout.h>
-#include <qcombobox.h>
-#include <qmessagebox.h>
-#include <qdom.h>
-#include <qvalidator.h>
-#include <qlabel.h>
-#include <q3listbox.h>
-#include <qsizepolicy.h>
-#include <q3groupbox.h>
-#include <qpushbutton.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3Frame>
-#include <QKeyEvent>
-
+// #include <qlineedit.h>
+// #include <qlayout.h>
+// #include <qcombobox.h>
+// #include <qmessagebox.h>
+// #include <qdom.h>
+// #include <qvalidator.h>
+// #include <qlabel.h>
+// #include <q3listbox.h>
+// #include <qsizepolicy.h>
+// #include <q3groupbox.h>
+// #include <qpushbutton.h>
+// //Added by qt3to4:
+// #include <Q3HBoxLayout>
+// #include <Q3Frame>
+// #include <QKeyEvent>
+#include <QtGui>
 //--#include "command.h"
 //--#include "mainwindow.h"
 //--#include "formwindow.h"
@@ -68,7 +68,7 @@ wField::wField( QWidget *parent, const char *name, Qt::WFlags fl )
 	md_fid = 0;
 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 	setFocusPolicy(Qt::StrongFocus);
-	new Q3HBoxLayout( this, 0, 0 );
+	new QHBoxLayout( this, 0, 0 );
 	lineEdit = new QLineEdit(this);
 	lineEdit->hide();
 	dateEdit = new wDateEdit(this);
@@ -77,7 +77,7 @@ wField::wField( QWidget *parent, const char *name, Qt::WFlags fl )
 	objButton->hide();
 	objLabel = new QLabel(this);
 	objLabel->setSizePolicy( QSizePolicy( QSizePolicy::Ignored, QSizePolicy::Preferred ));
-	objLabel->setFrameShape(Q3Frame::Box);
+	objLabel->setFrameShape(QFrame::Box);
 	objLabel->setText("UnknownField");
 	objLabel->show();
 	checkBox = new wCheckBox(this);
@@ -155,7 +155,7 @@ wField::widgetInit()
     layout()->remove(checkBox);
     //TODO: need rewrite
     if (!vFieldType.isEmpty()) sscanf((const char *)vFieldType,"%s %i %i", s1, &n1, &n2);
-
+qDebug() << "vEditorType " << vEditorType;
     switch (vEditorType)
     {
     case Numberic:
@@ -216,8 +216,9 @@ wField::widgetInit()
 	case Date:
 	case DateTime:
 	// used object wDateTime, inherits QDateTime
-		dateEdit->setSeparator(".");
-		dateEdit->setOrder( Q3DateEdit::DMY );
+		//dateEdit->setSeparator(".");
+		//dateEdit->setOrder( Q3DateEdit::DMY );
+		dateEdit->setDisplayFormat("dd.MM.YYYY");
 		connect(dateEdit, SIGNAL( valueChanged ( const QDate&) ),
 				this, SLOT( setValue( const QDate & ) ) );
 		connect(dateEdit, SIGNAL( lostFocus() ),
@@ -230,7 +231,7 @@ wField::widgetInit()
 
 	case Catalogue:
 		md_oid = n1;
-		objLabel->setFrameShape( Q3Frame::Box );
+		objLabel->setFrameShape( QFrame::Box );
 		objLabel->setLineWidth( 1 );
 		objLabel->setFocusPolicy(Qt::NoFocus);
 		objButton->setMaximumWidth(25);
@@ -249,7 +250,7 @@ wField::widgetInit()
 //>>>>>>> 1.49.2.4
 	// Field type = Document
 		md_oid = n1;
-		objLabel->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
+		objLabel->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 		objLabel->setLineWidth( 1 );
 		objLabel->setFocusPolicy(Qt::NoFocus);
 		objButton->setMaximumWidth(25);
@@ -277,7 +278,7 @@ wField::widgetInit()
 
     default:
 		objLabel->setText("UnknownField");
-		objLabel->setFrameShape(Q3Frame::Box);
+		objLabel->setFrameShape(QFrame::Box);
 		setFocusPolicy(Qt::NoFocus);
 		layout()->add( objLabel );
 		objLabel->show();
@@ -487,40 +488,42 @@ wField::fieldSelect()
 			//printf("select catalogue\n");
 		if ( engine )
 		{
-			int fid = md->getDefaultFormId( md->find( md_oid ), md_action_view);
-			if ( !fid )
-			{
-				engine->openEmbedCatalogueEditor(md_oid,this,true);
-				return;
-			}
-			f = engine->openForm( md_oid, 0, md_action_view, 0, false );
-			if ( f )
-			{
-				connect(f, SIGNAL(selected( qulonglong )), this, SLOT(on_selected( qulonglong )));
-				f->closeAfterSelect = true;
-			}
+//Вернуться
+// 			int fid = md->getDefaultFormId( md->findObjectById( md_oid )->child( md_action_view);
+// 			if ( !fid )
+// 			{
+// 				engine->openEmbedCatalogueEditor(md_oid,this,true);
+// 				return;
+// 			}
+// 			f = engine->openForm( md_oid, 0, md_action_view, 0, false );
+// 			if ( f )
+// 			{
+// 				connect(f, SIGNAL(selected( qulonglong )), this, SLOT(on_selected( qulonglong )));
+// 				f->closeAfterSelect = true;
+// 			}
 		}
 		else printf("No Engine\n");
 		break;
 		case Document:
 		if( engine )
 		{
-			aCfgItem journ  = md->findJournal(1, md->find( md_oid ));
-			if( journ.isNull() )
-			{
-				printf("special journal not found, find system journal\n");
-				journ = md->findJournal(0, md->find( md_oid ));
-			}
-			else
-			{
-				printf("found special journal %s with class %s\n", (const char*) md->attr(journ,mda_name).local8Bit(),md->objClass(journ).ascii());
-			}
-			f =  engine->openForm( md->id(journ), 0, md_action_view, 0, false );
-			if( f )
-			{
-				connect(f, SIGNAL(selected( qulonglong )), this, SLOT(on_selected( qulonglong )));
-				f->closeAfterSelect = true;
-			}
+//Вернуться
+// 			aCfgItem journ  = md->findJournal(1, md->find( md_oid ));
+// 			if( journ.isNull() )
+// 			{
+// 				printf("special journal not found, find system journal\n");
+// 				journ = md->findJournal(0, md->find( md_oid ));
+// 			}
+// 			else
+// 			{
+// 				printf("found special journal %s with class %s\n", (const char*) md->attr(journ,mda_name).local8Bit(),md->objClass(journ).ascii());
+// 			}
+// 			f =  engine->openForm( md->id(journ), 0, md_action_view, 0, false );
+// 			if( f )
+// 			{
+// 				connect(f, SIGNAL(selected( qulonglong )), this, SLOT(on_selected( qulonglong )));
+// 				f->closeAfterSelect = true;
+// 			}
 
 		}
 		else printf("No engine\n");

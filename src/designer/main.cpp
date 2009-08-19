@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: main.cpp,v 1.7 2009/05/22 08:03:55 app Exp $
+** $Id: main.cpp,v 1.6 2008/12/25 19:08:03 leader Exp $
 **
 ** Main file of Ananas Designer application
 **
@@ -25,7 +25,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-
+#include <QtGui>
+#include <QtCore>
 #include <aapplication.h>
 #include <qtranslator.h>
 #include <qsplashscreen.h>
@@ -40,7 +41,7 @@
 #include "formdesigner.h"
 
 MainForm *mainform = 0;
-aWindowsList *mainformwl = 0;
+QList<QWidget> *mainformwl = 0;
 QWorkspace *mainformws = 0;
 //QApplication *application = 0;
 QTranslator *translator = 0, tr_app(0), tr_lib(0), tr_plugins(0);
@@ -131,18 +132,22 @@ parseCommandLine( AApplication *a )
 
 int main( int argc, char ** argv )
 {
+	QApplication::setStyle(new QWindowsStyle);
 	AApplication app ( argc, argv, AApplication::Designer );
-	MainForm *w = new MainForm();
+
+	QTextCodec *codec = QTextCodec::codecForName("UTF8");
 //#ifndef _Windows
         QTextCodec::setCodecForCStrings( QTextCodec::codecForName("UTF8") );
 //#endif
+        QTextCodec::setCodecForTr(codec);
 
-    // Для QSettings
+    // Для
 	app.setOrganizationName("ananasgroup");
         app.setApplicationName("ananas");
-
+	aDatabase *db = new aDatabase();
+	MainForm *w = new MainForm();     
 	mainform = w;
-	mainformws = mainform->ws;
+	//mainformws = mainform->ws;
 	mainformwl = mainform->wl;
 //	application = &app;
 //	dSelectDB dselectdb;
@@ -153,28 +158,35 @@ int main( int argc, char ** argv )
 	qApp->installTranslator( &tr_lib );
 	qApp->installTranslator( &tr_plugins );
 	qApp->installTranslator( &tr_app );
-	pixmap = QPixmap( ":/images/designer-splash-"+lang+".png" );
+
+	
+	pixmap = QPixmap( ":/images/designer-splash-"+lang+".jpg" );
 	if ( pixmap.isNull() )
 #ifdef Q_OS_WIN32
-	pixmap = QPixmap( qApp->applicationDirPath()+"/designer-splash-"+lang+".png" );
+	pixmap = QPixmap( qApp->applicationDirPath()+"/designer-splash-"+lang+".jpg" );
 	qApp->addLibraryPath( qApp->applicationDirPath() );
 #else
-	pixmap = QPixmap( "/usr/share/ananas4/designer/locale/designer-splash-"+lang+".png" );
+	pixmap = QPixmap( "/usr/share/ananas4/designer/locale/designer-splash-"+lang+".jpg" );
 //	qApp->addLibraryPath( "/usr/lib/ananas4/" );
-//	qApp->setLibraryPaths( QStringList() <<"/usr/lib/ananas4/" );
+	qApp->setLibraryPaths( QStringList() 
+	<<"/usr/lib/qt4/plugins/");
+	
 #endif
 	foreach (QString path, app.libraryPaths())
     	    printf("%s\n", path.toUtf8().data());
-     
+	
 	if ( pixmap.isNull() )
-	pixmap = QPixmap( ":/images/designer-splash-en.png" );
+	pixmap = QPixmap( ":/images/designer-splash-en.jpg" );
    	QSplashScreen *splash = new QSplashScreen( pixmap );
-	if ( ananas_login( rcfile, username, userpassword, 0, AApplication::Designer ) ){
+	if ( ananas_login( rcfile, username, userpassword, db, AApplication::Designer ) ){
 		splash->show();
-		splash->message( QObject::tr("Init application"), Qt::AlignBottom, Qt::white );
+		splash->message( QObject::tr("Init application"), Qt::AlignBottom, Qt::black );
+		qApp->processEvents();
 		w->rcfile = rcfile;
+		w->md=db->cfg;
+		w->db=db;
 		qApp->setMainWidget( w );
-		splash->message( QObject::tr("Init forms designer"), Qt::AlignBottom, Qt::white  );
+		splash->message( QObject::tr("Init forms designer"), Qt::AlignBottom, Qt::black  );
    		formdesigner = new aFormDesigner();
 
 		//--formdesigner->reparent( mainformws, 0, QPoint( 5, 5 ), false );

@@ -12,16 +12,15 @@ public:
     dEditToolbar(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
     ~dEditToolbar();
 
-    ananasTreeView *vComActions;
+    //ananasTreeView *vComActions;
     aAliasEditor *al;
-    InterfaceListViewItem *item;
-    aActionTreeView *actiontree;
-    aCfg *md;
-    aCfgItem obj;
-
+    //InterfaceListViewItem *item;
+    //aActionTreeView *actiontree;
+    DomCfgItem *md;
+    
 public slots:
     virtual void updateMD();
-    virtual void setData( InterfaceListViewItem * o );
+    virtual void setData(DomCfgItem *o);
     virtual void bAddAction_clicked();
     virtual void bRemoveAction_clicked();
     virtual void bMoveUp_clicked();

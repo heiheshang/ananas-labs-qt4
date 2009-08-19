@@ -12,11 +12,11 @@ public:
     dEditAReg(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
     ~dEditAReg();
 
-    aListViewItem *item;
+    ananasListViewModel *item;
     aAliasEditor *al;
 
 public slots:
-    virtual void setData( aListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
 
 protected slots:

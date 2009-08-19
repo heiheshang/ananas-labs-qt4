@@ -55,7 +55,7 @@ public:
 	virtual QDialog* createEditor( QWidget *parent );
 	virtual QString displayString();
 	virtual bool isContainer();
-	virtual aObject *createDBObject(  aCfgItem obj, aDatabase *adb );
+	virtual aObject *createDBObject(  DomCfgItem *obj, aDatabase *adb );
 
 	virtual ERR_Code New();
 	virtual ERR_Code Select( qulonglong id );

@@ -16,7 +16,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 **********************************************************************/
-
+#include "wdbfield.h"
 #include "wdbfield_plugin.h"
 
 #include <QtPlugin>
@@ -24,11 +24,10 @@
 #include <QExtensionManager>
 
 #include "wdbfield_taskmenu.h"
-#include "wdbfield.h"
 
 
 wDBFieldPlugin::wDBFieldPlugin(QObject *parent)
-    : QObject(parent), m_initialized(false)
+    : QObject(parent)
 {
     m_initialized = false;
 }
@@ -60,7 +59,9 @@ void wDBFieldPlugin::initialize(QDesignerFormEditorInterface *core)
 
 QWidget *wDBFieldPlugin::createWidget(QWidget *parent)
 {
+//printf("создаем wDBField\n");
     wDBField *w = new wDBField(parent, 0);
+//printf("создали wDBField\n");
     return w;
 }
 
@@ -100,5 +101,10 @@ QIcon wDBFieldPlugin::icon() const
 
 QString wDBFieldPlugin::domXml() const
 {
-    return "<widget class=\"wDBField\" name=\"wDBField_1\">\n</widget>\n";
+    return "<ui language=\"c++\">\n"
+	   "<widget class=\"wDBField\" name=\"wDBField\">\n</widget>\n"
+	   "</ui>";
 }
+//! [0]
+//Q_EXPORT_PLUGIN2(wdbfieldplugin, wDBFieldPlugin)
+//! [0]

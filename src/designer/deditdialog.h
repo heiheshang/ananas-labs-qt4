@@ -4,7 +4,7 @@
 #include "ui_deditdialog.h"
 
 
-class dEditDialog : public Q3MainWindow, public Ui::dEditDialog
+class dEditDialog : public QMainWindow, public Ui::dEditDialog
 {
     Q_OBJECT
 
@@ -15,17 +15,20 @@ public:
     int docId;
     aAliasEditor *al;
     aFormDesigner *fd;
-    aListViewItem *item;
+    DomCfgItem  *item;
 
     virtual int getDocId();
 
 public slots:
     virtual void init();
     virtual void destroy();
-    virtual void setData( aListViewItem * o );
+    virtual void setData( DomCfgItem *o );
     virtual void EditForm();
     virtual void EditModule();
     virtual void updateMD();
+    virtual void getMd(DomCfgItem* i);
+//signals:
+//    void setMd(DomCfgItem *m);
 
 protected slots:
     virtual void languageChange();

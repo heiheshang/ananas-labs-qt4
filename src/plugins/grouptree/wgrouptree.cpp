@@ -122,14 +122,14 @@ wGroupTree::createEditor( QWidget * )//parent )
  * Create aDocument database object.
  */
 aObject *
-wGroupTree::createDBObject(  aCfgItem obj, aDatabase *adb )
+wGroupTree::createDBObject(  DomCfgItem *obj, aDatabase *adb )
 {
 	return new aCatGroup( obj, adb );
 }
 
 
 void
-wGroupTree::buildGroupTree( aCfgItem obj, aCatGroup * cg1, wGroupTreeItem * wG )
+wGroupTree::buildGroupTree( DomCfgItem *obj, aCatGroup * cg1, wGroupTreeItem * wG )
 {
 	aCatGroup cg2 (obj, db);
 	QString t;
@@ -168,7 +168,7 @@ void
 wGroupTree::findGroupTree()
 {
 	int oid = 0;
-	aCfgItem tab, cat;
+	DomCfgItem *tab, *cat;
 	if ( !db || !md ) return;
 	CHECK_POINT
 	aWidget *pc = parentContainer( this );
@@ -176,15 +176,15 @@ wGroupTree::findGroupTree()
 	CHECK_POINT
 	printf("inserted in %s\n", pc->className());
 	if ( pc->className() == QString("wCatalogue") ) {
-		cat = md->find( pc->getId() ); // md->find(mdc_metadata), md_catalogues, 0 ), md_catalogue, 0 );
-		root->setText( 0, md->attr( cat, mda_name ) );
+		cat = md->findObjectById( pc->getId()); // md->find(mdc_metadata), md_catalogues, 0 ), md_catalogue, 0 );
+		root->setText( 0, cat->attr(mda_name));
 //		CHECK_POINT
 //		wGroupTreeItem *wG = new wGroupTreeItem ( tree, root, "root" );
 //		aCatGroup cg ( cat, db );
 
 //		CHECK_POINT
 		buildGroupTree( cat, 0, root );
-		CHECK_POINT
+		CHECK_POINT;
 	}
 }
 
@@ -263,7 +263,7 @@ void
 wGroupTree::DeleteGroup()
 {
 CHECK_POINT
-	aCatGroup g( *getMDObject(), db);
+	aCatGroup g( getMDObject(), db);
 	wGroupTreeItem * item = ( wGroupTreeItem * ) tree->currentItem();
 	if(item!=root)
 	{
@@ -324,7 +324,7 @@ void
 wGroupTree::updateItem( ANANAS_UID element )
 {
 	wGroupTreeItem *i = 0;
-	aCatGroup g( *getMDObject(), db);
+	aCatGroup g( getMDObject(), db);
 
 	printf("Need update text %Li\n", element);
 	i = findItem( element );
@@ -354,11 +354,11 @@ wGroupTree::findItem( ANANAS_UID id )
 /*!
  * Create toolbar for Journal.
  */
-Q3ToolBar*
-wGroupTree::createToolBar( Q3MainWindow * owner )
+QToolBar*
+wGroupTree::createToolBar( QMainWindow * owner )
 {
 	QAction *a;
-	Q3ToolBar *t = new Q3ToolBar( owner, "GroupTreeTools" );
+	QToolBar *t = new QToolBar( "GroupTreeTools",owner );
 
 	a = new QAction(
 	rcIcon("doc_new.png"),

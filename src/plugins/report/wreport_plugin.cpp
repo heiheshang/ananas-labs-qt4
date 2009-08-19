@@ -55,11 +55,14 @@ void wReportPlugin::initialize(QDesignerFormEditorInterface *core)
                                 Q_TYPEID(QDesignerTaskMenuExtension));
 
     m_initialized = true;
+printf("wReport inited\n");
 }
 
 QWidget *wReportPlugin::createWidget(QWidget *parent)
 {
+printf("wReport создаем\n");
     wReport *w = new wReport(parent, 0);
+printf("wReport создали\n");
     return w;
 }
 

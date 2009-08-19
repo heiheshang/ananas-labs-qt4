@@ -18,7 +18,7 @@ public:
     QString seloid;
 
 public slots:
-    virtual void setData( QWidget * o, aCfg * md );
+    virtual void setData( QWidget * o, DomCfgItem * md );
     virtual void getData( QWidget * o );
     virtual void namechanged( const QString & s );
 

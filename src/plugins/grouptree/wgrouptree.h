@@ -29,7 +29,8 @@
 
 #ifndef WGROUPTREE_H
 #define WGROUPTREE_H
-
+#include <QtGui>
+#include <QtCore>
 #include <q3listview.h>
 #include <qwidgetplugin.h>
 #include <qwidget.h>
@@ -51,9 +52,9 @@ public:
 
 	virtual void initObject( aDatabase *adb );
 	virtual QDialog* createEditor( QWidget *parent );
-	virtual Q3ToolBar*	createToolBar( Q3MainWindow *parent );
-	virtual aObject *createDBObject(  aCfgItem obj, aDatabase *adb );
-	void buildGroupTree( aCfgItem obj, aCatGroup * cg1, wGroupTreeItem * wG );
+	virtual QToolBar*	createToolBar( QMainWindow *parent );
+	virtual aObject *createDBObject(  DomCfgItem *obj, aDatabase *adb );
+	void buildGroupTree( DomCfgItem *obj, aCatGroup * cg1, wGroupTreeItem * wG );
 	void findGroupTree();
 	wGroupTreeItem *findItem( ANANAS_UID id );
 public slots:
@@ -72,6 +73,7 @@ signals:
 protected:
 	virtual void keyPressEvent ( QKeyEvent *e );
 private:
+	DomCfgItem *md;
 };
 
 

@@ -85,7 +85,7 @@ void eDocument::init()
 
 
 
-void eDocument::setData( QWidget *o, aCfg *md )
+void eDocument::setData( QWidget *o, DomCfgItem *md )
 {
 //	const QObject *o = sender();
 	if ( o ) {
@@ -108,7 +108,7 @@ void eDocument::setData( QWidget *o, aCfg *md )
 			otypes.clear();
 			eType->clear();
 
-			QStringList tlist = md->types( md_document );
+			QStringList tlist = md->types( QStringList() << md_document );
 			otypes.clear();
 			eType->clear();
 			for ( QStringList::Iterator it = tlist.begin(); it != tlist.end(); ++it ) {

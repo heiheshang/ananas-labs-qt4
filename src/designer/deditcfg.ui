@@ -35,6 +35,9 @@
         <pointsize>10</pointsize>
        </font>
       </property>
+      <property name="currentIndex" >
+       <number>2</number>
+      </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Common</string>
@@ -134,7 +137,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab" >
+      <widget class="QWidget" name="tab1" >
        <attribute name="title" >
         <string>User</string>
        </attribute>
@@ -315,7 +318,7 @@
             <property name="sizeType" >
              <enum>QSizePolicy::Expanding</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>130</width>
               <height>21</height>
@@ -379,7 +382,7 @@
           <property name="sizeType" >
            <enum>QSizePolicy::Expanding</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>20</width>
             <height>20</height>
@@ -402,7 +405,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab" >
+      <widget class="QWidget" name="tab2" >
        <attribute name="title" >
         <string>Global module</string>
        </attribute>

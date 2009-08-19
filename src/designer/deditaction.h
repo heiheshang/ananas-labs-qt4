@@ -12,7 +12,7 @@ public:
     dEditAction(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
     ~dEditAction();
 
-    ActionListViewItem * item;
+    ananasListViewModel * item;
     aAliasEditor *al;
     QStringList otypes;
     QStringList formslist;
@@ -21,7 +21,7 @@ public:
     QPixmap *dp;
 
 public slots:
-    virtual void setData( ActionListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
     virtual void bSetActive_clicked();
     virtual void bSetPassive_clicked();

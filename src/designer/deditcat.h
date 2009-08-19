@@ -4,7 +4,7 @@
 #include "ui_deditcat.h"
 
 
-class dEditCat : public Q3MainWindow, public Ui::dEditCat
+class dEditCat : public QMainWindow, public Ui::dEditCat
 {
     Q_OBJECT
 
@@ -13,12 +13,12 @@ public:
     ~dEditCat();
 
     aRoleEditor *re;
-    Q3IntDict<int> fields, fieldsg;
+    QHash<int,DomCfgItem*> fields, fieldsg;
     aAliasEditor *al;
-    aListViewItem *item;
+    DomCfgItem *item;
 
 public slots:
-    virtual void setData( aListViewItem * o );
+    virtual void setData( DomCfgItem * o );
     virtual void updateMD();
     virtual void eSv_activated( int index );
     virtual void eSvG_activated( int index );
@@ -32,6 +32,9 @@ protected slots:
 private:
     void init();
     void destroy();
+private slots:
+    void doubleClicked ( int row, int column );
+    void edit_field ();
 
 };
 

@@ -69,7 +69,25 @@ private:
 	wDBTable *t;
 };
 
+class wdbtableViewModel : public QAbstractTableModel
+{
+	Q_OBJECT
+public:
+     wdbtableViewModel(DomCfgItem *document, QObject *parent = 0);
+    ~wdbtableViewModel();
 
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    void setColumnCount(int column); 
+private:
+    DomCfgItem *item;
+    QObject* parentObj;
+    int colCount;
+};
 
 /*!
  * \en	Class for editing documents tables. \_en
@@ -82,7 +100,7 @@ private:
  * \_ru
  *
  */
-class QT_WIDGET_PLUGIN_EXPORT wDBTable : public Q3DataTable
+class wDBTable : public QTableView
 {
 	friend class aForm;
 
@@ -91,13 +109,13 @@ class QT_WIDGET_PLUGIN_EXPORT wDBTable : public Q3DataTable
 	Q_PROPERTY( int		DefaultColWidth READ getDefColWidth WRITE setDefColWidth DESIGNABLE true )
 	Q_PROPERTY( int		TableInd READ getTblInd WRITE setTblInd DESIGNABLE true )
 	Q_PROPERTY( QStringList	DefFields READ getDefFields WRITE setDefFields DESIGNABLE true )
-	Q_PROPERTY( QStringList	DefHeaders READ getDefHeaders WRITE setDefHeaders DESIGNABLE true )
+	Q_PROPERTY( QStringList	DefHeaders READ getDefHeaders WRITE setDefHeaders DESIGNABLE true USER true SCRIPTABLE true)
 	Q_PROPERTY( QStringList	ColWidth READ getColWidth WRITE setColWidth DESIGNABLE true )
 	Q_PROPERTY( QStringList	DefIdList READ getDefIdList WRITE setDefIdList DESIGNABLE true )
-//	Q_PROPERTY( bool	openEditor READ getOpenEditor WRITE setOpenEditor STORED true )
+	Q_PROPERTY( bool	openEditor READ getOpenEditor WRITE setOpenEditor STORED true )
 	Q_PROPERTY( QString	editFormName READ getEditFormName WRITE setEditFormName DESIGNABLE true )
 public:
-	aCfg*		md;
+	DomCfgItem*	item;
 	aDatabase*	db;
 	aEngine*	engine;
 	//char vLoaded;
@@ -105,8 +123,8 @@ public:
 	QStringList	fname, hname, colWidth,idList;
 	int		defColWidth;
 	int		tableInd;
-	aCfgItem	tables;
-	Q3SqlCursor*	cur;
+	DomCfgItem	*tables;
+	QSqlTableModel*	cur;
 	bool		searchMode;
 	QString		searchString;
 	aSearchWidget	*searchWidget;
@@ -154,8 +172,9 @@ public:
 	void 	setContainerType( QString name)	{ container_type = name; };
 	QPixmap systemIcon();
 	virtual int Select( ANANAS_UID db_uid );
+	virtual DomCfgItem* getMd();
 public slots:
-	Q3ValueList<int> getBindList();
+	QList<int> getBindList();
 	void 	setWFieldEditor();
 	void	setAvailableTables();
 	void 	lineUpdate(QSql::Op mode);
@@ -166,11 +185,11 @@ public slots:
 	bool searchColumn( const QString &text, bool FromCurrent = FALSE, bool Forward = TRUE );
 	void searchOpen( const QString &text = "" );
 	void searchClose();
-
 protected slots:
 	void doubleClickEventHandler(int , int , int, const QPoint& ); //parametrs not used
 	virtual void updateTableCellHandler(int, int);
 signals:
+	void getCurrentMd(DomCfgItem* m);
 
 /*!
  *	\~english
@@ -254,7 +273,6 @@ private slots:
 	void lineChange(int, int);
 	void lineInsert(QSqlRecord*);
 	void updateItem( ANANAS_UID db_uid );
-
 protected:
 	virtual void paintField ( QPainter * p, const QSqlField * field, const QRect & cr, bool selected );
 	QWidget * beginUpdate ( int row, int col, bool replace );
@@ -293,10 +311,11 @@ private:
 	//aDBTablePrivate impl;
 //	void updateProp(void);
 	Q3ValueList<int> listBindings;
-	aCfgItem obj;
+	DomCfgItem *obj;
         QString vName, vEditFormName;
 	QString	vDefineCols;
 	qulonglong oid;
+	QAbstractTableModel *data;
 };
 
 
@@ -316,8 +335,8 @@ public:
  */
 	aEditorFactory(QObject * parent = 0, const char * name = 0):Q3SqlEditorFactory(parent/*--,name*/) {};
 	QWidget * createEditor (QWidget * parent, const QSqlField * field);
-	void setMd(aCfg *md);
+	void setMd(DomCfgItem *md);
 private:
-	aCfg * md;
+	DomCfgItem *md;
 };
 #endif

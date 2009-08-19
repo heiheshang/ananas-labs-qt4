@@ -12,13 +12,13 @@ public:
     dEditDoc(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
     ~dEditDoc();
 
-    aListViewItem *item;
+    ananasListViewModel *item;
     aAliasEditor *al;
     Q3IntDict<int> fields;
     aRoleEditor *re;
 
 public slots:
-    virtual void setData( aListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
     virtual void eSv_activated( int index );
 

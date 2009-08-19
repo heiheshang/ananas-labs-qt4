@@ -131,7 +131,7 @@ void eCatalogue::init()
 */
 
 void
-eCatalogue::setData( QWidget *o, aCfg *md )
+eCatalogue::setData( QWidget *o, DomCfgItem *md )
 {
 //    const QObject *o = sender();
     if ( o ) {
@@ -151,7 +151,7 @@ eCatalogue::setData( QWidget *o, aCfg *md )
 
     id = f->getId();
 
-    QStringList tlist = md->types( md_catalogue );
+    QStringList tlist = md->types( QStringList() << md_catalogue );
     otypes.clear();
     eType->clear();
     for ( QStringList::Iterator it = tlist.begin(); it != tlist.end(); ++it ) {

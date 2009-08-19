@@ -1,12 +1,15 @@
+#include <QtCore>
+#include <QtGui>
+//#include "awindowslist.h"
+#include "acfg.h"
 #include "deditlang.h"
 
-#include <qvariant.h>
-#include <qimage.h>
-#include <qpixmap.h>
+//#include <qvariant.h>
+//#include <qimage.h>
+//#include <qpixmap.h>
 
-#include "acfg.h"
-#include <qstatusbar.h>
-#include <qmessagebox.h>
+//#include <qstatusbar.h>
+//#include <qmessagebox.h>
 
 /*
  *  Constructs a dEditLang as a child of 'parent', with the
@@ -14,7 +17,7 @@
  *
  */
 dEditLang::dEditLang(QWidget* parent, const char* name, Qt::WindowFlags fl)
-    : Q3MainWindow(parent, name, fl)
+    : QMainWindow(parent, name, fl)
 {
     setupUi(this);
 
@@ -42,7 +45,7 @@ void dEditLang::languageChange()
 
 extern aCfg cfg;
 
-void dEditLang::setData( CfgForm *c, aCfgItem o )
+void dEditLang::setData( CfgForm *c, DomCfgItem *o )
 {
 //    aCfgItem alias;
 //    int i, n, count;
@@ -50,10 +53,10 @@ void dEditLang::setData( CfgForm *c, aCfgItem o )
     cf = c;
     obj = o;
 
-    setCaption( tr("Language:") + cf->cfg.attr( obj, mda_name ) );
-    eTag->setText( cf->cfg.attr( obj, mda_tag ) );
-    eName->setText( cf->cfg.attr( obj, mda_name ) );
-    eTrFile->setText( cf->cfg.attr( obj, mda_trfile ) );
+    setCaption( tr("Language:") + obj->attr(mda_name));
+    eTag->setText(obj->attr(mda_tag));
+    eName->setText(obj->attr(mda_name));
+    eTrFile->setText(obj->attr(mda_trfile));
 }
 
 void dEditLang::init()
@@ -64,15 +67,15 @@ void dEditLang::init()
 void dEditLang::destroy()
 {
     updateMD();
-    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
+    //( (MainForm*)this->topLevelWidget() )->removeTab(name());
 }
 void
 dEditLang::updateMD()
 {
-    cf->cfg.setAttr( obj, mda_tag, eTag->text() );
-    cf->cfg.setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
-    cf->cfg.setAttr( obj, mda_trfile, eTrFile->text() );
-    cf->initLang();
-    ( (MainForm*)this->topLevelWidget() )->wl->remove( this );
+    obj->node().toElement().setAttribute(mda_tag,eTag->text());
+    obj->node().toElement().setAttribute(mda_name,eName->text().stripWhiteSpace());
+    obj->node().toElement().setAttribute(mda_trfile, eTrFile->text());
+    //cf->initLang();
+    //( (MainForm*)this->topLevelWidget() )->wl->remove( this );
 }
 

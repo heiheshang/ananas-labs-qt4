@@ -1,31 +1,23 @@
 <ui version="4.0" >
  <class>dEditDialog</class>
- <widget class="Q3MainWindow" name="dEditDialog" >
+ <widget class="QMainWindow" name="dEditDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
-    <height>336</height>
+    <width>460</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Form</string>
   </property>
   <widget class="QWidget" name="widget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>436</width>
-     <height>336</height>
-    </rect>
-   </property>
    <layout class="QGridLayout" >
     <item row="0" column="0" >
      <widget class="QTabWidget" name="tabWidget3" >
       <property name="currentIndex" >
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="TabPage" >
        <attribute name="title" >
@@ -179,7 +171,7 @@
           <property name="sizeType" >
            <enum>QSizePolicy::Expanding</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>30</width>
             <height>21</height>
@@ -219,7 +211,7 @@
           <property name="sizeType" >
            <enum>QSizePolicy::Expanding</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>151</width>
             <height>171</height>
@@ -246,7 +238,7 @@
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>40</width>
             <height>20</height>
@@ -256,29 +248,23 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab" >
+      <widget class="QWidget" name="tab1" >
        <attribute name="title" >
         <string>Module</string>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="QSEditor" native="1" name="eModule" />
+         <layout class="QGridLayout" name="moduleGrid" />
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage1" >
        <attribute name="title" >
         <string>Aliases</string>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="Q3Table" name="tAliases" >
-          <property name="numRows" >
-           <number>0</number>
-          </property>
-          <property name="numCols" >
-           <number>2</number>
-          </property>
+         <widget class="QTableWidget" name="tAliases" >
           <column>
            <property name="text" >
             <string>Lang</string>
@@ -308,25 +294,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Q3MainWindow</class>
-   <extends>QWidget</extends>
-   <header>q3mainwindow.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3Table</class>
-   <extends>Q3Frame</extends>
-   <header>q3table.h</header>
-  </customwidget>
-  <customwidget>
    <class>Q3TextEdit</class>
    <extends>Q3Frame</extends>
    <header>q3textedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QSEditor</class>
-   <extends>QWidget</extends>
-   <header>qseditor.h</header>
   </customwidget>
  </customwidgets>
  <includes>

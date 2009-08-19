@@ -62,7 +62,7 @@ class  ANANAS_EXPORT aIRegister :public aObject
 {
 	Q_OBJECT
 public:
-	aIRegister(aCfgItem registerItem, aDatabase * adb = 0);
+	aIRegister(DomCfgItem *registerItem, aDatabase * adb = 0);
 	aIRegister( const QString & name, aDatabase * adb = 0, const QString & type = "InfoRegister.");
 	virtual ~aIRegister();
 //	ERR_Code initObject(aDatabase * adb);

@@ -115,11 +115,11 @@ aCfgRc::read(const QString &fname)
 	values.clear();
 	if ( file.open( QIODevice::ReadOnly ) )
 	{
-		Q3TextStream stream( &file );
+		QTextStream stream( &file );
 		QString line, k, v;
 
-		stream.setEncoding(Q3TextStream::UnicodeUTF8);
-		while ( !stream.eof() ) {
+		stream.setEncoding(QTextStream::UnicodeUTF8);
+		while ( !stream.atEnd() ) {
 			line = stream.readLine(); // line of text excluding '\n'
 			k = line.section("=",0,0);
 			v = line.section("=",1,100); if ( v.isNull() ) v = "";
@@ -151,11 +151,11 @@ aCfgRc::write(const QString &fname)
 
 	if ( file.open( QIODevice::WriteOnly ) )
 	{
-		Q3TextStream stream( &file );
+		QTextStream stream( &file );
 		Q3DictIterator<QString> it( values );
 //		int i, vc;
 
-		stream.setEncoding(Q3TextStream::UnicodeUTF8);
+		stream.setEncoding(QTextStream::UnicodeUTF8);
 		for( ; it.current(); ++it )
 		stream << it.currentKey() << "=" << *it.current() << endl;
 //			cout << endl;

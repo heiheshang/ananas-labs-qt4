@@ -46,11 +46,14 @@ void wTablePlugin::initialize(QDesignerFormEditorInterface *core)
         return;
     Q_UNUSED(core);
     m_initialized = true;
+printf("wTable inited\n");
 }
 
 QWidget *wTablePlugin::createWidget(QWidget *parent)
 {
+printf("wTable создаем\n");
     wTable *w = new wTable(parent, 0);
+printf("wTable создали\n");
     return w;
 }
 

@@ -109,7 +109,7 @@ Return pointer to asociated sql field.
 //}
 
 
-aSQLField::aSQLField( aCfg *newmd, aCfgItem newcontext )
+aSQLField::aSQLField( DomCfgItem *newmd, DomCfgItem *newcontext )
 : QObject( 0, "aSQLField" )
 {
 

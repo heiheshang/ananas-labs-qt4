@@ -62,7 +62,7 @@ ananas_login( QString &rcfile, QString &username, QString &userpassword, aDataba
     	if (dlogin.exec()==QDialog::Accepted) {
 	    username = dlogin.username;
 	    userpassword = dlogin.password;
-            if ( !db ) db = aDatabase::database();
+            if ( !db ) db = new aDatabase();//::database();
 	    if ( !db->init( rcfile ) ) return false;
 	    return ( db->login( username, userpassword, appId ) );
 	} return false;
@@ -129,15 +129,15 @@ ananas_objectstr( aDatabase *db, qulonglong uid, int oid )
 	QString res = "";
 
 	//TODO: make this more faster
-	aCfgItem fto;
+	DomCfgItem *fto;
 	QString oclass;
 
 //	printf("objstr uid = %Ld\n", uid );
 	if ( !db ) return "<>";
 	if ( !oid ) oid = db->uidType( oid );
-	fto = db->cfg.find( oid );
-	if ( !fto.isNull() ) {
-		oclass = db->cfg.objClass( fto );
+	fto = db->cfg->findObjectById(oid);
+	if ( fto!=0 ) {
+		oclass = fto->nodeName();
 //		printf("oid = %i, oclass = %s\n", oid, ( const char *) oclass );
 		if ( oclass == md_catalogue ) {
 			aCatalogue cat( fto, db );

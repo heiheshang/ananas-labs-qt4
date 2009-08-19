@@ -64,13 +64,13 @@ class  ANANAS_EXPORT aObject : public QObject
 {
 	Q_OBJECT
 public:
-	aCfg * md;
-	aCfgItem obj;
+	DomCfgItem * md;
+	DomCfgItem *obj;
 	aDatabase * db;
 
 	aObject( QObject *parent = 0, const char *name = 0 );
 	aObject( const QString &oname, aDatabase *adb, QObject *parent = 0, const char *name = 0 );
-	aObject( aCfgItem context, aDatabase *adb, QObject *parent = 0, const char *name = 0 );
+	aObject( DomCfgItem *context, aDatabase *adb, QObject *parent = 0, const char *name = 0 );
 	virtual ~aObject();
 
 	virtual bool checkStructure();
@@ -140,14 +140,14 @@ public slots:
 
 protected:
 	bool concrete;
-	virtual aCfgItem displayStringContext();
+	virtual DomCfgItem *displayStringContext();
 //	Q_ULLONG lastUid;
-	virtual ERR_Code setObject( aCfgItem newobject );
+	virtual ERR_Code setObject( DomCfgItem *newobject );
 //	virtual ERR_Code initObject( aDatabase *adb );
 	virtual ERR_Code initObject();
 	bool isInited() { return vInited; };
 	void setInited( bool flag ){ vInited = flag; };
-	ERR_Code tableInsert( const QString &dbname, aCfgItem obj, const QString &name = "" );
+	ERR_Code tableInsert( const QString &dbname, DomCfgItem *obj, const QString &name = "" );
 	ERR_Code tableInsert( const QString &dbname, const QString &name = "" );
 	ERR_Code tableRemove( const QString &name = "" );
 
@@ -161,7 +161,7 @@ protected:
 
 private:
 	bool vInited, selectFlag, filtred;
-	Q3Dict <aDataTable> dbtables;
+	QHash<QString,aDataTable*> dbtables;
 
 //	QDict <aDataRecord> attributes;
 };

@@ -1,5 +1,6 @@
 include (../plugins/plugins.pri)
 include (../lib/lib.pri)
+include (../designer/designer.pri)
 include (../ananas.pri)
 load(qsa)
 
@@ -7,8 +8,9 @@ TARGET = ananas4
 TEMPLATE = app
 
 DESTDIR = ../../bin
-
-INCLUDEPATH += ../lib ../../tmp/ui/ananas ../plugins
+QT += sql
+QT += script
+INCLUDEPATH += ../lib ../../tmp/ui/ananas ../plugins  ../designer ../designer/.ui
 LIBS += -L../../lib -lananas4 -L../../lib/designer -lananasplugin4 -lqt4-qdataschema 
 #-L$(QTDIR)/lib -lqsa1
 #LIBS += -L$(QTDIR)/lib -lqsa1  -L../lib -lananas -L../plugins -lananasplugin # -lqui
@@ -43,4 +45,4 @@ win32{
 #    ananas.extra = CALL create_base.bat
 }    
 
-INSTALLS += ananas
+#INSTALLS += ananas

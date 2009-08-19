@@ -35,7 +35,7 @@
 
 #include <qmenubar.h>
 //Added by qt3to4:
-#include <Q3PopupMenu>
+#include <QtGui>
 
 #include	"acfg.h"
 
@@ -44,38 +44,23 @@ class  ANANAS_EXPORT AMenuBar : public QMenuBar
 	Q_OBJECT
 
 	private:
-	aCfg	*md;
+	DomCfgItem	*md;
 
     public:
-	AMenuBar( QWidget* parent = 0, const char* name = 0 );
-	AMenuBar( aCfg *cfg, QWidget* parent = 0, const char* name = 0 );
+	AMenuBar( QWidget* parent = 0);
+	AMenuBar( DomCfgItem *cfg, QWidget* parent = 0 );
 	~AMenuBar();
 
-	void ReadMenu( aCfgItem obj );
-	void ReadMenu( Q3PopupMenu *parent, aCfgItem obj );
+	void ReadMenu( DomCfgItem *obj );
+	void ReadMenu( QMenu *parent, DomCfgItem *obj );
 
     public slots:
-	void on_Item(){};
+	void on_Item(QAction *Act){};
 
-	int insertItem ( const QString & text, Q3PopupMenu * popup, int id = -1, int index = -1 );
-/*
-	int insertItem ( const QString & text, const QObject * receiver, const char * member, const QKeySequence & accel = 0, int id = -1, int index = -1 );
-	int insertItem ( const QPixmap & pixmap, const QObject * receiver, const char * member, const QKeySequence & accel = 0, int id = -1, int index = -1 );
-	int insertItem ( const QIconSet & icon, const QPixmap & pixmap, const QObject * receiver, const char * member, const QKeySequence & accel = 0, int id = -1, int index = -1 );
-	int insertItem ( const QString & text, int id = -1, int index = -1 );
-	int insertItem ( const QIconSet & icon, const QString & text, int id = -1, int index = -1 );
-	int insertItem ( const QIconSet & icon, const QString & text, QPopupMenu * popup, int id = -1, int index = -1 );
-	int insertItem ( const QPixmap & pixmap, int id = -1, int index = -1 );
-	int insertItem ( const QIconSet & icon, const QPixmap & pixmap, int id = -1, int index = -1 );
-	int insertItem ( const QPixmap & pixmap, QPopupMenu * popup, int id = -1, int index = -1 );
-	int insertItem ( const QIconSet & icon, const QPixmap & pixmap, QPopupMenu * popup, int id = -1, int index = -1 );
-	int insertItem ( QWidget * widget, int id = -1, int index = -1 );
-	int insertItem ( const QIconSet & icon, QCustomMenuItem * custom, int id = -1, int index = -1 );
-	int insertItem ( QCustomMenuItem * custom, int id = -1, int index = -1 );
-	int insertSeparator ( int index = -1 );
-*/
+	int insertItem ( const QString & text, QMenu * popup, int id = -1, int index = -1 );
+
 private:
-	Q3IntDict <aCfgItem> cfgItems;
+	QHash<int, DomCfgItemInterfaces*> cfgItems;
 };
 
 

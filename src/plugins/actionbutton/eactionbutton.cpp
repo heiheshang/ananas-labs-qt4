@@ -70,9 +70,9 @@ void eActionButton::setData(  wActionButton *b )
 
 //	b->setActionTurnOn( FALSE );
     }
-    aCfg *md = wd->getMd();
+    DomCfgItem *md = wd->getMd();
     QStringList l_name;
-    aCfgItem parent = md->find(mdc_actions);
+    DomCfgItem *parent = md->find(md_actions);
     l_id.clear();
     loadActions(&l_name, &l_id, parent, md);
     cbAction->clear();
@@ -110,29 +110,28 @@ void eActionButton::destroy()
 
 
 void
-eActionButton::loadActions( QStringList *lst, QStringList *id,  aCfgItem p, aCfg *md )
+eActionButton::loadActions( QStringList *lst, QStringList *id,  DomCfgItem *p, DomCfgItem *md )
 {
-	aCfgItem cobj;
+	DomCfgItem *cobj;
 	QString oclass;
-	if(p.isNull())
-	{
-		p = md->find(mdc_actions);
+	if(p==0)
+	{//Вернуться
+		//p = md->find(mdc_actions);
 	//	printf("parent were NULL, set parent to %s\n",md->objClass(p).ascii());
 	}
 
-	if(p.isNull()) return;
-	cobj = md->firstChild ( p );
-	while ( !cobj.isNull() )
+	if(p==0) return;
+	for (int i=0;i<p->childCount();i++)
 	{
-		oclass = md->objClass ( cobj );
+		oclass = p->child(i)->node().nodeValue();
 		if ( oclass == md_actiongroup )
-			loadActions ( lst, id, cobj, md );
+			loadActions ( lst, id, p->child(i), md );
 		if ( oclass == md_action )
 		{
-			lst->append(md->attr(cobj,mda_name));
-			id->append(md->attr(cobj,mda_id));
+			lst->append(p->child(i)->attr(mda_name));
+			id->append(p->child(i)->attr(mda_id));
 		}
-		cobj = md->nextSibling ( cobj );
+		//cobj = md->nextSibling ( cobj );
 	}
 }
 

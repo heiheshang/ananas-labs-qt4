@@ -4,7 +4,7 @@
 #include "ui_deditfield.h"
 
 
-class dEditField : public Q3MainWindow, public Ui::dEditField
+class dEditField : public QMainWindow, public Ui::dEditField
 {
     Q_OBJECT
 
@@ -14,13 +14,13 @@ public:
 
     QStringList otypes;
     QStringList artypes;
-    aListViewItem *item;
+    DomCfgItem *item;
     aAliasEditor *al;
 
 public slots:
-    virtual void setData( aListViewItem * o );
+    virtual void setData( DomCfgItem * o );
     virtual void updateMD();
-    virtual void typeSelect( int idx );
+    virtual void typeSelect( QStringList type );
     virtual void nameChanged();
     virtual void AARegSelect( int i );
 

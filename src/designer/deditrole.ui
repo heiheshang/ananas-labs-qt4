@@ -1,12 +1,12 @@
 <ui version="4.0" >
  <class>dEditRole</class>
- <widget class="Q3MainWindow" name="dEditRole" >
+ <widget class="QMainWindow" name="dEditRole" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
     <width>365</width>
-    <height>198</height>
+    <height>219</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -18,7 +18,7 @@
      <x>0</x>
      <y>0</y>
      <width>365</width>
-     <height>198</height>
+     <height>219</height>
     </rect>
    </property>
    <layout class="QGridLayout" >
@@ -57,7 +57,7 @@
          </layout>
         </item>
         <item row="2" column="0" >
-         <widget class="Q3TextEdit" name="eDescription" />
+         <widget class="QTextEdit" name="eDescription" />
         </item>
        </layout>
       </widget>
@@ -70,15 +70,15 @@
  <pixmapfunction>rcIcon</pixmapfunction>
  <customwidgets>
   <customwidget>
-   <class>Q3MainWindow</class>
+   <class>QMainWindow</class>
    <extends>QWidget</extends>
-   <header>q3mainwindow.h</header>
+   <header>qmainwindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Q3TextEdit</class>
-   <extends>Q3Frame</extends>
-   <header>q3textedit.h</header>
+   <class>QTextEdit</class>
+   <extends>QFrame</extends>
+   <header>qtextedit.h</header>
   </customwidget>
  </customwidgets>
  <includes>

@@ -12,7 +12,7 @@ DLLDESTDIR = ../../bin
 INCLUDEPATH += ../lib ../plugins
 LIBS += -L../../lib
 LIBS +=-lqt4-qdataschema
-
+QT += sql gui core
 shared {
     win32:DEFINES += ANANAS_DLL
 } else {
@@ -103,7 +103,7 @@ TRANSLATIONS = \
 unix{
     alib.path = $(LIBDIR) 
     alib.files = libananas4.so.$$VERSION
-    alib.extra = cp -df $(DESTDIR)/libananas4.so* $(INSTALL_ROOT)$(LIBDIR)
+    alib.extra = cp -df libananas4.so* $(INSTALL_ROOT)$(LIBDIR)
 
     alibheader.path = $(INCLUDEDIR)
     alibheader.files = $$HEADERS
@@ -119,9 +119,9 @@ win32 {
 #    alibheader.files += tmp\ui\*h
       }
 
-INSTALLS += alib
+#INSTALLS += alib
 unix{
-    INSTALLS += alibheader
+#    INSTALLS += alibheader
 }
 
 include(metadata/metadata.pri)

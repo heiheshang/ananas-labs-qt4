@@ -31,14 +31,17 @@
 #ifndef ADATABASE_H
 #define ADATABASE_H
 #include <QObject>
-#include <qstringlist.h>
-#include <qsqldatabase.h>
-#include <q3dict.h>
+#include <QtCore>
+#include <QtGui>
+#include <QtSql>
+//#include <qstringlist.h>
+//#include <qsqldatabase.h>
+//#include <q3dict.h>
 //Added by qt3to4:
-#include <QSqlError>
+//#include <QSqlError>
 #include "acfg.h"
-#include <qwidget.h>
-#include <QMap>
+//#include <qwidget.h>
+//#include <QMap>
 #include <qdataschema.h>
 
 
@@ -116,14 +119,17 @@ public:
 	/*! \~english link to database \~russian ссылка на базу данных \~ */
 	QSqlDatabase ddb;
 	/*! \~english metadata object \~russian метаданные \~ */
-	aCfg cfg;
+	DomCfgItem *cfg;
         QDataSchema *qds;
-
+	QMap <QString,QString> values;
 	aDatabase();
 	~aDatabase();
-	bool init( aCfgRc *rc, const QString &dbname = QString::null );
-	bool init( const QString &rcname, const QString &dbname = QString::null );
-	bool		prepareDatabaseConnect( aCfgRc *rc );
+	bool init( const QString &rcname,const QString &dbname = QString::null );
+	int readrc(const QString &fname);
+	int read(const QString &fname);
+	int read_xml();
+	//bool init(const QString &dbname = QString::null );
+	bool		prepareDatabaseConnect();
 	void done();
 	QSqlDatabase *db(const QString &dbname = QString::null );
 	bool checkStructure();
@@ -143,8 +149,9 @@ public:
 
 	static QStringList supportedDriverList();
 	static QStringList getUniqueIndices(const QString & flddef);
-	static QString tableDbName( aCfg &md, aCfgItem context, long * tid);
-	static QString tableDbName( aCfg &md, aCfgItem context);
+	static QString tableDbName ( DomCfgItem *md );
+	static QString tableDbName( DomCfgItem *md,  long * tid);
+	static QString tableDbName( DomCfgItem *md, DomCfgItem *context);
 
 	bool exchangeDataSystables	 ( QDomDocument &xml, bool import );
 	bool exchangeDataCatalogues	 ( QDomDocument &xml, bool import );

@@ -28,47 +28,48 @@
 
 #ifndef ACTIONTREE_H
 #define ACTIONTREE_H
-#include <q3listview.h>
-#include <q3intdict.h>
+//#include <q3listview.h>
+#include <QtGui>
+//#include <qintdict.h>
 //#include "acfg.h"
 #include "atreeitems.h"
 
 class QWidget;
 
-class ActionListViewItem : public ananasListViewItem
-{
-public:
-/*	int id;
-	aCfgItem obj;
-	QWidget *editor;
-	aCfg *md;
-*/
-	ActionListViewItem( Q3ListView *parent, aCfg * cfgmd, aCfgItem cfgobj, const QString &name = QString::null );
-	ActionListViewItem( ananasListViewItem *parent, ananasListViewItem *after, aCfg * cfgmd, aCfgItem cfgobj,
-						const QString &name = QString::null );
-	void loadTree();
-	void loadGroup ( ananasListViewItem * parent, aCfgItem child );
-	void newActionGroup ();
-	void newAction ();
-	void edit ();
-};
+// class ActionListViewItem : public ananasListViewModel
+// {
+// public:
+// /*	int id;
+// 	aCfgItem obj;
+// 	QWidget *editor;
+// 	aCfg *md;
+// */
+// 	ActionListViewItem( aCfg * cfgmd,QObject *parent = 0);
+// 	//ActionListViewItem( ananasListViewItem *parent, //ananasListViewItem *after, aCfg * cfgmd, aCfgItem cfgobj,
+// 	//					const QString &name = //QString::null );
+// 	void loadTree();
+// 	void loadGroup ( ananasListViewItem * parent, aCfgItem child );
+// 	void newActionGroup ();
+// 	void newAction ();
+// 	void edit ();
+// };
 
-class aActionTreeView : public ananasTreeView
-{
-    Q_OBJECT
-public:
-
-	aActionTreeView( QWidget *parent, aCfg *cfgmd );
-
-public slots:
-	void ContextMenu();
-	void itemNewGroup();
-	void itemNewAction();
-	void itemMoveUp();
-	void itemMoveDown();
-	void itemDelete();
-	void itemEdit();
-	void itemRename();
-
-};
+// class aActionTreeView : public ananasTreeView
+// {
+//     Q_OBJECT
+// public:
+// 
+// 	aActionTreeView( QWidget *parent, aCfg *cfgmd );
+// 
+// public slots:
+// 	void ContextMenu();
+// 	void itemNewGroup();
+// 	void itemNewAction();
+// 	void itemMoveUp();
+// 	void itemMoveDown();
+// 	void itemDelete();
+// 	void itemEdit();
+// 	void itemRename();
+// 
+// };
 #endif //ACTIONTREE_H

@@ -30,21 +30,22 @@
 ****************************************************************************/
 #include <qmenubar.h>
 #include <qmessagebox.h>
-#include <q3toolbar.h>
-#include <qstatusbar.h>
+#include <atoolbar.h>
+//#include <qstatusbar.h>
 #include <qworkspace.h>
-#include <qapplication.h>
-#include <qaction.h>
+//#include <qapplication.h>
+//#include <qaction.h>
 #include <qdir.h>
 //Added by qt3to4:
-#include <Q3Frame>
-#include <QPixmap>
-#include <Q3PopupMenu>
-
+//#include <QFrame>
+//#include <QPixmap>
+//#include <QMenu>
+#include <QtGui>
+#include <QtScript>
 #include "mainform.h"
 
 #include "ananas.h"
-
+#include "alog.h"
 MainForm *mainform=NULL;
 QWorkspace *mainformws=NULL;
 aWindowsList *mainformwl=NULL;
@@ -56,19 +57,19 @@ aWindowsList *mainformwl=NULL;
  *
  */
 MainForm::MainForm( QWidget* parent, const char* name, Qt::WFlags fl )
-    : Q3MainWindow( parent, name, fl )
+    : QMainWindow( parent,fl )
 {
-//    QApopupmenu *popup;
-    Q3VBox	*vb = new Q3VBox(this);
+
+    //QGridLayout	*vb = new QGridLayout;
 
     setIcon( rcIcon("a-system.png"));
-    vb->setFrameStyle( Q3Frame::StyledPanel | Q3Frame::Sunken );
-    ws = new QWorkspace( vb );
+    //vb->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
+    ws = new QWorkspace;
     wl = new aWindowsList();
     ws->setScrollBarsEnabled( TRUE );
-    setCentralWidget( vb );
-    statusBar()->setName("statusbar");
-    if ( !name ) setName( "mainwindow" );
+    setCentralWidget(ws);
+    statusBar()->setObjectName("statusbar");
+    if ( !name ) setObjectName( "mainwindow" );
     //--engine_settings.insertSearchPath( QSettings::Unix, QString(QDir::homeDirPath())+QString("/.ananas"));
     //--engine_settings.insertSearchPath( QSettings::Windows, "/ananasgroup/ananas" );
 
@@ -92,16 +93,24 @@ MainForm::MainForm( QWidget* parent, const char* name, Qt::WFlags fl )
 bool
 MainForm::init()
 {
-    MessagesWindow *msgWindow = new MessagesWindow( this );// , WDestructiveClose );
-    moveDockWindow( msgWindow, Qt::DockBottom );
+    MessagesWindow *msgWindow = new MessagesWindow( tr("Message window "),this ,Qt::Widget|Qt::WindowMinMaxButtonsHint);
+    //addDockWidget( Qt::BottomDockWidgetArea,msgWindow );
+    ws->addWindow(msgWindow);
     setMessageHandler( true );
     msgWindow->hide();
     if ( !initEngine() ) return false;
-    connect( menubar, SIGNAL(activated(int)), &engine, SLOT(on_MenuBar(int)) );
+    connect( menubar, SIGNAL(triggered(QAction*)), &engine, SLOT(on_MenuBar(QAction*)) );
     languageChange();
-    engine.project.addObject(menubar);
-    engine.project.addObject(this);
-    engine.project.addObject(statusBar());
+    //engine.project.addObject(menubar);
+    //engine.project.addObject(this);
+    //engine.project.addObject(statusBar());
+    QScriptValue menubarWnd = engine.script.newQObject(menubar,QScriptEngine::QtOwnership, QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeSuperClassProperties);
+    engine.script.globalObject().setProperty("menubar", menubarWnd);
+    QScriptValue thisWnd = engine.script.newQObject(this,QScriptEngine::QtOwnership, QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeSuperClassProperties);
+    engine.script.globalObject().setProperty("mainWindow", thisWnd);
+    QScriptValue statusBarWnd = engine.script.newQObject(statusBar(),QScriptEngine::QtOwnership, QScriptEngine::ExcludeSuperClassMethods | QScriptEngine::ExcludeSuperClassProperties);
+    engine.script.globalObject().setProperty("statusBar", statusBarWnd);
+
     languageChange();
     engine.on_systemstart();
     return true;
@@ -114,6 +123,7 @@ MainForm::initEngine()
     if ( !engine.init( rcfile ) ) return false;
     engine.ws = ws;
     engine.wl = wl;
+    //engine.parentWidget=this;
     connect( &engine, SIGNAL( statusMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     md = engine.md;
     if ( !md ) return false;
@@ -126,14 +136,15 @@ MainForm::initEngine()
 void
 MainForm::initMenuBar()
 {
-	Q3PopupMenu *m;
-	m = new Q3PopupMenu();
-	windowsMenu = new Q3PopupMenu();
+	QMenu *m;
+	m = new QMenu();
+	windowsMenu = new QMenu();
     	connect( windowsMenu, SIGNAL( aboutToShow() ),
 	     this, SLOT( windowsMenuAboutToShow() ) );
 	m->insertItem(rcIcon("a-system.png"), tr( "About" ), this, SLOT( helpAbout() ));
 	//windowsMenu->insertItem(rcIcon("a-system.png"), tr( "Windows" ), this, SLOT( windowsMenuAboutToShow() ));
-        menubar = new AMenuBar( md, this, "menubar");
+        menubar = new AMenuBar( md, this);
+	setMenuBar(menubar);
 	InsertMainMenu( tr("&Help"), m );
     	InsertMainMenu( tr("&Windows"), windowsMenu );
 	menuBar()->show();
@@ -147,13 +158,18 @@ MainForm::initStatusBar()
 void
 MainForm::initActionBar()
 {
-    aCfgItem obj, item;
+    DomCfgItem *obj, *item;
 
-    obj = md->find( md->find( mdc_interface ), md_toolbars );	// look for md_toolbars
-    item = md->firstChild( obj );
-    while ( !item.isNull() ) {	// foreach md_toolbar
-	new aToolBar( md, item, &engine, this, md->attr( item, mda_name ) );		// create toolbar
-	item = md->nextSibling( item );	// next md_toolbar
+    //obj = md->find(md_toolbars);	// look for md_toolbars
+    //item = md->firstChild( obj );
+    QDomNode nodel = md->node();
+    DomCfgItem *mdl = new DomCfgItemInterfaces(nodel,0,0);
+    obj = mdl->root()->find(md_interface)->find(md_toolbars);	
+    for (int i=0;i<obj->childCount();i++) {	// foreach md_toolbar
+	item = obj->child(i);
+	if (item->nodeName()!=md_toolbar) continue;
+	addToolBar(new aToolBar( md, &engine, this, item->attr( mda_name)));		// create toolbar
+	//item = md->nextSibling( item );	// next md_toolbar
     }
 }
 
@@ -177,7 +193,7 @@ MainForm::helpAbout()
 }
 
 void MainForm::InsertMainMenu(QString text, QObject *pop){
-    menubar->insertItem(text, (Q3PopupMenu *) pop);
+    menubar->insertItem(text, (QMenu *) pop);
 
 }
 
@@ -237,7 +253,7 @@ MainForm::~MainForm()
  */
 void MainForm::languageChange()
 {
-    setCaption(QString( tr("Ananas")+" "+ananas_libversion() )+": "+md->info( md_info_name ) );
+    setCaption(QString( tr("Ananas")+" "+ananas_libversion() )+": "+md->attr(md_info_name));
 //    setCaption( tr( "Ananas VERSION" ) );
 }
 

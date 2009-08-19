@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: aextensionfactory.cpp,v 1.2 2009/05/24 19:06:27 app Exp $
+** $Id: aextensionfactory.cpp,v 1.1 2008/11/05 21:16:28 leader Exp $
 **
 ** ...
 **
@@ -59,7 +59,7 @@ AExtensionFactoryPrivate::AExtensionFactoryPrivate()
 #ifdef Q_OS_WIN32
     extensionsDirName = qApp->applicationDirPath()+"/extensions";
 #else
-    extensionsDirName = "/usr/lib/ananas4/extensions";
+    extensionsDirName = "/usr/share/ananas4/extensions";
 #endif
 
     hash.clear();

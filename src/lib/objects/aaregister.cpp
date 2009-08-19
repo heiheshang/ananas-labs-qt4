@@ -50,10 +50,10 @@
  *\param adb -\en link on ananas database.\_en \ru
  					ссылка на базу данных.\_ru
  */
-aARegister::aARegister( aCfgItem context, aDatabase * adb )
+aARegister::aARegister( DomCfgItem *context, aDatabase * adb )
 :aIRegister( context, adb )
 {
-	concrete = !context.isNull();
+	concrete = context!=0;
 	initObject();
 }
 
@@ -120,40 +120,40 @@ aARegister::initObject()
 		aLog::print(aLog::Error, tr("Accumulation Register init"));
 		return err;
 	}
-	err = tableInsert( db->tableDbName(*md,obj), obj );
+	err = tableInsert( db->tableDbName(md,obj), obj );
 	if ( err )
 	{
 		aLog::print(aLog::Error, tr("Accumulation Register create main table"));
 		return err;
 	}
-	aCfgItem field, dims = md->find(obj, md_dimensions,0);
-	aCfgItem ress = md->find(obj, md_resources,0);
+	DomCfgItem *field, *dims = md->find(md_dimensions);
+	DomCfgItem *ress = md->find( md_resources);
 	//if ( res.isNull() ) return err_noresources;
 	tablename = table()->tableName;
-	uint n = md->count( dims, md_field );
-	for ( uint i = 0; i < n; i++  )
-	{
-		field = md->find( dims, md_field, i );
-		err = tableInsert( db->tableDbName(*md,field), field, md->attr(field,mda_name) );
-		if ( err )
-		{
-			aLog::print(aLog::Error, tr("Accumulation Register create saldo table"));
-			return err;
-		}
-		long mdid = md->id(field);
-		QString f_name = md->attr(field,mda_name);
-		dimnames[mdid]=f_name;
-	}
-	ress = md->find(obj, md_resources,0);
-	n = md->count( ress, md_field );
-	for ( uint i = 0; i < n; i++  )
-	{
-		field = md->find( ress, md_field, i );
-		long mdid = md->id(field);
-		QString f_name = md->attr(field,mda_name);
-		resnames[mdid]=f_name;
-		resSysNames[f_name]=QString("uf%1").arg(md->attr(field,mda_id));
-	}
+	uint n = dims->childCount();
+// 	for ( uint i = 0; i < n; i++  )
+// 	{
+// 		field = md->find( dims, md_field, i );
+// 		err = tableInsert( db->tableDbName(*md,field), field, md->attr(field,mda_name) );
+// 		if ( err )
+// 		{
+// 			aLog::print(aLog::Error, tr("Accumulation Register create saldo table"));
+// 			return err;
+// 		}
+// 		long mdid = md->id(field);
+// 		QString f_name = md->attr(field,mda_name);
+// 		dimnames[mdid]=f_name;
+// 	}
+// 	ress = md->find(obj, md_resources,0);
+// 	n = md->count( ress, md_field );
+// 	for ( uint i = 0; i < n; i++  )
+// 	{
+// 		field = md->find( ress, md_field, i );
+// 		long mdid = md->id(field);
+// 		QString f_name = md->attr(field,mda_name);
+// 		resnames[mdid]=f_name;
+// 		resSysNames[f_name]=QString("uf%1").arg(md->attr(field,mda_id));
+// 	}
 	return err_noerror;
 }
 
@@ -428,20 +428,20 @@ aARegister::getSaldoByManyDimensions(const QString &from, const QString &to, con
 void
 aARegister::resum( aSQLTable * t, const QDateTime & dd, bool plus )
 {
-	aCfgItem dims;
-	dims = md->find( obj, md_dimensions );
-	int dims_count = md->count(dims,md_field);
-	for(uint i=0; i<dims_count; i++)
-	{
-		aCfgItem dim = md->findChild(dims,md_field,i);
-		long dimId = atoi(md->attr(dim,mda_id).ascii());
-		aSQLTable *t_dim = table(md->attr(dim,mda_name));
-		QVariant v = t->value(md->attr(dim,mda_name));
-		if(v.isValid() && !v.isNull() && v!=QString())
-		{
-			recalculate_saldo(t_dim, t, dd, plus, dimId, v );
-		}
-	}
+	DomCfgItem *dims;
+	dims = obj->find( md_dimensions );
+	int dims_count = dims->childCount();
+// 	for(uint i=0; i<dims_count; i++)
+// 	{
+// 		aCfgItem dim = md->findChild(dims,md_field,i);
+// 		long dimId = atoi(md->attr(dim,mda_id).ascii());
+// 		aSQLTable *t_dim = table(md->attr(dim,mda_name));
+// 		QVariant v = t->value(md->attr(dim,mda_name));
+// 		if(v.isValid() && !v.isNull() && v!=QString())
+// 		{
+// 			recalculate_saldo(t_dim, t, dd, plus, dimId, v );
+// 		}
+// 	}
 }
 
 

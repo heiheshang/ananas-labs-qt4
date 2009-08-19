@@ -41,10 +41,10 @@
  *\_en \ru
  *\_ru
  */
-aCatalogue::aCatalogue( aCfgItem context, aDatabase * adb )
+aCatalogue::aCatalogue( DomCfgItem *context, aDatabase * adb )
 :aObject( context, adb, 0, "aCatalogue")
 {
-	concrete = !context.isNull();
+	concrete = context;
 	initObject();
 }
 
@@ -69,10 +69,11 @@ aCatalogue::initObject()
 {
 	ERR_Code err = aObject::initObject();
 	if ( err ) return err;
-	aCfgItem g = md->find( obj, md_group ), e = md->find( obj, md_element );
-	err = tableInsert( aDatabase::tableDbName( *md, e ), e );
-	if ( err ) return err;
-	return tableInsert( aDatabase::tableDbName( *md, g ), g, md_group );
+// 	DomCfgItem *g = md->find( md_group );
+// 	g->find(md_element);
+// 	err = tableInsert( aDatabase::tableDbName( md, e ), e );
+// 	if ( err ) return err;
+// 	return tableInsert( aDatabase::tableDbName( md, g ), g, md_group );
 }
 
 /*
@@ -144,7 +145,8 @@ aCatalogue::SetOwner( aCatalogue * cat )
 ERR_Code
 aCatalogue::New( bool child )
 {
-	qulonglong group = getGroup(), parent = getUid();
+	qulonglong group = getGroup();
+	qulonglong parent = getUid();
 	ERR_Code err = aObject::New();
 	if ( err ) return err;
 	aSQLTable * t = table();
@@ -893,15 +895,15 @@ aCatalogue::getGroupUserFields()
 }
 
 
-aCfgItem
+DomCfgItem*
 aCatalogue::displayStringContext()
 {
-       return md->find( md->find( obj, md_element ), md_string_view );
+       return  obj->find( md_string_view );
 }
 
 
 
-aCatElement::aCatElement(aCfgItem context, aDatabase * adb)
+aCatElement::aCatElement(DomCfgItem *context, aDatabase * adb)
 :aObject( context, adb, 0, "aElement")
 {
 }
@@ -909,7 +911,7 @@ aCatElement::aCatElement(aCfgItem context, aDatabase * adb)
 
 
 
-aCatGroup::aCatGroup(aCfgItem context, aDatabase * adb)
+aCatGroup::aCatGroup(DomCfgItem *context, aDatabase * adb)
 :aObject( context, adb, 0, "aGroup")
 {
 	int err = initObject();
@@ -993,8 +995,8 @@ aCatGroup::initObject()
 {
 	ERR_Code err = aObject::initObject();
 	if ( err ) return err;
-	aCfgItem g = md->find( obj, md_group );
-	return tableInsert( aDatabase::tableDbName( *md, g ), g );
+	DomCfgItem* g = md->find( md_group );
+	return tableInsert( aDatabase::tableDbName( md, g ), g );
 }
 
 
@@ -1139,8 +1141,8 @@ aCatGroup::SetParent( aCatGroup * parent )
 }
 
 
-aCfgItem
+DomCfgItem*
 aCatGroup::displayStringContext()
 {
-       return md->find( md->find( obj, md_group ), md_string_view );
+       return md->find( md_string_view );
 }

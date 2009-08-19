@@ -27,6 +27,9 @@
       <property name="font" >
        <font/>
       </property>
+      <property name="currentIndex" >
+       <number>2</number>
+      </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Common</string>
@@ -74,7 +77,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage1" >
        <attribute name="title" >
         <string>Aliases</string>
        </attribute>

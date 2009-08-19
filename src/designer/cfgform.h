@@ -1,24 +1,32 @@
 #ifndef CFGFORM_H
 #define CFGFORM_H
+#include <QtGui>
+#include <QtCore>
+#include "awindowslist.h"
+#include "acfg.h"
+#include "adatabase.h"
+//#include "ui_cfgform.h"
 
-#include "ui_cfgform.h"
-
-
-class CfgForm : public Q3MainWindow, public Ui::CfgForm
+//class InterfaceTreeView;
+//class aActionTreeView;
+//class aMetadataTreeView;
+//class aWindowsList;
+class ANANAS_EXPORT CfgForm : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    CfgForm(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
+    CfgForm(const QString & title, QWidget * parent = 0, Qt::WindowFlags flags = Qt::WType_TopLevel);
     ~CfgForm();
 
-    Q3IntDict<Q3IconViewItem> idList;
-    InterfaceTreeView *interfacetree;
-    aActionTreeView *actiontree;
-    aCfg cfg;
+    QHash<long, QListWidgetItem*> idList;
+    //InterfaceTreeView *interfacetree;
+    //aActionTreeView *actiontree;
+    DomCfgItem *cfg;
+    aDatabase *db;
     QWorkspace *ws;
-    aMetadataTreeView *mdtree;
-    InterfaceTreeView *toolbartree;
+    QTreeView *mdtree;
+    //InterfaceTreeView *toolbartree;
     QString rcfile;
     aWindowsList *wl;
 
@@ -29,11 +37,11 @@ public slots:
     virtual void fileSaveAs();
     virtual void filePrint();
     virtual void fileExit();
-    virtual void init( QString & rcf, bool flagNew );
+    virtual void init(DomCfgItem *incfg, bool flagNew );
     virtual void initImageCollection();
     virtual void bAddImage_clicked();
     virtual void bRemoveImage_clicked();
-    virtual void vImageCollection_itemRenamed( Q3IconViewItem * item, const QString & name );
+    virtual void vImageCollection_itemRenamed( QListWidgetItem  * item, const QString & name );
     virtual void initLang();
     virtual void initRoles();
     virtual void save();
@@ -43,7 +51,7 @@ public slots:
     virtual void tLang_doubleClicked( int, int, int, const QPoint & );
     virtual void bKill_clicked();
     virtual void newObj();
-    virtual void listCfg_onItem( Q3ListViewItem * );
+    virtual void listCfg_onItem( QListWidgetItem  * );
     virtual void newField();
     virtual void newForm();
     virtual void newTable();
@@ -65,7 +73,6 @@ private:
     void destroy();
     virtual void closeEvent( QCloseEvent * e );
     virtual int closeSubWindows();
-
 };
 
 #endif // CFGFORM_H

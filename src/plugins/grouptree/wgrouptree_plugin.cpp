@@ -46,11 +46,14 @@ void wGroupTreePlugin::initialize(QDesignerFormEditorInterface *core)
         return;
     Q_UNUSED(core);
     m_initialized = true;
+printf("wGroupTree inited\n");
 }
 
 QWidget *wGroupTreePlugin::createWidget(QWidget *parent)
 {
+printf("wGroupTree создаем\n");
     wGroupTree *w = new wGroupTree(parent);
+printf("wGroupTree inited создали\n");
     return w;
 }
 

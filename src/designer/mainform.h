@@ -4,7 +4,7 @@
 #include "ui_mainform.h"
 
 
-class MainForm : public Q3MainWindow, public Ui::MainForm
+class MainForm : public QMainWindow, public Ui::MainForm
 {
     Q_OBJECT
 
@@ -16,10 +16,11 @@ public:
     QWorkspace *ws;
     CfgForm *cfgform;
     QString rcfile;
-    aCfg *md;
+    DomCfgItem *md;
+    aDatabase *db;
     int lastFormId;
     int lastTabId;
-    aWindowsList *wl;
+    QList<QWidget> *wl;
     //--QSettings designer_settings;
 
     virtual CfgForm * cfgForm();
@@ -46,8 +47,9 @@ public slots:
     virtual void fileSave();
     virtual void fileSaveAs();
     virtual void fileNew();
+
     virtual void connectSignals( CfgForm * cf );
-    virtual void getMd( aCfg * * md );
+    virtual DomCfgItem* getMd();
     virtual int getId();
     virtual void addTab( int uid, const QString & winName );
     // -- Help for add to workspace
@@ -67,7 +69,7 @@ protected slots:
     virtual void languageChange();
 
 private:
-    Q3PopupMenu *windowsMenu;
+    QMenu *windowsMenu;
 
 private slots:
     virtual void windowsMenuActivated( int id );

@@ -12,17 +12,17 @@ public:
     dEditJournal(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
     ~dEditJournal();
 
-    aListViewItem *item;
-    aAliasEditor *al;
-    ananasTreeView * journalDocs;
-    ananasTreeView * allDocs;
+    ananasListViewModel *item;
+    //aAliasEditor *al;
+    //ananasTreeView * journalDocs;
+    //ananasTreeView * allDocs;
     aCfg *md;
     aCfgItem obj;
     QWidget * docPage;
     aRoleEditor *re;
 
 public slots:
-    virtual void setData( aListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
 
 protected slots:

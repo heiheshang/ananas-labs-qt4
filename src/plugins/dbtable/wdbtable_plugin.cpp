@@ -25,7 +25,7 @@
 
 #include "wdbtable_taskmenu.h"
 #include "wdbtable.h"
-
+#include "alog.h"
 
 wDBTablePlugin::wDBTablePlugin(QObject *parent)
     : QObject(parent), m_initialized(false)
@@ -55,21 +55,26 @@ void wDBTablePlugin::initialize(QDesignerFormEditorInterface *core)
                                 Q_TYPEID(QDesignerTaskMenuExtension));
 
     m_initialized = true;
+printf("wDBTable inited\n");
 }
 
 QWidget *wDBTablePlugin::createWidget(QWidget *parent)
 {
+qDebug() << "Создаем wDBTable inited\n";
     wDBTable *w = new wDBTable("", parent, 0);
+qDebug() << "Создали wDBTable inited\n";
     return w;
 }
 
 QString wDBTablePlugin::name() const
 {
+qDebug() << "QString wDBTablePlugin::name()\n";
     return QLatin1String("wDBTable");
 }
 
 QString wDBTablePlugin::group() const
 {
+qDebug() << "QString wDBTablePlugin::group()\n";
     return QLatin1String("Ananas");
 }
 
@@ -91,10 +96,13 @@ QString wDBTablePlugin::includeFile() const
 QIcon wDBTablePlugin::icon() const
 {
     //return QIcon();
+printf("QIcon wDBTablePlugin::icon()");
     return QIcon(":/images/wdbtable.png");
 }
 
 QString wDBTablePlugin::domXml() const
 {
-    return "<widget class=\"wDBTable\" name=\"wDBTable_1\">\n</widget>\n";
+    return "<ui language=\"c++\">\n"
+           "<widget class=\"wDBTable\" name=\"wDBTable\">\n</widget>\n"
+	   "</ui>\n";
 }

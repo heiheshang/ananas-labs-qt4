@@ -2,9 +2,9 @@ include(../plugins/plugins.pri)
 include(../lib/lib.pri)
 TARGET = ananas4-designer
 TEMPLATE = app
-
+QT += script
 CONFIG += designer
-
+CONFIG += uitools
 DESTDIR = ../../bin
 
 INCLUDEPATH += . ./formdesigner ../lib ../../tmp/ui/ananas ../plugins
@@ -28,9 +28,13 @@ UI_DIR = ../../tmp/ui/$$TARGET
 #INCLUDEPATH	+= ../lib ../lib/tmp/ui ../lib/.ui ./formdesigner /usr/lib
 
 include ( ../ananas.pri )
-load(qsa)
+#load(qsa)
 
 HEADERS	= \
+     InitCompletion.h \
+     QIComplete/parse.h \
+     QIComplete/readtags.h \
+     QIComplete/tree.h \
     actiontree.h \
     aliaseditor.h \
     atreeitems.h \
@@ -44,7 +48,7 @@ HEADERS	= \
 #    deditcat.ui.h \
     deditcfg.h \
 #    deditcfg.ui.h \
-    deditcolumns.h \
+#    deditcolumns.h \
 #    deditcolumns.ui.h \
     deditcommand.h \
 #    deditcommand.ui.h \
@@ -58,7 +62,7 @@ HEADERS	= \
 #    deditimagecollection.ui.h \
     deditireg.h \
 #    deditireg.ui.h \
-    deditjournal.h \
+#    deditjournal.h \
 #    deditjournal.ui.h \
     deditlang.h \
 #    deditlang.ui.h \
@@ -73,8 +77,20 @@ HEADERS	= \
     formdesigner.h \
     interfacetree.h \
     mainform.h \
+    configinfo.h\
+    editor.h\
+    tabwidget.h\
+    textEdit.h\
+    misc.h \
+    lineedit.h \
+    logbuild.h \
+    linenumbers.h \
+    cpphighlighter.h \
+    selectionborder.h \
+    pluginsinterfaces.h \ 
+    optionsimpl.h \
 #    mainform.ui.h \
-    mdtree.h \
+#    mdtree.h \
     pixmappreview.h \
     roleeditor.h     \
     formdesigner/formwindowsettings.h \
@@ -95,6 +111,10 @@ HEADERS	= \
     formdesigner/saveformastemplate.h
 
 SOURCES	= \
+    InitCompletion.cpp \
+    QIComplete/parse.cpp \
+    QIComplete/readtags.cpp \
+    QIComplete/tree.cpp \
     actiontree.cpp \
     aliaseditor.cpp \
     atreeitems.cpp \
@@ -103,14 +123,14 @@ SOURCES	= \
     deditareg.cpp \
     deditcat.cpp \
     deditcfg.cpp \
-    deditcolumns.cpp \
+#    deditcolumns.cpp \
     deditcommand.cpp \
     deditdialog.cpp \
     deditdoc.cpp \
     deditfield.cpp \
     deditimagecollection.cpp \
     deditireg.cpp \
-    deditjournal.cpp \
+#    deditjournal.cpp \
     deditlang.cpp \
     deditreport.cpp \
     deditrole.cpp \
@@ -120,7 +140,18 @@ SOURCES	= \
     interfacetree.cpp \
     main.cpp \
     mainform.cpp \
-    mdtree.cpp \
+    configinfo.cpp \
+    editor.cpp \
+    tabwidget.cpp \
+    textEdit.cpp \
+    misc.cpp \
+    lineedit.cpp \
+    logbuild.cpp \
+    linenumbers.cpp \
+    cpphighlighter.cpp \
+    selectionborder.cpp \
+    optionsimpl.cpp \
+#    mdtree.cpp \
     roleeditor.cpp     \
     formdesigner/formwindowsettings.cpp \
     formdesigner/newform.cpp \
@@ -158,6 +189,12 @@ FORMS = \
     dedittoolbar.ui \
     deditwebform.ui \
     mainform.ui     \
+    configinfo.ui \
+    findwidget.ui \
+    gotoline.ui \
+    options.ui \
+    replacewidget.ui \
+    breakpointcondition.ui \
     formdesigner/formwindowsettings.ui \
     formdesigner/newform.ui \
     formdesigner/plugindialog.ui \
@@ -178,5 +215,5 @@ unix {
 #	acfg.files= testwrite.cfg
      }	
 
-INSTALLS += adesigner
+#INSTALLS += adesigner
 

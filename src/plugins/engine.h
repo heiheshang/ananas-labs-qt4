@@ -32,7 +32,9 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 #include <qobject.h>
-#include <q3popupmenu.h>
+//#include <q3popupmenu.h>
+#include <QtGui>
+#include <QtScript>
 #include <qsobjectfactory.h>
 #include <qsproject.h>
 #include <qsinterpreter.h>
@@ -43,15 +45,17 @@
 #include "adatabase.h"
 #include "acfg.h"
 #include "awindowslist.h"
-#include <q3mainwindow.h>
+//#include <q3mainwindow.h>
 #include "adatafield.h"
 #include "aobject.h"
 
 
+QScriptValue message(QScriptContext *context, QScriptEngine *engine);
 
 class aEngine;
 class aWidget;
 class QSInterpreter;
+ 
 
 /*!
  * \~english
@@ -107,7 +111,7 @@ public:
  *	ссылка на метаданные.
  *	\~
 */
-	aCfg*		md;
+	DomCfgItem*		md;
 /*!
  *	\~english
  *	link to workspace.
@@ -115,7 +119,7 @@ public:
  *	ссылка на рабочее пространство.
  *	\~
 */
-	QWidget*	ws;
+	QWorkspace*	ws;
 /*!
  *	\~english
  *	link to windowlist.
@@ -123,7 +127,7 @@ public:
  *	ссылка на список окон.
  *	\~
 */
-	aWindowsList*	wl;
+	aWindowsList *wl;
 /*!
  *	\~english
  *	link to script interpreter.
@@ -131,7 +135,7 @@ public:
  *	ссылка на интерпретатор скрипта.
  *	\~
 */
-	QSInterpreter*	code;
+	//QSInterpreter*	code;
 /*!
  *	\~english
  *	link to script project.
@@ -139,7 +143,8 @@ public:
  *	ссылка на проект.
  *	\~
 */
-    QSProject	project;
+    //QSProject	project;
+	QScriptEngine  script;
 /*!
  *	\~english
  *	number to form
@@ -162,26 +167,26 @@ public:
 	int on_systemstop();
 	aForm *openForm( int oid, int fid = 0 , int defaultfor = 1,
 		int mode = 0, ANANAS_UID id = 0, aWidget* caller = 0 );
-
+	Q_INVOKABLE void Message(int n, const QString &msg);
+	Q_INVOKABLE void StatusMessage( const QString &msg );
+	Q_INVOKABLE aForm* OpenForm(QString fname, int mode=0, aForm * selecter=0);//Q_ULLONG ido=0);
 public slots:
 	QString cfgname();
 	QString Time();
 	QString Date();
 	void Exit();
-	void Message(int n, const QString &msg );
-	void StatusMessage( const QString &msg );
 	void settimer(int sec, QString proc);
-	aForm * OpenForm(QString fname, int mode=0, aObject * selecter=0);//Q_ULLONG ido=0);
+	
 	QVariant value( const QString &name );
 	void setValue( const QString &name, QVariant value = QVariant::Invalid );
 
-	void on_MenuBar( int id );
-	void execAction( aCfgItem &act, QObject *context = 0 );
+	void on_MenuBar( QAction *Act );
+	void execAction( DomCfgItem *act, QObject *context = 0 );
 
 	aDataField *enterValue( const QString &FieldType, const QString &title = "" );
 
 private slots:
-	void error ( 	const QString & message, QObject * context,
+	void error ( const QString & message, QObject * context,
 			const QString & scriptName, int lineNumber );
 	void on_event( const QString &data );
 signals:

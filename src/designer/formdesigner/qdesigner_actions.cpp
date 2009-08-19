@@ -598,7 +598,7 @@ void QDesignerActions::previewForm(QAction *action)
 //return;
 
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
-        qdesigner_internal::QDesignerFormBuilder builder(core(), qdesigner_internal::QDesignerFormBuilder::DisableScripts);
+        QFormBuilder builder;
         builder.setWorkingDirectory(fw->absoluteDir());
 
         QByteArray bytes = fw->contents().toUtf8();

@@ -47,7 +47,7 @@
  *	\param context - \en md object\_en \ru объект метаданных \_ru
  *	\param adb - \en link to database\_en \ru ссылка на базу данных \_ru
 */
-aDocJournal::aDocJournal( aCfgItem context, aDatabase * adb )
+aDocJournal::aDocJournal( DomCfgItem *context, aDatabase * adb )
 :aObject( context, adb, 0, "aDocJournal")
 {
 	initObject();
@@ -93,46 +93,46 @@ ERR_Code
 aDocJournal::initObject()
 {
 	ERR_Code err = err_noerror;
-	aCfgItem mditem, docitem, header;
+	DomCfgItem *mditem, *docitem, *header;
 
 
 	journalType=0;
 
 	setInited( true );
-	md = 0;
-	if ( db ) md = &db->cfg;
-	if(!md)
-	{
-		 aLog::print(aLog::Error, tr("aDocJournal md object not exists"));
-		 return err_objnotfound;
-	}
-//	aObject::initObject();
-	journalType= md->attr(obj,mda_type).toInt();
-	if (journalType)
-	{
-		mditem= md->find(obj,md_fieldid);
-		if (mditem.isNull())
-		{
-			aLog::print(aLog::Error, tr("aDocJournal columns not defined"));
-			return err;
-		}
-		else
-		{
-			aLog::print(aLog::Debug, tr("aDocJournal column defined"));
-		}
-		docitem= md->parent( md->parent( md->find(md->text(mditem).toLong())));
-
-		header = md->find( docitem, md_header );
-		if(header.isNull()) aLog::print(aLog::Error, tr("aDocJournal invalid column define"));
-	//table for special journal
-		err =  tableInsert( aDatabase::tableDbName( *md, header ), header );
-//		printf("table name is %s\n", aDatabase::tableDbName( *md, header ).ascii());
-	}
-	else
-	{
-	//table for common journal
-		err = tableInsert( "a_journ" );
-	}
+// 	md = 0;
+// 	if ( db ) md = &db->cfg;
+// 	if(!md)
+// 	{
+// 		 aLog::print(aLog::Error, tr("aDocJournal md object not exists"));
+// 		 return err_objnotfound;
+// 	}
+// //	aObject::initObject();
+// 	journalType= md->attr(obj,mda_type).toInt();
+// 	if (journalType)
+// 	{
+// 		mditem= md->find(obj,md_fieldid);
+// 		if (mditem.isNull())
+// 		{
+// 			aLog::print(aLog::Error, tr("aDocJournal columns not defined"));
+// 			return err;
+// 		}
+// 		else
+// 		{
+// 			aLog::print(aLog::Debug, tr("aDocJournal column defined"));
+// 		}
+// 		docitem= md->parent( md->parent( md->find(md->text(mditem).toLong())));
+// 
+// 		header = md->find( docitem, md_header );
+// 		if(header.isNull()) aLog::print(aLog::Error, tr("aDocJournal invalid column define"));
+// 	//table for special journal
+// 		err =  tableInsert( aDatabase::tableDbName( *md, header ), header );
+// //		printf("table name is %s\n", aDatabase::tableDbName( *md, header ).ascii());
+// 	}
+// 	else
+// 	{
+// 	//table for common journal
+// 		err = tableInsert( "a_journ" );
+// 	}
 
 	return err;
 }
@@ -540,8 +540,8 @@ aDocJournal::findDoc( const QString & number, int type )
 aDocument*
 aDocJournal::CurrentDocument()
 {
-	aCfgItem i = md->find( docType() );
-	if(!i.isNull())
+	DomCfgItem *i = md->findObjectById( QString::number(docType()));
+	if(i!=0)
 	{
 		aDocument *d = new aDocument( i, db );
 		if(!d->select( docId() ))
@@ -583,10 +583,10 @@ aDocJournal::Select( QDateTime from, QDateTime to, const QString & mdName )
 	QString fltr, docType = "";
 	if ( mdName != "" )
 	{
-		aCfgItem item = md->find( "Document." + mdName );
-		if ( item.isNull() )
+		DomCfgItem *item = md->findByName( "Document." + mdName );
+		if ( item==0 )
 			return err_objnotfound;
-		int type = md->id( item );
+		int type = item->attr(mda_id).toInt();
 		docType = QString(" AND typed=%1").arg(type);
 	}
 	if ( from.isNull() )
@@ -631,9 +631,9 @@ aDocJournal::Select( const QString & number, const QString & mdName )
 	QString dFilter = "", pref;
 	if ( mdName != "" )
 	{
-		aCfgItem tObj = md->find( "Document."+mdName );
-		if ( tObj.isNull() ) return err_objnotfound;
-		else dFilter = QString(" AND typed=%1").arg(md->attr(tObj,mda_id));;
+		DomCfgItem *tObj = md->findByName( "Document."+mdName );
+		if ( tObj==0 ) return err_objnotfound;
+		else dFilter = QString(" AND typed=%1").arg(tObj->attr(mda_id));
 	}
 	int num;
 	//printf(">>>>>>>>>>>>decode doc num %s\n",number.ascii());
@@ -685,10 +685,10 @@ aDocJournal::selectionFilter( QDateTime from, QDateTime to, const QString & mdNa
 	if ( full ) journ="a_journ.";
 	if ( mdName != "" )
 	{
-		aCfgItem item = md->find( "Document." + mdName );
-		if ( item.isNull() )
+		DomCfgItem *item = md->findByName( "Document." + mdName );
+		if ( item==0 )
 			return "";
-		int type = md->id( item );
+		int type = item->attr(mda_id).toInt();
 		docType = " AND " + journ + QString("typed=%1").arg(type);
 	}
 	if ( from.isNull() )
@@ -718,9 +718,9 @@ aDocJournal::selectionFilter( const QString & num, const QString & mdName, bool 
 	else fltr=QString(" num=%1 AND pnum='%2'").arg(nm).arg(pref);
 	if ( mdName != "" )
 	{
-		aCfgItem tObj = md->find( "Document."+mdName );
-		if ( tObj.isNull() ) return "";
-		else fltr += QString(" AND %1typed=%2").arg(journ).arg(md->id(tObj));
+		DomCfgItem *tObj = md->findByName( "Document."+mdName );
+		if ( tObj==0 ) return "";
+		else fltr += QString(" AND %1typed=%2").arg(journ).arg(tObj->attr(mda_id));
 	}
 	return fltr;
 }

@@ -25,7 +25,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
 #include <aapplication.h>
 #include <qmessagebox.h>
 #include <qtranslator.h>
@@ -120,6 +119,10 @@ int main( int argc, char ** argv )
 {
 
 	AApplication a( argc, argv, AApplication::Ananas );
+	//Q_INIT_RESOURCE(application);
+
+    	//QApplication a(argc, argv);
+	AApplication::setStyle(new QWindowsStyle);
 //	dSelectDB dselectdb;
 	dLogin dlogin;
 //	application = &a;
@@ -137,6 +140,8 @@ int main( int argc, char ** argv )
 	qApp->installTranslator( &tr_app );
 	qApp->installTranslator( &tr_lib );
 	qApp->installTranslator( &tr_plugins );
+
+
 	//--pixmap = QPixmap::fromMimeSource( "engine-splash-"+lang+".png" );
 	pixmap = QPixmap( ":/images/engine-splash-"+lang+".png" );
 	if ( pixmap.isNull() )
@@ -145,13 +150,15 @@ int main( int argc, char ** argv )
 	qApp->addLibraryPath( qApp->applicationDirPath() );
 #else
 	pixmap = QPixmap( "/usr/share/ananas/designer/locale/engine-splash-"+lang+".png" );
-	qApp->addLibraryPath( "/usr/lib/ananas/" );
+	qApp->addLibraryPath("/usr/lib/ananas/");
+ 	qApp->addLibraryPath("/usr/lib/qt4/plugins");
 #endif
 	//--printf("extensions: \n%s\n",( const char *) AExtensionFactory::keys().join("\n") );
 // Test create extension
 //	AExtension *e = AExtensionFactory::create("AExtTest");
 //	if (e) printf("EXT OK\n"); else printf("NO EXT OK\n");
-
+	foreach (QString path, qApp->libraryPaths())
+    	    printf("%s\n", path.toUtf8().data());
 	if ( pixmap.isNull() )
 		//--pixmap = QPixmap::fromMimeSource( "engine-splash-en.png" );
 		pixmap = QPixmap( ":/images/engine-splash-en.png" );
@@ -164,7 +171,7 @@ int main( int argc, char ** argv )
 		splash->message( QObject::tr("Init application"), Qt::AlignBottom, Qt::white );
 		MainForm *w = new MainForm( 0, "MainForm");
 		mainform = w;
-		mainformws = mainform->ws;
+		//mainformws = mainform->ws;
 		mainformwl = mainform->wl;
 		qApp->setMainWidget( w );
 		w->rcfile = rcfile;

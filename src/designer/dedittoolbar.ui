@@ -30,6 +30,9 @@
       <property name="tabShape" >
        <enum>QTabWidget::Rounded</enum>
       </property>
+      <property name="currentIndex" >
+       <number>2</number>
+      </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Common</string>
@@ -282,7 +285,7 @@
             <property name="sizeType" >
              <enum>QSizePolicy::Expanding</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>71</width>
               <height>20</height>
@@ -315,7 +318,7 @@
             <property name="sizeType" >
              <enum>QSizePolicy::Expanding</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>51</width>
               <height>20</height>
@@ -370,7 +373,7 @@
               <property name="sizeType" >
                <enum>QSizePolicy::Expanding</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>44</height>
@@ -384,7 +387,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -394,7 +399,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -404,7 +411,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -414,7 +423,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -426,7 +437,7 @@
               <property name="sizeType" >
                <enum>QSizePolicy::Expanding</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>21</width>
                 <height>44</height>
@@ -440,7 +451,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage1" >
        <attribute name="title" >
         <string>Aliases</string>
        </attribute>

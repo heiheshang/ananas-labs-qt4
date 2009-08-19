@@ -29,9 +29,9 @@
 
 #ifndef WDATEEDIT_H
 #define WDATEEDIT_H
-
-#include <qlabel.h>
-#include <q3datetimeedit.h>
+#include <QtGui>
+//#include <qlabel.h>
+//#include <q3datetimeedit.h>
 //Added by qt3to4:
 #include <QFocusEvent>
 
@@ -60,7 +60,7 @@ public:
  *
  * \_ru
  */
-class wDateEdit : public Q3DateEdit
+class wDateEdit : public QDateTimeEdit
 {
 	Q_OBJECT
 public:

@@ -1,6 +1,9 @@
 #!define TARGET first for correct temporray paths definitions
+#! [0]
+CONFIG      += designer plugin
+#! [0]
 TARGET = ananasplugin4
-
+QT += script
 include( plugins.pri )
 include( ../lib/lib.pri )
 include ( ../ananas.pri )
@@ -12,7 +15,7 @@ shared:CONFIG += dll plugin
 DESTDIR = ../../lib/designer
 DLLDESTDIR = ../../bin
 
-INCLUDEPATH += ../plugins ../lib 
+INCLUDEPATH += ../plugins ../lib  ../designer  ../designer/.ui
 LIBS += -L../../lib -lananas4 
 
 shared {
@@ -54,7 +57,7 @@ TRANSLATIONS = \
 unix {
     lplugin.path = $(QTDIR)/plugins/designer
     lplugin.files = libananasplugin4.so
-    lplugin.extra = cp -f $(DESTDIR)/libananasplugin4.so $(INSTALL_ROOT)$(LIBDIR) || true
+    lplugin.extra = cp -f libananasplugin4.so $(INSTALL_ROOT)$(LIBDIR) || true
     lpluginheader.path = $(INCLUDEDIR)
     lpluginheader.files = $$HEADERS
 }  
@@ -66,9 +69,9 @@ win32 {
     lplugin.extra = copy ananasplugin4.* $(QTDIR)\lib
 }  
 
-INSTALLS += lplugin 
+#INSTALLS += lplugin 
 unix{
-    INSTALLS += lpluginheader
+#    INSTALLS += lpluginheader
 }
 
 include ( actionbutton/actionbutton.pri )

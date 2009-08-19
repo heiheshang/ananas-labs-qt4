@@ -33,7 +33,7 @@
 
 
 #include <qwidget.h>
-#include <q3dict.h>
+#include <QHash>
 
 /*!
  * \~english
@@ -46,7 +46,7 @@
  *	и если есть, то ему просто передается фокус.
  * \~
  */
-class  ANANAS_EXPORT aWindowsList : public QWidget
+class  ANANAS_EXPORT aWindowsList : public QObject
 {
     Q_OBJECT
 public:
@@ -61,7 +61,7 @@ public:
     QWidget *get( int id, qulonglong ido = 0 );
 
 private:
-    Q3Dict<QWidget> list;
+    QHash<QString,QWidget*> list;
     QString conv( int id, qulonglong ido );
 };
 

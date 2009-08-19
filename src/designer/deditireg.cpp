@@ -47,39 +47,39 @@ void dEditIReg::init()
 void dEditIReg::destroy()
 {
     updateMD();
-    ( (MainForm*)this->topLevelWidget() )->wl->remove( this );
-    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
+    //( (MainForm*)this->topLevelWidget() )->wl->remove( this );
+    //( (MainForm*)this->topLevelWidget() )->removeTab(name());
 }
 
-void dEditIReg::setData( aListViewItem *o )
+void dEditIReg::setData( ananasListViewModel *o )
 {
-	item = o;
-	aCfg *md = o->md;
-	aCfgItem obj = o->obj;
-            aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
-	al = a;
-	al->setData();
-	setCaption( tr("Information register:") + md->attr( obj, mda_name ) );
-	eName->setText( md->attr( obj, mda_name ) );
-	if(md->attr(obj, mda_no_unconduct)=="1")
-	{
-	   	checkBox1->setChecked(true);
-	}
-	else
-	{
-	   	checkBox1->setChecked(false);
-	}
-	eDescription->setText( md->sText( obj, md_description ) );
+// 	item = o;
+// 	aCfg *md = o->md;
+// 	aCfgItem obj = o->obj;
+//             aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
+// 	al = a;
+// 	al->setData();
+// 	setCaption( tr("Information register:") + md->attr( obj, mda_name ) );
+// 	eName->setText( md->attr( obj, mda_name ) );
+// 	if(md->attr(obj, mda_no_unconduct)=="1")
+// 	{
+// 	   	checkBox1->setChecked(true);
+// 	}
+// 	else
+// 	{
+// 	   	checkBox1->setChecked(false);
+// 	}
+// 	eDescription->setText( md->sText( obj, md_description ) );
 }
 
 void dEditIReg::updateMD()
 {
-	aCfg *md = item->md;
-	aCfgItem obj = item->obj;
-
-	al->updateMD();
-	item->setText( 0, eName->text().stripWhiteSpace() );
-	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
-	md->setAttr( obj, mda_no_unconduct, checkBox1->isChecked()?"1":"0");
-	md->setSText( obj, md_description, eDescription->text() );
+// 	aCfg *md = item->md;
+// 	aCfgItem obj = item->obj;
+// 
+// 	al->updateMD();
+// 	item->setText( 0, eName->text().stripWhiteSpace() );
+// 	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
+// 	md->setAttr( obj, mda_no_unconduct, checkBox1->isChecked()?"1":"0");
+// 	md->setSText( obj, md_description, eDescription->text() );
 }

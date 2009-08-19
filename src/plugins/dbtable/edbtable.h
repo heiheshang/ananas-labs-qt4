@@ -24,7 +24,7 @@ public slots:
     virtual void ColumnSel( int col );
     virtual void ColumnUpd();
     virtual void getData( wDBTable * t );
-    virtual void setData( wDBTable * t, aCfg * md );
+    virtual void setData( wDBTable * t, DomCfgItem *md );
     virtual void ColumnTextUpd( const QString & s );
     virtual void doOK();
     virtual void ColumnAdd();

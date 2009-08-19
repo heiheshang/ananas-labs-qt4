@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: asqltable.cpp,v 1.4 2009/05/25 16:35:10 app Exp $
+** $Id: asqltable.cpp,v 1.3 2008/11/09 21:09:11 leader Exp $
 **
 ** Code file of the Ananas database table of Ananas
 ** Designer and Engine applications
@@ -52,13 +52,13 @@
  *	принадлежит sql таблица.
  *	\~
  */
-aDataTable::aDataTable( aCfgItem context, aDatabase *adb )
+aDataTable::aDataTable( DomCfgItem *context, aDatabase *adb )
 :Q3SqlCursor( QString::null, false, *adb->db() )
 {
 	db = adb;
-	md = &db->cfg;
+	md = db->cfg;
 	mdobjId = 0;
-	tableName = db->tableDbName( db->cfg, context, &mdobjId );
+	tableName = db->tableDbName( db->cfg, &mdobjId );
 	if ( !tableName.isEmpty() ) {
 		setName( tableName, true );
 		init (context, adb );
@@ -87,7 +87,7 @@ aDataTable::aDataTable( const QString &tname, aDatabase *adb )
 :Q3SqlCursor( tname, true, *adb->db() )
 {
 	db = adb;
-	md = &db->cfg;
+	md = db->cfg;
 	tableName = tname;
 	mdobjId = 0;
 	selected = false;
@@ -126,7 +126,7 @@ aSQLTable::~aSQLTable()
  *	\~
  */
 void
-aDataTable::init( aCfgItem context, aDatabase *adb )
+aDataTable::init( DomCfgItem *context, aDatabase *adb )
 {
 	db = adb;
 	fnames.clear();
@@ -152,19 +152,19 @@ aDataTable::init( aCfgItem context, aDatabase *adb )
  *	\~
  */
 void
-aDataTable::setObject( aCfgItem context )
+aDataTable::setObject( DomCfgItem *context )
 {
-	aCfgItem cobj, parent;
+	DomCfgItem *cobj, *parent;
 	parent = obj = context;
 
 
-	mdobjId = md->id(obj);
+	mdobjId = obj->attr(mda_id).toInt();
 	while ( !mdobjId )
 	{
-		parent = md->parent(parent);
-		mdobjId = md->id(parent);
+		parent = obj->parent();
+		mdobjId = parent->attr(mda_id).toInt();
 	}
-	if ( context.isNull() )
+	if ( context!=0 )
 	{
 		aLog::print(aLog::Error,QObject::tr("aDataTable try set mdobject to null"));
 		return;
@@ -187,25 +187,25 @@ aDataTable::setObject( aCfgItem context )
 //	if(p_reg)
 	//delete p_reg;
 //	p_reg.clear();
-	if(md->objClass(context) == md_field && md->objClass(md->parent(context))== md_dimensions)
-	{
-		insertFieldInfo(context,false);
-		aCfgItem res;
-		aCfgItem ress = md->findChild(md->parent(md->parent(context)),md_resources);
-		uint n = md->count( ress, md_field );
-		for ( uint i = 0; i < n; i++ )
-		{
-			res = md->find( ress, md_field, i );
-			insertFieldInfo(res,false);
-		}
-	}
-	uint n = md->count( context, md_field );
-	for ( uint i = 0; i < n; i++ )
-	{
-		cobj = md->find( context, md_field, i );
-		insertFieldInfo(cobj);
-
-	}
+// 	if(obj->node().nodeName() == md_field && obj->parent()->node().nodeName()== md_dimensions)
+// 	{
+// 		insertFieldInfo(context,false);
+// 		domCfgItem *res;
+// 		DomCfgItem *ress = //obj->findChild(md->parent(md->parent(context)),md_resources);
+// 		uint n = obj->childCount( );
+// 		for ( uint i = 0; i < n; i++ )
+// 		{
+// 			res = md->find( ress, md_field, i );
+// 			insertFieldInfo(res,false);
+// 		}
+// 	}
+// 	uint n = md->count( context, md_field );
+// 	for ( uint i = 0; i < n; i++ )
+// 	{
+// 		cobj = md->find( context, md_field, i );
+// 		insertFieldInfo(cobj);
+// 
+// 	}
 
 //	r = *this;
 }
@@ -221,84 +221,84 @@ aDataTable::setObject( aCfgItem context )
  *	\~
  */
 void
-aSQLTable::insertFieldInfo(aCfgItem cobj, bool calculated)
+aSQLTable::insertFieldInfo(DomCfgItem *cobj, bool calculated)
 {
-	QString fname, fdbname, objt;//, fid;
-	int fid ;
-
-	if ( !cobj.isNull() )
-	{
-		fid = md->id(cobj);
-		fname = md->attr(cobj, mda_name);
-		objt = md->attr( cobj, mda_type ).upper();
-			fdbname = QString("uf%1").arg( fid );
-                        if ( objt[0]=='O' )
-			{
-				fnames.insert( fname, new QString(fdbname) );
-        			fdbname = QString("text_uf%1").arg( fid );
-                		append( Q3SqlFieldInfo( fdbname, QVariant::String ) );
-		             //   setGenerated( fdbname, false );
-		                setCalculated( fdbname, calculated );
-				int ftid = objt.section(" ", 1, 1 ).toInt();
-				aCfgItem fto = md->find( ftid );
-				if ( !fto.isNull() )
-				{
-					if ( md->objClass( fto ) == md_catalogue )
-					{
-						mapCat[fid] = fto;
-					}
-					if ( md->objClass( fto ) == md_document )
-					{
-						mapDoc[fid] = fto;
-					}
-				}
-                        }
-			else
-                        if ( objt[0]==' ' )
-			{
-        			fdbname = QString("text_uf%1").arg( fid );
-                		append( Q3SqlFieldInfo( fdbname, QVariant::String ) );
-		                setCalculated( fdbname, calculated );
-		               // setGenerated( fdbname, false );
-				fnames.insert( fname, new QString(fdbname) );
-				int ftid = objt.section(" ", 1, 1 ).toInt();
-				aCfgItem fto = md->find( ftid );
-				if ( !fto.isNull() )
-				{
-					if ( md->objClass( fto ) == md_aregister )
-					{
-					aCfgItem s_field = md->find(objt.section(" ",2,2).toInt());
-					aCfgItem dim_fields = md->find(fto,md_dimensions);
-
-						if(!dim_fields.isNull())
-						{
-							int cnt = md->count( dim_fields, md_field );
-							for ( int k = 0; k < cnt; k++  )
-							{
-								aCfgItem dim_field = md->find( dim_fields, md_field, k );
-								QString type =  md->attr(dim_field, mda_type);
-								if(type[0]=='O')
-								{
-
-									if(type.section(" ",1,1).toInt()== mdobjId)
-									{
-										mapReg[fid]=fto;
-										mapDim[fid]= md->attr(dim_field,mda_name);
-										mapSum[fid] = md->attr(s_field,mda_name);
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-
-                        }
-			else
-			{
-				fnames.insert( fname, new QString(fdbname) );
-			}
-	}
+// 	QString fname, fdbname, objt;//, fid;
+// 	int fid ;
+// 
+// 	if ( cobj!=0 )
+// 	{
+// 		fid = cobj->attr(mda_id);
+// 		fname = cobj->attr(mda_name);
+// 		objt = cobj->attr(mda_type ).upper();
+// 			fdbname = QString("uf%1").arg( fid );
+//                         if ( objt[0]=='O' )
+// 			{
+// 				fnames.insert( fname, new QString(fdbname) );
+//         			fdbname = QString("text_uf%1").arg( fid );
+//                 		append( Q3SqlFieldInfo( fdbname, QVariant::String ) );
+// 		             //   setGenerated( fdbname, false );
+// 		                setCalculated( fdbname, calculated );
+// 				int ftid = objt.section(" ", 1, 1 ).toInt();
+// 				DomCfgItem *fto = objt->findObjectById( QString::number(ftid) );
+// 				if ( fto!=0 )
+// 				{
+// 					if ( fto->node().nodeName() == md_catalogue )
+// 					{
+// 						mapCat[fid] = fto;
+// 					}
+// 					if ( fto->node().nodeName() == md_document )
+// 					{
+// 						mapDoc[fid] = fto;
+// 					}
+// 				}
+//                         }
+// 			else
+//                         if ( objt[0]==' ' )
+// 			{
+//         			fdbname = QString("text_uf%1").arg( fid );
+//                 		append( Q3SqlFieldInfo( fdbname, QVariant::String ) );
+// 		                setCalculated( fdbname, calculated );
+// 		               // setGenerated( fdbname, false );
+// 				fnames.insert( fname, new QString(fdbname) );
+// 				int ftid = objt.section(" ", 1, 1 ).toInt();
+// 				DomCfgItem *fto = obj->findObjectById( QString::number(ftid) );
+// 				if ( fto!=0 )
+// 				{
+// 					if ( fto->node().nodeName() == md_aregister )
+// 					{
+// 					//DomCfgItem *s_field = md->find(objt.section(" ",2,2).toInt());
+// 					DomCfgItem *dim_fields = md->find(md_dimensions);
+// 
+// 						if(dim_fields!=0)
+// 						{
+// 							int cnt = dim_fields->childCount();
+// 							for ( int k = 0; k < cnt; k++  )
+// 							{
+// 								DomCfgItem *dim_field = md->find( dim_fields, md_field, k );
+// 								QString type =  md->attr(dim_field, mda_type);
+// 								if(type[0]=='O')
+// 								{
+// 
+// 									if(type.section(" ",1,1).toInt()== mdobjId)
+// 									{
+// 										mapReg[fid]=fto;
+// 										mapDim[fid]= md->attr(dim_field,mda_name);
+// 										mapSum[fid] = md->attr(s_field,mda_name);
+// 										break;
+// 									}
+// 								}
+// 							}
+// 						}
+// 					}
+// 				}
+// 
+//                         }
+// 			else
+// 			{
+// 				fnames.insert( fname, new QString(fdbname) );
+// 			}
+// 	}
 }
 
 
@@ -663,36 +663,36 @@ aDataTable::setFilter( const QString& name, const QVariant& value )
 QString
 aDataTable::getFilter()
 {
-	QString filter = "", fid, type;
-	aCfgItem field;
-	Q3DictIterator<QVariant>it( userFilter );
-	if ( it.toFirst() )
-	{
-		fid = it.currentKey().mid(2);
-		field = md->find(fid.toLong() );
-		if ( !field.isNull() )
-		{
-			type = md->attr( field, mda_type );
-			if ( type[0] == 'N' || type[0] == 'O' )
-				filter = it.currentKey() + "=" + it.current()->toString();
-			else
-				filter = it.currentKey() + "='" + it.current()->toString() + "'";
-		}
-	}
-	++it;
-	for (;it.current();++it)
-	{
-		fid = it.currentKey().mid(2);
-		field = md->find(fid.toLong() );
-		if ( !field.isNull() )
-		{
-			type = md->attr( field, mda_type );
-			if ( type[0] == 'N' || type[0] == 'O' )
-				filter += " and " + it.currentKey() + "=" + it.current()->toString();
-			else
-				filter += " and " + it.currentKey() + "='" + it.current()->toString() + "'";
-		}
-	}
+ 	QString filter = "", fid, type;
+// 	DomCfgItem *field;
+// 	Q3DictIterator<QVariant>it( userFilter );
+// 	if ( it.toFirst() )
+// 	{
+// 		fid = it.currentKey().mid(2);
+// 		field = md->find(fid.toLong() );
+// 		if ( !field.isNull() )
+// 		{
+// 			type = md->attr( field, mda_type );
+// 			if ( type[0] == 'N' || type[0] == 'O' )
+// 				filter = it.currentKey() + "=" + it.current()->toString();
+// 			else
+// 				filter = it.currentKey() + "='" + it.current()->toString() + "'";
+// 		}
+// 	}
+// 	++it;
+// 	for (;it.current();++it)
+// 	{
+// 		fid = it.currentKey().mid(2);
+// 		field = md->find(fid.toLong() );
+// 		if ( !field.isNull() )
+// 		{
+// 			type = md->attr( field, mda_type );
+// 			if ( type[0] == 'N' || type[0] == 'O' )
+// 				filter += " and " + it.currentKey() + "=" + it.current()->toString();
+// 			else
+// 				filter += " and " + it.currentKey() + "='" + it.current()->toString() + "'";
+// 		}
+// 	}
 	return filter;
 }
 
@@ -704,36 +704,36 @@ aDataTable::getFilter()
 QString
 aDataTable::getNFilter()
 {
-	QString filter = "", fid, type;
-	aCfgItem field;
-	Q3DictIterator<QVariant>it( userFilter );
-	if ( it.toFirst() )
-	{
-		fid = it.currentKey().mid(2);
-		field = md->find(fid.toLong() );
-		if ( !field.isNull() )
-		{
-			type = md->attr( field, mda_type );
-			if ( type[0] == 'N' || type[0] == 'O' )
-				filter = tableName + "." + it.currentKey() + "=" + it.current()->toString();
-			else
-				filter = tableName + "." + it.currentKey() + "='" + it.current()->toString() + "'";
-		}
-	}
-	++it;
-	for (;it.current();++it)
-	{
-		fid = it.currentKey().mid(2);
-		field = md->find(fid.toLong() );
-		if ( !field.isNull() )
-		{
-			type = md->attr( field, mda_type );
-			if ( type[0] == 'N' || type[0] == 'O' )
-				filter += " and " + tableName + "." + it.currentKey() + "=" + it.current()->toString();
-			else
-				filter += " and " + tableName + "." + it.currentKey() + "='" + it.current()->toString() + "'";
-		}
-	}
+ 	QString filter = "", fid, type;
+// 	aCfgItem field;
+// 	Q3DictIterator<QVariant>it( userFilter );
+// 	if ( it.toFirst() )
+// 	{
+// 		fid = it.currentKey().mid(2);
+// 		field = md->find(fid.toLong() );
+// 		if ( !field.isNull() )
+// 		{
+// 			type = md->attr( field, mda_type );
+// 			if ( type[0] == 'N' || type[0] == 'O' )
+// 				filter = tableName + "." + it.currentKey() + "=" + it.current()->toString();
+// 			else
+// 				filter = tableName + "." + it.currentKey() + "='" + it.current()->toString() + "'";
+// 		}
+// 	}
+// 	++it;
+// 	for (;it.current();++it)
+// 	{
+// 		fid = it.currentKey().mid(2);
+// 		field = md->find(fid.toLong() );
+// 		if ( !field.isNull() )
+// 		{
+// 			type = md->attr( field, mda_type );
+// 			if ( type[0] == 'N' || type[0] == 'O' )
+// 				filter += " and " + tableName + "." + it.currentKey() + "=" + it.current()->toString();
+// 			else
+// 				filter += " and " + tableName + "." + it.currentKey() + "='" + it.current()->toString() + "'";
+// 		}
+// 	}
 	return filter;
 }
 
@@ -798,23 +798,23 @@ aDataTable::exec( QString query )
 QVariant
 aDataTable::calc_rem(int fid, qulonglong id)
 {
-	aCfgItem o,fto;
-	QString t,oclass;
-	int ftid,oid;
-	QVariant v="";
-	fto = mapReg[fid];// = md->find( ftid );
-	if ( !fto.isNull() )
-	{
-		if(p_reg[QString("%1").arg(fid)]==0)
-		{
-			p_reg.insert(QString("%1").arg(fid), new aARegister( fto, db ));
-		}
-		v = ((aARegister*)p_reg[QString("%1").arg(fid)])->getSaldo( QDateTime::currentDateTime(),
-					mapDim[fid],
-					id,
-					mapSum[fid]);//md->attr(s_field,mda_name));
-		if(!v.isValid()) v = "";
-	}
+ 	DomCfgItem *o,*fto;
+ 	QString t,oclass;
+ 	int ftid,oid;
+ 	QVariant v="";
+ 	fto = mapReg[fid];// = md->find( ftid );
+// 	if ( fto!=0)
+// 	{
+// 		if(p_reg[QString("%1").arg(fid)]==0)
+// 		{
+// 			p_reg.insert(QString("%1").arg(fid), new aARegister( fto, db ));
+// 		}
+// 		v = ((aARegister*)p_reg[QString("%1").arg(fid)])->getSaldo( QDateTime::currentDateTime(),
+// 					mapDim[fid],
+// 					id,
+// 					mapSum[fid]);//md->attr(s_field,mda_name));
+// 		if(!v.isValid()) v = "";
+// 	}
 	return v;
 }
 
@@ -822,48 +822,48 @@ aDataTable::calc_rem(int fid, qulonglong id)
 QVariant
 aDataTable::calc_obj(int fid, qulonglong idd)
 {
-	aCfgItem o,fto;
-	QString t,oclass;
-	int ftid;
-	QVariant v="";
-//	printf("calculate cat %d, %llu\n",fid, idd);
-	o = mapCat[fid];
-	if( !o.isNull() )
-	{
-		aCatalogue *pCat = (aCatalogue*)p_cat[QString("%1").arg(fid)];
-//		printf("obj not null\n");
-		if(pCat==0)
-		{
-			p_cat.insert(QString("%1").arg(fid), new aCatalogue( o, db ));
-			pCat = (aCatalogue*)p_cat[QString("%1").arg(fid)];
-		}
-		pCat->select( idd );
-
-		if ( pCat->selected() )
-		{
-//			printf("select ok\n");
-			v = QVariant( pCat->displayString() );
-		}
-	}
-	else
-	{
-		o = mapDoc[fid];
-		if(!o.isNull())
-		{
-			aDocument *pDoc = (aDocument*)p_doc[QString("%1").arg(fid)];
-//			printf("obj not null\n");
-			if(pDoc==0)
-			{
-				p_doc.insert(QString("%1").arg(fid), new aDocument( o, db ));
-				pDoc = (aDocument*)p_doc[QString("%1").arg(fid)];
-			}
-			pDoc->select( idd );
-			if ( pDoc->selected() )
-			{
-				v = QVariant( pDoc->displayString() );
-			}
-		}
-	}
+ 	DomCfgItem *o,*fto;
+ 	QString t,oclass;
+ 	int ftid;
+ 	QVariant v="";
+// //	printf("calculate cat %d, %llu\n",fid, idd);
+// 	o = mapCat[fid];
+// 	if( !o.isNull() )
+// 	{
+// 		aCatalogue *pCat = (aCatalogue*)p_cat[QString("%1").arg(fid)];
+// //		printf("obj not null\n");
+// 		if(pCat==0)
+// 		{
+// 			p_cat.insert(QString("%1").arg(fid), new aCatalogue( o, db ));
+// 			pCat = (aCatalogue*)p_cat[QString("%1").arg(fid)];
+// 		}
+// 		pCat->select( idd );
+// 
+// 		if ( pCat->selected() )
+// 		{
+// //			printf("select ok\n");
+// 			v = QVariant( pCat->displayString() );
+// 		}
+// 	}
+// 	else
+// 	{
+// 		o = mapDoc[fid];
+// 		if(!o.isNull())
+// 		{
+// 			aDocument *pDoc = (aDocument*)p_doc[QString("%1").arg(fid)];
+// //			printf("obj not null\n");
+// 			if(pDoc==0)
+// 			{
+// 				p_doc.insert(QString("%1").arg(fid), new aDocument( o, db ));
+// 				pDoc = (aDocument*)p_doc[QString("%1").arg(fid)];
+// 			}
+// 			pDoc->select( idd );
+// 			if ( pDoc->selected() )
+// 			{
+// 				v = QVariant( pDoc->displayString() );
+// 			}
+// 		}
+// 	}
 
 	return v;
 }
@@ -890,9 +890,9 @@ aDataTable::calcFieldValue( const QString &name )
         QVariant v="", fv=0;
 	int fid = 0; //, ftid;
 	qulonglong id = 0;
-	aCfgItem o, fto;
+	DomCfgItem *o, *fto;
 	QString t, oclass;
-        if ( name.left(5)=="text_" )
+/*        if ( name.left(5)=="text_" )
 	{
                 if(sysFieldExists(name.mid(5)))
 		{
@@ -917,7 +917,7 @@ aDataTable::calcFieldValue( const QString &name )
 				v=calc_rem(fid,id);
 			}
 		}
-        }
+        }*/
 //	printf("calculate field %s\n", name.ascii());
         return v;
 }
@@ -1109,12 +1109,3 @@ aDataTable::Update()
 	return true;
 }
 
-/**
- */
-QString
-aDataTable::sqlFieldName ( const QString & userFieldName ) const {
-	if (fnames[userFieldName] ) {
-		return *fnames[ userFieldName ];
-	}
-	return QString::QString("");
-}

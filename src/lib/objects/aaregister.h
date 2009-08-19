@@ -57,7 +57,7 @@ class  ANANAS_EXPORT aARegister : public aIRegister
 {
 	Q_OBJECT
 public:
-	aARegister(aCfgItem context, aDatabase * adb = 0);
+	aARegister(DomCfgItem *context, aDatabase * adb = 0);
 	aARegister(QString name, aDatabase * adb = 0);
 	virtual ~aARegister();
 

@@ -51,39 +51,39 @@ void dEditWebForm::init()
 void dEditWebForm::destroy()
 {
     updateMD();
-    ( (MainForm*)this->topLevelWidget() )->wl->remove( this );
-    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
-    item->editor = 0;
+    //( (MainForm*)this->topLevelWidget() )->wl->remove( this );
+    //( (MainForm*)this->topLevelWidget() )->removeTab(name());
+    //item->editor = 0;
 }
 
 
-void dEditWebForm::setData( aListViewItem *o )
+void dEditWebForm::setData( ananasListViewModel *o )
 {
-	item = o;
-	aCfg *md = o->md;
-	aCfgItem obj = o->obj;
-
-	aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
-	al = a;
-	al->setData();
-	setCaption( tr("Web form:") + md->attr( obj, mda_name ) );
-	eName->setText( md->attr( obj, mda_name ) );
-	eDescription->setText( md->sText( obj, md_description ) );
-	eServerModule->setText( md->sText( obj, md_servermodule ) );
-	eClientModule->setText( md->sText( obj, md_clientmodule ) );
-	eFormSource->setText( md->sText( obj, md_formsource ) );
+// 	item = o;
+// 	aCfg *md = o->md;
+// 	aCfgItem obj = o->obj;
+// 
+// 	aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
+// 	al = a;
+// 	al->setData();
+// 	setCaption( tr("Web form:") + md->attr( obj, mda_name ) );
+// 	eName->setText( md->attr( obj, mda_name ) );
+// 	eDescription->setText( md->sText( obj, md_description ) );
+// 	eServerModule->setText( md->sText( obj, md_servermodule ) );
+// 	eClientModule->setText( md->sText( obj, md_clientmodule ) );
+// 	eFormSource->setText( md->sText( obj, md_formsource ) );
 }
 
 void dEditWebForm::updateMD()
 {
-	aCfg *md = item->md;
-	aCfgItem obj = item->obj;
-
-	al->updateMD( );
-	item->setText( 0, eName->text().stripWhiteSpace() );
-	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
-	md->setSText( obj, md_description, eDescription->text() );
-	md->setSText( obj, md_servermodule, eServerModule->text() );
-	md->setSText( obj, md_clientmodule, eClientModule->text() );
-	md->setSText( obj, md_formsource, eFormSource->text() );
+// 	aCfg *md = item->md;
+// 	aCfgItem obj = item->obj;
+// 
+// 	al->updateMD( );
+// 	item->setText( 0, eName->text().stripWhiteSpace() );
+// 	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
+// 	md->setSText( obj, md_description, eDescription->text() );
+// 	md->setSText( obj, md_servermodule, eServerModule->text() );
+// 	md->setSText( obj, md_clientmodule, eClientModule->text() );
+// 	md->setSText( obj, md_formsource, eFormSource->text() );
 }

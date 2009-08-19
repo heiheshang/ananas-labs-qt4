@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: asqltable.h,v 1.2 2009/05/25 16:35:10 app Exp $
+** $Id: asqltable.h,v 1.1 2008/11/05 21:16:28 leader Exp $
 **
 ** Header file of the Ananas database table of Ananas
 ** Designer and Engine applications
@@ -29,6 +29,7 @@
 
 #ifndef ASQLTABLE_H
 #define ASQLTABLE_H
+#include <QtSql>
 #include <q3sqlcursor.h>
 #include <q3dict.h>
 #include "acfg.h"
@@ -58,11 +59,11 @@ public:
 	QString 	tableName;
 	bool 		selected;
 
-				aSQLTable( aCfgItem context, aDatabase *adb );
+				aSQLTable( DomCfgItem *context, aDatabase *adb );
 				aSQLTable( const QString &tname, aDatabase *adb );
 	virtual 	~aSQLTable();
-	void init( aCfgItem context, aDatabase *adb );
-	void setObject(aCfgItem context);
+	void init( DomCfgItem *context, aDatabase *adb );
+	void setObject(DomCfgItem *context);
 	void appendField( aSQLField * fieldinfo );
 	void insertField( int pos, aSQLField * fieldinfo );
 	void removeField( int pos );
@@ -96,7 +97,6 @@ public:
 	virtual QStringList	getUserFields();
 	virtual ERR_Code 	setMarkDeleted( bool Deleted );
 	virtual bool 		isMarkDeleted();
-	QString 		sqlFieldName ( const QString & userFieldName ) const;
 
 	virtual bool New();
 	virtual bool Copy();
@@ -115,19 +115,19 @@ protected:
 	virtual QVariant calculateField( const QString &name );
 	virtual QVariant calc_obj(int fid,qulonglong idd);
 	virtual QVariant calc_rem(int fid,qulonglong id);
-	void insertFieldInfo(aCfgItem cobj, bool calculated=true);
+	void insertFieldInfo(DomCfgItem *cobj, bool calculated=true);
 
 	long		mdobjId;
 
 private:
 //	bool fNewNotUpdated;
-	aCfgItem		obj;
-	aCfgItem		init_obj;
-	aCfg*			md;
+	DomCfgItem	*obj;
+	DomCfgItem	*init_obj;
+	DomCfgItem	*md;
 	Q3Dict<QObject> p_cat;
 	Q3Dict<QObject> p_doc;
 	Q3Dict<QObject> p_reg;
-	QMap<int,aCfgItem> mapCat, mapReg, mapDoc;
+	QMap<int,DomCfgItem*> mapCat, mapReg, mapDoc;
 	QMap<int,QString> mapDim,mapSum;
 	QStringList fildsList;
 	Q3Dict<QString> fnames;

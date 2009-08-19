@@ -13,7 +13,7 @@ public:
     ~dEditColumns();
 
 public slots:
-    virtual void setData( ananasListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
     virtual void bAddAction_clicked();
     virtual void bRemoveAction_clicked();
@@ -27,7 +27,7 @@ private:
     aCfgItem obj;
     aCfg *md;
     aAliasEditor *al;
-    ananasListViewItem * item;
+    ananasListViewModel * item;
     ananasTreeView *availableFields;
     ananasTreeView *usedFields;
     QStringList fieldsList;

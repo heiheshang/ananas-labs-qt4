@@ -82,7 +82,7 @@ wDocument::~wDocument()
  *\return \~english \~russian \~
  */
 aObject *
-wDocument::createDBObject(  aCfgItem obj, aDatabase *adb )
+wDocument::createDBObject(  DomCfgItem *obj, aDatabase *adb )
 {
 	return new aDocument( obj, adb );
 }

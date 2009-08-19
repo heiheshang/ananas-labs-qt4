@@ -64,7 +64,7 @@ void
 wActionButton::openEditor()
 {
 	eActionButton *e = new eActionButton(this->topLevelWidget());
-	aCfg *md;
+	DomCfgItem *md;
 	e->setData(this);
 	if ( e->exec()==QDialog::Accepted )
 	{

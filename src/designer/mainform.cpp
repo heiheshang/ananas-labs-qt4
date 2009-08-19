@@ -1,30 +1,31 @@
-#include "mainform.h"
 
-#include <qvariant.h>
-#include <qimage.h>
-#include <qpixmap.h>
+#include <QtCore>
+//#include <qvariant.h>
+//#include <qimage.h>
+//#include <qpixmap.h>
+#include <QtGui>
+//#include "qtoolbutton.h"
 
-#include "qtoolbutton.h"
-
-#include <qapplication.h>
-#include <qsettings.h>
-#include "q3filedialog.h"
-#include "qstatusbar.h"
-#include "qmessagebox.h"
-#include <qapplication.h>
+//#include <qapplication.h>
+//#include <qsettings.h>
+//#include "q3filedialog.h"
+//#include "qstatusbar.h"
+//#include "qmessagebox.h"
+//#include <qapplication.h>
 //Added by qt3to4:
-#include <QCloseEvent>
-#include <Q3Frame>
-#include <Q3PopupMenu>
+//#include <QCloseEvent>
+//#include <Q3Frame>
+//#include <Q3PopupMenu>
 
 #include "ananas.h"
 //#include "adatabase.h"
 //#include "acfgrc.h"
 #include "cfgform.h"
+
 //#include "messageswindow.h"
 #include "dselectdb.h"
 #include "alog.h"
-
+#include "mainform.h"
 //#include "qananastable.h"
 
 extern CfgForm *configform;
@@ -37,7 +38,7 @@ extern void messageproc(int n, const char *msg);
  *
  */
 MainForm::MainForm(QWidget* parent, const char* name, Qt::WindowFlags fl)
-    : Q3MainWindow(parent, name, fl)
+    : QMainWindow(parent, name, fl)
 {
     setupUi(this);
 
@@ -134,22 +135,25 @@ void MainForm::init()
 {
 
 
-    setName("ananas-designer_mainwindow");
+    setObjectName("ananas-designer_mainwindow");
     rcfile="";
-    windowsMenu = new Q3PopupMenu( this );
+    windowsMenu = new QMenu( this );
+    windowsMenu->addAction(tr("&Windows"));
     windowsMenu->setCheckable( TRUE );
     connect( windowsMenu, SIGNAL( aboutToShow() ),
 	     this, SLOT( windowsMenuAboutToShow() ) );
-    menuBar()->insertItem( tr("&Windows"), windowsMenu );
+    menuBar()->addMenu( windowsMenu );
 
-    menuBar()->insertSeparator();
-    Q3PopupMenu * help = new Q3PopupMenu( this );
-    menuBar()->insertItem( tr("&Help"), help );
+    menuBar()->addSeparator();
+    QMenu * help = new QMenu( this );
+    help->addAction(tr("&Help"));
+    help->addAction(tr("&About"))->setShortcut(Qt::Key_F1);
+    menuBar()->addMenu(help);
 
-    help->insertItem( tr("&About"), this, SLOT(helpAbout()), Qt::Key_F1);
+    //help->insertItem( tr("&About"), this, SLOT(helpAbout()), Qt::Key_F1);
   //  help->insertItem( tr("&Test"), this, SLOT(helpTest()));
     //    help->insertItem( "About &Qt", this, SLOT(aboutQt()));
-    help->insertSeparator();
+    //help->insertSeparator();
     //    help->insertItem( trUtf8("Что &это"), this, SLOT(whatsThis()), SHIFT+Key_F1);
 
 
@@ -174,16 +178,18 @@ void MainForm::init()
 
     setIcon( rcIcon("a-system.png"));
     setCaption(tr("Ananas: Designer"));
-    Q3VBox* vb = new Q3VBox( this );
-    vb->setFrameStyle( Q3Frame::StyledPanel | Q3Frame::Sunken );
-    ws = new QWorkspace( vb );
-    wl = new aWindowsList();
-    ws->setScrollBarsEnabled( TRUE );
+    
+    QFrame* vb = new QFrame(this);
+    vb->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
+    //ws = new QWorkspace(vb);
+    //wl = new aWindowsList();
+    //ws->setScrollBarsEnabled( TRUE );
     setCentralWidget( vb );
     cfgform=NULL;
 
-    MessagesWindow *msgWindow = new MessagesWindow( this ); // , WDestructiveClose );
-    moveDockWindow( msgWindow, Qt::DockBottom );
+    MessagesWindow *msgWindow = new MessagesWindow( tr("Поехали!!"),this ,Qt::Widget|Qt::WindowMinMaxButtonsHint); // , WDestructiveClose );
+    addDockWidget( Qt::BottomDockWidgetArea,msgWindow );
+    //ws->addWindow(msgWindow);
     setMessageHandler( TRUE );
     msgWindow->hide();
     tbMetadata->setShown( FALSE );
@@ -194,7 +200,7 @@ void MainForm::init()
     tbImageCollection->setShown( FALSE );
     TBToolbar->setShown( FALSE );
     tbTabs->setShown( FALSE );
-    lastTabId = 0;
+    //lastTabId = 0;
     configSaveAction->setVisible( FALSE );
 }
 
@@ -205,16 +211,18 @@ void MainForm::configNew()
 	{
 		if ( !cf->close() ) return; // close configuration form if opened
     	}
-    	cf = new CfgForm(ws, 0, Qt::WDestructiveClose); // create new cfgform
+    	cf = new CfgForm("",this,Qt::Widget); // create new cfgform
    	if ( cf )
 	{
-		cf->init( rcfile, TRUE ); // initialization NEW configuration
+		cf->init( md, TRUE ); // initialization NEW configuration
 		connectSignals( cf );
-		cf->ws=ws;
+		//cf->ws=ws;
+		addDockWidget(Qt::LeftDockWidgetArea,cf);
+		//ws->addWindow(cf);
 		cf->show();
- 		((QWidget*)cf->parent())->move(0,0);
+ 		//((QWidget*)cf->parent())->move(0,0);
 		//--addTab(++lastTabId,cf->name());
-		addTab(cf);
+		//addTab(cf);
 	}
 }
 
@@ -226,21 +234,27 @@ void MainForm::configOpen()
 		if ( !cf->close() ) return;
    	}
 	if ( rcfile.isEmpty()) return;
-	cf = new CfgForm( ws, 0, Qt::WDestructiveClose);
+	cf = new CfgForm("", this, Qt::Widget);
 	if ( cf )
 	{
-		cf->init( rcfile, FALSE );	//	initialization configuration
+		cf->init( md, FALSE );	//	initialization configuration
 		connectSignals( cf );
-		cf->ws=ws;
+		//cf->ws=ws;
+		addDockWidget(Qt::LeftDockWidgetArea,cf);
+		//ws->addWindow(cf);
+		cf->db=db;
+
 		cf->show();
- 		((QWidget*)cf->parent())->move(0,0);
+qDebug() << "Добавили cf";
+ 		//((QWidget*)cf->parent())->move(0,0);
 		//--addTab(++lastTabId,cf->name());
-		addTab(cf);
+		//addTab(cf);
     }
 }
 
 void MainForm::configSave()
 {
+//aLog::print(aLog::Debug,"void MainForm::configSave()\n");
     emit tosave();
     CfgForm *cf = cfgForm();
     if ( cf ) cf->save();	//	get configuration form and save its data
@@ -274,54 +288,72 @@ void MainForm::fileNew()
 
 void MainForm::windowsMenuActivated( int id )
 {
-    QWidget* w = ws->windowList().at( id );
-    if ( w ) w->showNormal();
-    w->setFocus();
+   // QWidget* w = ws->windowList().at( id );
+
+    //if ( w ) w->showNormal();
+    //w->setFocus();
 }
 
 
 void MainForm::windowsMenuAboutToShow()
 {
     windowsMenu->clear();
-    int cascadeId = windowsMenu->insertItem(tr("&Cascade"), ws, SLOT(cascade() ) );
-    int tileId = windowsMenu->insertItem(tr("&Tile"), ws, SLOT(tile() ) );
-    int horTileId = windowsMenu->insertItem(tr("Tile &horizontal"), this, SLOT(tileHorizontal() ) );
-    if ( ws->windowList().isEmpty() ) {
-	windowsMenu->setItemEnabled( cascadeId, FALSE );
-	windowsMenu->setItemEnabled( tileId, FALSE );
-	windowsMenu->setItemEnabled( horTileId, FALSE );
-    }
-    windowsMenu->insertSeparator();
-    QWidgetList windows = ws->windowList();
-    for ( int i = 0; i < int( windows.count() ); ++i ) {
-	int id = windowsMenu->insertItem(windows.at(i)->caption(), this, SLOT( windowsMenuActivated( int ) ) );
-	windowsMenu->setItemParameter( id, i );
-	windowsMenu->setItemChecked( id, ws->activeWindow() == windows.at(i) );
-    }
+    //int cascadeId = windowsMenu->insertItem(tr("&Cascade"), ws, //SLOT(cascade() ) );
+    QAction *cascadeId = windowsMenu->addAction(tr("&Cascade"));
+    connect(cascadeId,SIGNAL(triggered()),SLOT(cascade()));
+    //int tileId = windowsMenu->insertItem(tr("&Tile"), ws, SLOT(tile() ) //);
+    QAction *tileId = windowsMenu->addAction(tr("&Tile"));
+    connect(tileId,SIGNAL(triggered()),SLOT(title()));
+    //int horTileId = windowsMenu->insertItem(tr("Tile &horizontal"), //this, SLOT(tileHorizontal() ) );
+    QAction *horTileId = windowsMenu->addAction(tr("Tile &horizontal"));
+    connect(horTileId,SIGNAL(triggered()),SLOT(tileHorizontal()));
+//     if ( ws->windowList().isEmpty() ) {
+// 	cascadeId->setEnabled( FALSE );
+// 	tileId->setEnabled( FALSE );
+// 	horTileId->setEnabled( FALSE );
+//     }
+    windowsMenu->addSeparator();
+	foreach( QDockWidget *dock, findChildren<QDockWidget *>() )
+	{
+		QAction *windowList = new QAction(dock->caption(),this);
+ 	//windowList->setData(i);
+ 	windowList->setCheckable(TRUE);
+ 	connect(windowList,SIGNAL(triggered()),SLOT(windowsMenuActivated( int )));
+	}
+     //QWidgetList windows = ws->windowList();
+    // for ( int i = 0; i < int( windows.count() ); ++i ) {
+ 	//int id = windowsMenu->insertItem(windows.at(i)->caption(), this, SLOT( windowsMenuActivated( int ) ) );
+ 	//windowsMenu->setItemParameter( id, i );
+ 	//windowsMenu->setItemChecked( id, ws->activeWindow() == //windows.at(i) );
+         //QAction *windowList = new QAction(windows.at(i)->caption(),this);
+ 	//windowList->setData(i);
+ 	//windowList->setCheckable(TRUE);
+ 	//connect(windowList,SIGNAL(triggered()),SLOT(windowsMenuActivated( int )));
+     //}
 }
 
 void MainForm::tileHorizontal()
 {
     // primitive horizontal tiling
-    QWidgetList windows = ws->windowList();
-    if ( !windows.count() )
-	return;
+//     QWidgetList windows = ws->windowList();
+//     if ( !windows.count() )
+// 	return;
 
-    int heightForEach = ws->height() / windows.count();
-    int y = 0;
-    for ( int i = 0; i < int(windows.count()); ++i ) {
-	QWidget *window = windows.at(i);
-	if ( window->windowState() == Qt::WindowMaximized ) {
-	    // prevent flicker
-	    window->hide();
-	    window->showNormal();
-	}
-	int preferredHeight = window->minimumHeight()+window->parentWidget()->baseSize().height();
-	int actHeight = QMAX(heightForEach, preferredHeight);
-
-	window->parentWidget()->setGeometry( 0, y, ws->width(), actHeight );
-	y += actHeight;
-    }
+//     int heightForEach = ws->height() / windows.count();
+//     int y = 0;
+//     for ( int i = 0; i < int(windows.count()); ++i ) {
+// 	QWidget *window = windows.at(i);
+// 	if ( window->windowState() == Qt::WindowMaximized ) {
+// 	    // prevent flicker
+// 	    window->hide();
+// 	    window->showNormal();
+// 	}
+// 	int preferredHeight = window->minimumHeight()+window->parentWidget()->baseSize().height();
+// 	int actHeight = QMAX(heightForEach, preferredHeight);
+// 
+// 	window->parentWidget()->setGeometry( 0, y, ws->width(), actHeight );
+// 	y += actHeight;
+//     }
 }
 
 
@@ -345,27 +377,29 @@ void MainForm::closeEvent( QCloseEvent *e )
 	designer_settings.writeEntry( "/geometry/y", pos().y() );
 	designer_settings.endGroup();
 	//aLog::print(aLog::Debug,"exit");
-    Q3MainWindow::closeEvent( e );
+    QMainWindow::closeEvent( e );
 }
 
 
 void MainForm::connectSignals( CfgForm *cf )
 {
-    connect(objNewFormAction, SIGNAL(activated()), cf, SLOT(newForm()));
-    connect(objNewTableAction, SIGNAL(activated()), cf, SLOT(newTable()));
-    connect(objNewFieldAction, SIGNAL(activated()), cf, SLOT(newField()));
-    connect(objRenameAction, SIGNAL(activated()), cf->mdtree, SLOT(itemRename()));
-    connect(objNewObjAction, SIGNAL(activated()), cf->mdtree, SLOT(itemNew()));
-    connect(objEditAction, SIGNAL(activated()), cf->mdtree, SLOT(itemEdit()));
-    connect(objDeleteAction, SIGNAL(activated()), cf->mdtree, SLOT(itemDelete()));
+       //connect(actionPreferences, SIGNAL(activated()), cf->mdtree, SLOT(slotOptions()));
+//     connect(objNewFormAction, SIGNAL(activated()), cf, SLOT(newForm()));
+//     connect(objNewTableAction, SIGNAL(activated()), cf, SLOT(newTable()));
+//     connect(objNewFieldAction, SIGNAL(activated()), cf, SLOT(newField()));
+//     connect(objRenameAction, SIGNAL(activated()), cf->mdtree, SLOT(itemRename()));
+//     connect(objNewObjAction, SIGNAL(activated()), cf->mdtree, SLOT(itemNew()));
+//     connect(objEditAction, SIGNAL(activated()), cf->mdtree, SLOT(itemEdit()));
+//     connect(objDeleteAction, SIGNAL(activated()), cf->mdtree, SLOT(itemDelete()));
 }
 
 
-void MainForm::getMd( aCfg **md )
+DomCfgItem* MainForm::getMd()
 {
-	CfgForm *cf = cfgForm();
-	if ( !cf ) return;
-	*md = &cf->cfg;
+	//CfgForm *cf = cfgForm();
+	//if ( !cf ) return;
+	//return md;// = cf->cfg;
+	return md;
 }
 
 /*!
@@ -375,13 +409,16 @@ CfgForm *
 MainForm::cfgForm()
 {
 	CfgForm *res = 0;
-	QWidgetList windows = ws->windowList();
-	for ( int i = 0; i < int( windows.count() ); ++i ) {
-		if ( strcmp( windows.at(i)->className(),"CfgForm") == 0 ){
-			res = ( CfgForm *) windows.at(i);
-			break;
-		}
-	}
+ 	//QWidgetList windows = ws->windowList();
+ 	foreach( QDockWidget *dock, findChildren<QDockWidget *>())
+	{
+ 		if ( strcmp( dock->className(),"CfgForm") == 0 ){
+			qDebug() << "Нашли cf";
+ 			res = ( CfgForm *) dock;
+			qDebug() << "Отдали cf";
+ 			break;
+ 		}
+ 	}
 	return res;
 }
 
@@ -389,7 +426,7 @@ MainForm::cfgForm()
 QWidget *
 MainForm::activeWindow()
 {
-	return ws->activeWindow();
+	//return ws->activeWindow();
 }
 
 
@@ -479,14 +516,14 @@ void MainForm::removeTab(const  QString &winName )
 void MainForm::closeChildWindows()
 {
 
-    QWidgetList windows = ws->windowList();
-    for ( int i = 0; i < int( windows.count() ); i++ )
-    {
- if(    windows.at(i)->className() != "CfgForm")
- {
-  windows.at(i)->close();
- }
-    }
+//     QWidgetList windows = ws->windowList();
+//     for ( int i = 0; i < int( windows.count() ); i++ )
+//     {
+//  if(    windows.at(i)->className() != "CfgForm")
+//  {
+//   windows.at(i)->close();
+//  }
+//     }
 }
 
 

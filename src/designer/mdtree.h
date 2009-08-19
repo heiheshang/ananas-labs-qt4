@@ -38,7 +38,7 @@ extern aFormDesigner *formdesigner;
 //#include "cfg.h"
 class QWidget;
 
-class aListViewItem : public ananasListViewItem
+class aListViewItem : public ananasListViewModel
 {
 public:
 /*	int id;
@@ -46,7 +46,7 @@ public:
 	QWidget *editor;
 	aCfg *md;
 */
-	aListViewItem(ananasListViewItem *parent, ananasListViewItem *after, aCfg * cfgmd, aCfgItem cfgobj, const QString &name = QString::null );
+	aListViewItem(ananasListViewModel *parent, ananasListViewModel *after, aCfg * cfgmd, aCfgItem cfgobj, const QString &name = QString::null );
 //	aListViewItem(QListViewItem *parent, aCfg * cfgmd, aCfgItem cfgobj, const QString &name = QString::null );
 	aListViewItem(Q3ListView *parent, aCfg * cfgmd, aCfgItem obj, const QString &name = QString::null );
 	~aListViewItem();

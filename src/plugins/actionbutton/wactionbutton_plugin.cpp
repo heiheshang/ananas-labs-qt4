@@ -55,11 +55,14 @@ void wActionButtonPlugin::initialize(QDesignerFormEditorInterface *core)
                                 Q_TYPEID(QDesignerTaskMenuExtension));
 
     m_initialized = true;
+printf("wActionButton inited\n");
 }
 
 QWidget *wActionButtonPlugin::createWidget(QWidget *parent)
 {
+printf("wActionButton создаем\n");
     wActionButton *w = new wActionButton(parent);
+printf("wActionButton создали\n");
     return w;
 }
 

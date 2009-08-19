@@ -41,18 +41,18 @@ void dEditReport::languageChange()
     retranslateUi(this);
 }
 
-void dEditReport::setData( aListViewItem *o )
+void dEditReport::setData( ananasListViewModel *o )
 {
-	item = o;
-	aCfg *md = o->md;
-	aCfgItem obj = o->obj;
-            aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
-	al = a;
-	al->setData();
-	setCaption( tr("Report:") + md->attr( obj, mda_name ) );
-	eName->setText( md->attr( obj, mda_name ) );
-	eDescription->setText( md->sText( obj, md_description ) );
-	eModule->setText( md->sText( obj, md_sourcecode ) );
+// 	item = o;
+// 	aCfg *md = o->md;
+// 	aCfgItem obj = o->obj;
+//             aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
+// 	al = a;
+// 	al->setData();
+// 	setCaption( tr("Report:") + md->attr( obj, mda_name ) );
+// 	eName->setText( md->attr( obj, mda_name ) );
+// 	eDescription->setText( md->sText( obj, md_description ) );
+// 	eModule->setText( md->sText( obj, md_sourcecode ) );
 }
 
 
@@ -65,19 +65,19 @@ void dEditReport::init()
 
 void dEditReport::updateMD()
 {
-	aCfg *md = item->md;
-	aCfgItem obj = item->obj;
-
-	al->updateMD();
-	item->setText( 0, eName->text().stripWhiteSpace() );
-	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
-	md->setSText( obj, md_description, eDescription->text() );
-	md->setSText( obj, md_sourcecode, eModule->text() );
+// 	aCfg *md = item->md;
+// 	aCfgItem obj = item->obj;
+// 
+// 	al->updateMD();
+// 	item->setText( 0, eName->text().stripWhiteSpace() );
+// 	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace() );
+// 	md->setSText( obj, md_description, eDescription->text() );
+// 	md->setSText( obj, md_sourcecode, eModule->text() );
 }
 
 void dEditReport::destroy()
 {
     updateMD();
-    ( (MainForm*)this->topLevelWidget() )->wl->remove( this );
-    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
+    //( (MainForm*)this->topLevelWidget() )->wl->remove( this );
+    //( (MainForm*)this->topLevelWidget() )->removeTab(name());
 }

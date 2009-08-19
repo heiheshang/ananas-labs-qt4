@@ -37,7 +37,7 @@
  *	\~
  */
 aWindowsList::aWindowsList()
-    : QWidget()
+    : QObject()
 {
 }
 
@@ -64,11 +64,11 @@ aWindowsList::~aWindowsList()
  *	\param window - \~english link to form \~russian ссылка на форму \~
  *	\param ido - \~english object id (default 0) \~russian идентификатор объекта (по умолчанию 0) \~
  */
-void
-aWindowsList::insert( int id, QWidget *window, qulonglong ido )
-{
-    list.insert( conv( id, ido ), window );
-}
+ void
+ aWindowsList::insert( int id, QWidget *window, qulonglong ido )
+ {
+     list.insert( conv( id, ido ), window );
+ }
 
 /*!
  *	\~english
@@ -79,11 +79,11 @@ aWindowsList::insert( int id, QWidget *window, qulonglong ido )
  *	\param id - \~english object class id \~russian идентификатор класса объекта \~
  *	\param ido - \~english object id (default 0) \~russian идентификатор объекта (по умолчанию 0) \~
  */
-void
-aWindowsList::remove( int id, qulonglong ido )
-{
-    list.remove( conv( id, ido ) );
-}
+ void
+ aWindowsList::remove( int id, qulonglong ido )
+ {
+     list.remove( conv( id, ido ) );
+ }
 
 /*!
  *	\~english
@@ -93,18 +93,19 @@ aWindowsList::remove( int id, qulonglong ido )
  *	\~
  *	\param window - \~english link to form \~russian ссылка на форму \~
  */
-void
-aWindowsList::remove( QWidget *window )
-{
-    Q3DictIterator<QWidget> it( list );
-    for ( ; it.current(); ++it )
-    {
-	if ( it.current() == window ) {
-	    list.remove( it.currentKey() );
-	    break;
-	}
-    }
-}
+ void
+ aWindowsList::remove( QWidget *window )
+ {
+     QHashIterator<QString,QWidget*> it( list );
+     while (it.hasNext())
+     {
+	it.next();
+ 	if ( it.value() == window ) {
+ 	    list.remove( it.key() );
+ 	    break;
+ 	}
+     }
+ }
 
 /*!
  *	\~english
@@ -116,12 +117,16 @@ aWindowsList::remove( QWidget *window )
  *	\param ido - \~english object id (default 0) \~russian идентификатор объекта (по умолчанию 0) \~
  *	\return \~english true, if window found \~russian true, если окно найдено. \~
  */
-bool
-aWindowsList::find( int id, qulonglong ido )
-{
-    if ( !list.find( conv( id, ido ) ) ) return FALSE;
-    return TRUE;
-}
+ bool
+ aWindowsList::find( int id, qulonglong ido )
+ {
+  QHash<QString, QWidget*>::const_iterator i = list.find(conv( id, ido ));
+ if (i==list.end()) return FALSE;
+ if (i.key() == conv(id,ido)) {
+     return TRUE;
+ }
+
+ }
 
 /*!
  *	\~english
@@ -132,13 +137,16 @@ aWindowsList::find( int id, qulonglong ido )
  *	\param window - \~english link to form \~russian ссылка на форму \~
  *	\return \~english true, if window found \~russian true, если окно найдено. \~
  */
-bool
-aWindowsList::find( QWidget *window )
-{
-    Q3DictIterator<QWidget> it( list );
-    for ( ; it.current(); ++it ) if ( it.current() == window ) return TRUE;
-    return FALSE;
-}
+ bool
+ aWindowsList::find( QWidget *window )
+ {
+     QHashIterator<QString,QWidget*> it( list );
+     while (it.hasNext()) { 
+	it.next();
+	 if ( it.value() == window ) return TRUE;
+	}
+     return FALSE;
+ }
 
 
 /*!
@@ -151,11 +159,16 @@ aWindowsList::find( QWidget *window )
  *	\param ido - \~english object id (default 0) \~russian идентификатор объекта (по умолчанию 0) \~
  *	\return \~english link to window, or 0 if window not found \~russian ссылка на окно или 0\~
  */
-QWidget *
-aWindowsList::get( int id, qulonglong ido )
-{
-    return list.find( conv( id, ido ) );
-}
+ QWidget *
+ aWindowsList::get( int id, qulonglong ido )
+ {
+ QHash<QString, QWidget*>::const_iterator i = list.find(conv( id, ido ));
+ //while (i != list.end() && i.key() == conv( id, ido )) {
+ //    cout << i.value() << endl;
+ //    ++i;
+// }
+    return i.value() ;
+ }
 
 
 /*!
@@ -168,9 +181,9 @@ aWindowsList::get( int id, qulonglong ido )
  *	\param ido - \~english object id (default 0) \~russian идентификатор объекта (по умолчанию 0) \~
  *	\return \~english key \~russian ключ \~
  */
-QString
-aWindowsList::conv( int id, qulonglong ido )
-{
+ QString
+ aWindowsList::conv( int id, qulonglong ido )
+ {
     return QString("%1_%2").arg( id ).arg( ido );
-}
+ }
 

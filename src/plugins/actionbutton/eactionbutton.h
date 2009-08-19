@@ -19,7 +19,7 @@ public slots:
     virtual void getData( wActionButton *o );
 
 protected:
-    virtual void loadActions( QStringList *lst, QStringList *id,  aCfgItem parent, aCfg *md);
+    virtual void loadActions( QStringList *lst, QStringList *id,  DomCfgItem *p, DomCfgItem *md);
 
 protected slots:
     virtual void languageChange();

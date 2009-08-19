@@ -22,13 +22,14 @@
 
 #include <QDesignerCustomWidgetInterface>
 
-#include "qwidgetplugin.h"
+//#include "qwidgetplugin.h"
 
-
-class QT_WIDGET_PLUGIN_EXPORT wDBFieldPlugin : public QObject, public QDesignerCustomWidgetInterface
+//QT_WIDGET_PLUGIN_EXPORT
+//! [0]
+class  wDBFieldPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
+    Q_INTERFACES(QDesignerCustomWidgetInterface);
 
 public:
     wDBFieldPlugin(QObject *parent=0);
@@ -49,5 +50,5 @@ public:
 private:
     bool m_initialized;
 };
-
+//! [0]
 #endif // WDBFIELD_PLUGIN_H

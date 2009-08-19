@@ -17,7 +17,7 @@ public:
 
 public slots:
     virtual void init();
-    virtual void setJournal( aCfg * md, int id );
+    virtual void setJournal( DomCfgItem *md, int id );
     virtual void accepted();
 
 protected slots:

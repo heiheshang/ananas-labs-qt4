@@ -55,11 +55,14 @@ void wJournalPlugin::initialize(QDesignerFormEditorInterface *core)
                                 Q_TYPEID(QDesignerTaskMenuExtension));
 
     m_initialized = true;
+printf("wJournal inited\n");
 }
 
 QWidget *wJournalPlugin::createWidget(QWidget *parent)
 {
+printf("wJournal создаем\n");
     wJournal *w = new wJournal(parent, 0);
+printf("wJournal создали\n");
     return w;
 }
 

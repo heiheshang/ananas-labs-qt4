@@ -29,11 +29,14 @@
 
 #ifndef AWIDGET_H
 #define AWIDGET_H
-#include <q3sqlform.h>
-#include <q3toolbar.h>
-#include <q3mainwindow.h>
+//#include <qsqlform.h>
+//#include <qtoolbar.h>
+//#include <qmainwindow.h>
 //Added by qt3to4:
-#include <QKeyEvent>
+//#include <QKeyEvent>
+#include <QtCore>
+#include <QtGui>
+#include <QtSql>
 #include "ananas.h"
 
 class QWidget;
@@ -60,12 +63,12 @@ class  ANANAS_EXPORT aWidget : public QWidget
 	Q_PROPERTY( int FormMode READ formMode WRITE setFormMode STORED true )
 public:
 	aDatabase*	db;
-	aCfg*		md;
+	DomCfgItem*	item;
 	aEngine*	engine;
 
 	aWidget( QWidget *parent = 0, const char *name = 0, Qt::WFlags fl = 0 );
 	aWidget( const QString &oname, aDatabase *adb, QWidget *parent = 0, const char *name = 0, Qt::WFlags fl = 0 );
-	aWidget( aCfgItem context, aDatabase *adb, QWidget *parent = 0, const char *name = 0, Qt::WFlags fl = 0 );
+	aWidget( DomCfgItem *context, aDatabase *adb, QWidget *parent = 0, const char *name = 0, Qt::WFlags fl = 0 );
 	virtual ~aWidget();
 
 	virtual bool		checkStructure();
@@ -73,8 +76,8 @@ public:
 	virtual void		widgetEditor();
         static void		widgetEditor( QWidget *object, QDialog *editor );
 	virtual QDialog*	createEditor( QWidget *parent );
-	virtual Q3ToolBar*	createToolBar( Q3MainWindow *parent );
-        virtual aObject*	createDBObject( aCfgItem obj, aDatabase * );
+	virtual QToolBar*	createToolBar( QMainWindow *parent );
+        virtual aObject*	createDBObject( DomCfgItem *obj, aDatabase * );
 	virtual QString		displayString();
 
 	void			init( aDatabase *adb );
@@ -87,14 +90,14 @@ public:
 //	void			formRemove( const QString &field );
 	static aWidget*		parentContainer( QWidget *w );
 	static aForm*		parentForm( QWidget *w );
-	aCfgItem*		getMDObject();
-	void			setMDObject( aCfgItem object );
+	DomCfgItem*		getMDObject();
+	void			setMDObject( DomCfgItem *object );
 	aSQLTable*		table( const QString &name = "" );
 //	bool tableInsert( const QString &name );
 //	bool tableRemove( const QString &name );
-	void			setObjectData( QWidget *object, aCfg *md );
+	void			setObjectData( QWidget *object, DomCfgItem *md );
 	void			getObjectData( QWidget *object );
-	aCfg*			getMd();
+	virtual	DomCfgItem*	getMd();
 	virtual qulonglong	uid();
 	virtual ERR_Code	New();
 	virtual ERR_Code	Update();
@@ -128,17 +131,17 @@ public slots:
 
 	virtual aDataField*	getAttribute( const QString & name );
 	virtual int		setAttribute( const QString & name, const aDataField *value );
-
+	virtual void	setMdWidget(DomCfgItem* m);
 signals:
-	void setData( QWidget *, aCfg * );
+	void setData( QWidget *, DomCfgItem * );
 	void getData( QWidget * );
-	void getMd( aCfg ** );
+	void getMd( DomCfgItem * );
+	void setMd(DomCfgItem* m);
 	void valueChanged( const QString &, const QVariant & );
 	void valueChanged( const QString &, const QVariant &, const QString & );
 	void changeObj(const QString &);
 	void changeObjId(const qulonglong);
 	void keyPressed(QKeyEvent *e);
-
 protected:
 	aObject *dbobj;
 	virtual void updateProp() {};
@@ -147,8 +150,8 @@ private:
 	bool		vInited;
 	QString		vName;
 	int		vId, vFormMode;
-	aCfgItem	obj;
-	Q3SqlForm*	form;
+	DomCfgItem*	obj;
+	QSqlField*	form;
 //	QDict <aSQLTable> dbtables;
 };
 

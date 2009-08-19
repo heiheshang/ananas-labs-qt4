@@ -125,7 +125,7 @@ aBackup::importData(const QString& rcfile, const QString &archfile, bool dropBas
 			cleanupTmpFiles(tmpDirName, &templatesName);
 			return false;
 		}
-		db.drop(db.cfg.rc.value("dbname"));
+		db.drop(db.cfg->rc->value("dbname"));
 		emit(progress(++prg,totalSteps));
 		db.create();
 
@@ -152,7 +152,7 @@ aBackup::importData(const QString& rcfile, const QString &archfile, bool dropBas
 	}
 	qApp->processEvents();
 
-	QString destDirName = QDir::convertSeparators(db.cfg.rc.value("workdir"));
+	QString destDirName = QDir::convertSeparators(db.cfg->rc->value("workdir"));
 
 	//create template directory
 	QDir destDir;

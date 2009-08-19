@@ -33,25 +33,25 @@
 #define MESSAGESWINDOW_H
 
 #include "ananasglobal.h"
-
-#include <q3dockwindow.h>
+#include <QtGui>
+//#include <q3dockwindow.h>
 //Added by qt3to4:
 #include <QHideEvent>
 
-class Q3TextBrowser;
+class QTextBrowser;
 
 void messageproc(int n, const char *msg);
 
-class  ANANAS_EXPORT MessagesWindow : public Q3DockWindow
+class  ANANAS_EXPORT MessagesWindow : public QDockWidget
 {
     Q_OBJECT
 
 public:
 //	bool empty;
-    MessagesWindow( QWidget* parent = 0, Qt::WFlags fl = Qt::WType_TopLevel );
+    MessagesWindow( const QString & title, QWidget * parent = 0, Qt::WindowFlags flags = Qt::WType_TopLevel); 
     ~MessagesWindow();
 
-    Q3TextBrowser* msgBrowser;
+    QTextBrowser* msgBrowser;
 private:
     bool expanded;
 public slots:

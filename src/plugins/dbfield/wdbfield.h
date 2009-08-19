@@ -30,7 +30,7 @@
 
 #ifndef QADBFIELD_H
 #define QADBFIELD_H
-
+#include <QList>
 #include <qwidget.h>
 #include <qwidgetplugin.h>
 #include <qlabel.h>
@@ -39,7 +39,7 @@
 #include <q3socket.h>
 #include <qeventloop.h>
 //Added by qt3to4:
-#include <Q3ValueList>
+//#include <Q3ValueList>
 #include "adatabase.h"
 #include "acfg.h"
 #include "wfield.h"
@@ -83,16 +83,17 @@ public:
 	virtual QString	getFieldName()	const 	{ return FieldName;	};
 	void		setOpenEditor(bool b)  	{ if(b) openEditor();	};
 	void		setFieldName(QString n);
+	//virtual DomCfgItem* getMd();
 protected:
 	QStringList	getFields();
 	void		init();
-	Q3ValueList<qulonglong> getBindList();
+	QList<qulonglong> getBindList();
 	void		setEditorType(void);
 
 	QString		FieldName;
 	QStringList 	defDisplayFields,defFields,defId;
 
 private:
-	aCfgItem head;
+	DomCfgItem *head,*md;
 };
 #endif

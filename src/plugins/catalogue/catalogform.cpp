@@ -132,7 +132,7 @@ CatalogForm::setData( aCatalogue* catalog,
 		}while(cat->Next());
 	}
 	cat->Select();
-	setGeometry(aService::loadSizeFromConfig(QString("%1_embedded editor").arg(cat->md->attr(cat->obj, mda_name))));
+	setGeometry(aService::loadSizeFromConfig(QString("%1_embedded editor").arg(cat->md->attr( mda_name))));
 	ListView->setSelected(ListView->firstChild(),true);
 	aLog::print(aLog::Debug, tr("CatalogForm init"));
 }
@@ -356,7 +356,7 @@ CatalogForm::init()
 void
 CatalogForm::destroy()
 {
-	aService::saveSize2Config(this->rect(),QString("%1_embedded editor").arg(cat->md->attr(cat->obj, mda_name)));
+	aService::saveSize2Config(this->rect(),QString("%1_embedded editor").arg(cat->obj->attr(mda_name)));
 	delete cat;
 	cat = 0;
 }

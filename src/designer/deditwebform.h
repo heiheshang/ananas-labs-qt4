@@ -13,10 +13,10 @@ public:
     ~dEditWebForm();
 
     aAliasEditor *al;
-    aListViewItem *item;
+    ananasListViewModel *item;
 
 public slots:
-    virtual void setData( aListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
 
 protected slots:

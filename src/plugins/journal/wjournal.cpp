@@ -67,7 +67,7 @@ wJournal::initObject( aDatabase *adb )
 {
 	eSelectDocType *d = ( eSelectDocType *)dSelectType;
 	aWidget::initObject( adb );
-	d->setJournal( &adb->cfg, getId() );
+	d->setJournal( adb->cfg, getId() );
 
 
 	if(((aDocJournal*)dbobj)->type()==0 && toolbar)
@@ -132,11 +132,11 @@ wJournal::checkStructure()
 /*!
  * Create toolbar for Journal.
  */
-Q3ToolBar*
-wJournal::createToolBar( Q3MainWindow * owner )
+QToolBar*
+wJournal::createToolBar( QMainWindow * owner )
 {
 	QAction *a,*b,*c,*d, *e;
-	toolbar = new Q3ToolBar( owner, "JournalTools" );
+	toolbar = new QToolBar( "JournalTools",owner);
 	a = new QAction(
 	rcIcon("doc_new.png"),
 	tr("New"),
@@ -327,7 +327,7 @@ wJournal::displayString()
  * Create aDocJournal database object.
  */
 aObject *
-wJournal::createDBObject(  aCfgItem obj, aDatabase *adb )
+wJournal::createDBObject(  DomCfgItem *obj, aDatabase *adb )
 {
 	return new aDocJournal( obj, adb );
 }
@@ -343,7 +343,7 @@ wJournal::setFilterByDate()
 		while ( itb.hasNext() )
 		{
 			obj = itb.next();
-			((wDBTable *)obj)->setFilter(QString("ddate>='%1T00:00:00' AND ddate<='%2T23:59:59'").arg(date_from->date().toString(Qt::ISODate)).arg(date_to->date().toString(Qt::ISODate)));
+			//Вернуться ((wDBTable *)obj)->setFilter(QString("ddate>='%1T00:00:00' AND ddate<='%2T23:59:59'").arg(date_from->date().toString(Qt::ISODate)).arg(date_to->date().toString(Qt::ISODate)));
 		}
 		//--delete lb; // delete the list, not the objects
 	}

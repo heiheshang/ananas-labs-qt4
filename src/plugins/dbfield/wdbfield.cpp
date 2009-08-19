@@ -29,9 +29,10 @@
 **********************************************************************/
 
 #include <stdlib.h>
-#include <q3listbox.h>
+#include <QtCore>
+//#include <q3listbox.h>
 //Added by qt3to4:
-#include <Q3ValueList>
+//#include <Q3ValueList>
 
 #include "ananas.h"
 #include "wfield.h"
@@ -39,7 +40,8 @@
 #include "wdbfield.h"
 #include "addfdialog.h"
 //--#include "mainform.h"
-
+#include "alog.h"
+//#include "deditdialog.h"
 
 
 /*!
@@ -169,15 +171,18 @@ wDBField::init()
 	qulonglong id;
 	id=0;
 	//get copy of metadata
+qDebug() << "wDBField:: 1 getMd()\n";
 	md = getMd();
+qDebug() << "wDBField:: 2 getMd()\n";
 	if(md)
 	{
 		// get id of container object - catalogue or document
+		qDebug() << "if(md)\n";
 		id = aWidget::parentContainer(this)->getId();
-		head = md->find(id);
+		head = md->findObjectById(id);
 	}
+qDebug() << "wDBField::init()\n";
 }
-
 
 
 /*!
@@ -196,60 +201,64 @@ wDBField::getFields()
   QString str;
   int res,i;
   Q3ValueList<qulonglong> bindList = getBindList();
-  aCfgItem o, o_head;
+  DomCfgItem *o, *o_head;
   defId.clear();
   defFields.clear();
   defDisplayFields.clear();
-  if(!head.isNull())
+qDebug() << "wDBField::getFields()";
+  if(head!=0)
   {
-	if(md->objClass(head) == md_catalogue)
+	if(head->nodeName() == md_catalogue)
 	{
 //		printf("getting fields from metadata\n");
-		o = md->findChild(head,md_element); //object element
-	    	res = md->countChild(o,md_field);
+		o = head->child(md_element); //object element
+	    	res = o->childCount();
 //		printf("find elements\n");
 	    	for( i = 0; i < res; i++ )
 	    	{
 //			printf("find %d elem\n",i);
-			o_head = md->findChild(o,md_field,i);
-			if(md->attr(o_head,mda_type).at(0)!=' ')
+			o_head = o->child(i);
+			if (o_head->nodeName()!=md_field) continue;
+			if(o_head->attr(mda_type).at(0)!=' ')
 			{
 //				printf("mda_type = %s\n",md->attr(o_head,mda_type).ascii());
-				lst << md->attr(o_head,mda_name);
-				dlst << md->attr(o_head,mda_name) + " (element)";
-				defId << md->attr(o_head,mda_id);
+				lst << o_head->attr(mda_name);
+				dlst << o_head->attr(mda_name) + " (element)";
+				defId << o_head->attr(mda_id);
 			}
 			else
 			{
 //				printf("calculated field not allowed here\n");
 			}
 	    	}
-		o = md->findChild(head,md_group); // object group
-	    	res = md->countChild(o,md_field);
+		o = head->child(md_group); // object group
+	    	res = head->childCount();
 //		printf("find groups\n");
 	    	for( i = 0; i < res; i++ )
 	    	{
 //			printf("find %d group\n",i);
-			o_head = md->findChild(o,md_field,i);
+			o_head = o->child(i);
+			if (o_head->node().nodeName()!=md_field) continue;
 			//--if(md->attr(o,mda_type).left(1)!=' ')
-			if(md->attr(o,mda_type).at(0)!=' ')
+			if(o->attr(mda_type).at(0)!=' ')
 			{
-				lst << md->attr(o_head,mda_name);
-				dlst << md->attr(o_head,mda_name) + " (group)";
-				defId << md->attr(o_head,mda_id);
+				lst << o_head->attr(mda_name);
+				dlst << o_head->attr(mda_name) + " (group)";
+				defId << o_head->attr(mda_id);
 			}
 	    	}
 	}
 	else
 	{
-		o = md->findChild(head,md_header); // object header
-	    	res = md->countChild(o,md_field);
+		o = head->child(md_header); // object header
+	    	res = o->childCount();
 	    	for( i = 0; i < res; i++ )
 	    	{
-			o_head = md->findChild(o,md_field,i);
-			dlst << md->attr(o_head,mda_name);
-			lst << md->attr(o_head,mda_name);
-			defId << md->attr(o_head,mda_id);
+			o_head = o->child(i);
+			if (o_head->node().nodeName()!=md_field) continue;
+			dlst << o_head->attr(mda_name);
+			lst << o_head->attr(mda_name);
+			defId << o_head->attr(mda_id);
 	    	}
 	}
 	res = lst.count();
@@ -316,7 +325,9 @@ wDBField::createDBObject(aCfgItem o, aDatabase *adb )
 void
 wDBField::initObject(aDatabase *adb )
 {
+qDebug() << "wDBField::initObject(aDatabase *adb )";
   wField::initObject( adb );
+qDebug() << "wDBField::initObject(aDatabase *adb ) after";
   //aCfgItem o;
   //o = md->find( getId() );
   //aObject* obj = new aObject(o,adb);
@@ -333,16 +344,17 @@ wDBField::initObject(aDatabase *adb )
 void
 wDBField::setEditorType ()
 {
-    aCfgItem o_head,o;
+qDebug() << "wDBField::setEditorType ()";
+    DomCfgItem *o_head,*o;
     QString str, type;
     int id;
-	if(!head.isNull())
+	if(head!=0)
 	{
 		id = property("Id").toInt();
-		o_head = md->find(id);
-		if(!o_head.isNull())
+		o_head = md->findObjectById(id);
+		if(o_head!=0)
 		{
-			type = md->attr(o_head,mda_type);
+			type = o_head->attr(mda_type);
 			setFieldType(type);
 			str = type.section(' ',0,0);
 			// gets type of editor
@@ -358,11 +370,11 @@ wDBField::setEditorType ()
 				//gets object id.
 				str = type.section(' ',1,1);
 				tid = atol(str);
-				o = md->find(tid);
-				if(!o.isNull())
+				o = md->findObjectById(tid);
+				if(o!=0)
 				{
 					//gets object class
-					str = md->objClass(o);
+					str = o->node().nodeName();
 					if(str == md_catalogue)
 						// and set editor
 						wField::setEditorType(Catalogue);
@@ -387,22 +399,25 @@ wDBField::setEditorType ()
  * 	\return \en List of binding fields id. \_en
  * 		\ru Список id забинденых полей. \_ru
  */
-Q3ValueList<qulonglong>
+QList<qulonglong>
 wDBField::getBindList()
 {
-aCfgItem obj;
-QObjectList wList;
+qDebug() << "QList<qulonglong>wDBField::getBindList()\n";
+DomCfgItem *obj;
+//QObjectList wList;
 int id;
-Q3ValueList<qulonglong> listBindings;
+QList<qulonglong> listBindings;
 wDBField* wfield;
 QObject* wd = aWidget::parentContainer (this);
 	listBindings.clear();
-    	wList = wd->queryList( "wDBField" );
-	QListIterator<QObject*> it( wList ); // iterate over the wDBTable
+ QList<wDBField *> wList = wd->findChildren<wDBField *>();
+
+    	//wList = wd->queryList( "wDBField" );
+	QListIterator<wDBField*> it( wList ); // iterate over the wDBTable
 	while ( it.hasNext() )
 	{
-		wfield = qobject_cast<wDBField*>( it.next() );
-
+		//wfield = qobject_cast<wDBField*>( it.next() );
+		wfield = it.next();
 		if(strcmp(wfield->name(),this->name())) // don't added current id
 		{
 		//don.t added deleted widgets
@@ -412,7 +427,7 @@ QObject* wd = aWidget::parentContainer (this);
 	//		if(id>=0) // don't added negativ id (table while not selected)
 	//		{
 				listBindings << id;
-//				printf(">>>added id = `%d'\n",id);
+				qDebug() << ">>>added id = " << id;
 	//		}
 		   }
 		}

@@ -12,13 +12,13 @@ public:
     dEditCfg(QWidget* parent = 0, const char* name = 0, Qt::WindowFlags fl = Qt::WType_TopLevel);
     ~dEditCfg();
 
-    aListViewItem *item;
+    ananasListViewModel *item;
     aCfgItem globals;
 
 public slots:
     virtual void init();
     virtual void destroy();
-    virtual void setData( aListViewItem * o );
+    virtual void setData( ananasListViewModel * o );
     virtual void updateMD();
 
 protected slots:

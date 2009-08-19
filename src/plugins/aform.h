@@ -43,7 +43,7 @@
 #include <qmutex.h>
 //Added by qt3to4:
 #include <Q3SqlForm>
-
+//#include <QtScript>
 #include "engine.h"
 #include "adatabase.h"
 #include "adocument.h"
@@ -79,8 +79,8 @@ class  QT_WIDGET_PLUGIN_EXPORT aForm : public QObject
 public:
 	aEngine*	engine;
 	aDatabase*	db;
-	aCfg*		md;
-	aCfgItem	mdObj;
+	DomCfgItem	*md;
+	DomCfgItem	*mdObj;
 	QWidget*	parentWidget;
 	bool		closeAfterSelect;
 
@@ -97,11 +97,14 @@ public:
 	int		SelectGroup( qulonglong id );
 	qulonglong	selectedCatId(){ return db_uid;} // Return uid, selected in Catalogue
 	qulonglong	selectedId(){ return id;} // Return uid, selected in  main wDBTable
+	Q_INVOKABLE     void	Show();
 signals:
 	void selected( qulonglong uid );
 	void closeForm( qulonglong );
 	void changedData();
 	void update( ANANAS_UID );
+signals:
+        void statusMessage( const QString &msg );
 public:
 
 	QVariant	tabValue(const QString &tname, int row, int col, bool dbval=false);
@@ -110,7 +113,6 @@ public:
 public slots:
 //	QObject *	object(const QString &name);
 	void		done( int rc );
-	void		Show();
 	void		Close();
 	void		show(); //depricated
 	void		close(); //depricated
@@ -201,6 +203,7 @@ private:
 	bool		RO;
 	aWidget*	mainWidget;
 	aWidget*	callerWidget;
+	QScriptValue	module;
 };
 
 

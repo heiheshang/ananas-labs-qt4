@@ -31,7 +31,8 @@
 #include "private/qdesigner_formbuilder_p.h"
 #include "private/sheet_delegate_p.h"
 
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner>
+//#include <QtDesigner/abstractformwindow.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -158,8 +159,8 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
-        qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(),qdesigner_internal::QDesignerFormBuilder::DisableScripts);
-
+        //qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core(),qdesigner_internal::QDesignerFormBuilder::DisableScripts);
+        QFormBuilder formBuilder;
         QWidget *fake = new QWidget(0);
         fake->setAttribute(Qt::WA_WState_Visible);
 

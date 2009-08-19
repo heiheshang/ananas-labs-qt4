@@ -47,30 +47,30 @@ void dEditAReg::init()
 void dEditAReg::destroy()
 {
     updateMD();
-    ( (MainForm*)this->topLevelWidget() )->wl->remove( this );
-    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
+    //( (MainForm*)this->topLevelWidget() )->wl->remove( this );
+//    ( (MainForm*)this->topLevelWidget() )->removeTab(name());
 }
 
-void dEditAReg::setData( aListViewItem *o )
+void dEditAReg::setData( ananasListViewModel *o )
 {
-	item = o;
-	aCfg *md = o->md;
-	aCfgItem obj = o->obj;
-            aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
-	al = a;
-	al->setData();
-	setCaption( tr("Accumulation register:") + md->attr( obj, mda_name ) );
-	eName->setText( md->attr( obj, mda_name ) );
-	eDescription->setText( md->sText( obj, md_description ) );
+// 	item = o;
+// 	aCfg *md = o->md;
+// 	aCfgItem obj = o->obj;
+//             aAliasEditor *a = new aAliasEditor( md, obj, tAliases );
+// 	al = a;
+// 	al->setData();
+// 	setCaption( tr("Accumulation register:") + md->attr( obj, mda_name ) );
+// 	eName->setText( md->attr( obj, mda_name ) );
+// 	eDescription->setText( md->sText( obj, md_description ) );
 }
 
 void dEditAReg::updateMD()
 {
-	aCfg *md = item->md;
-	aCfgItem obj = item->obj;
-
-	al->updateMD();
-	item->setText( 0, eName->text().stripWhiteSpace() );
-	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace());
-	md->setSText( obj, md_description, eDescription->text() );
+// 	aCfg *md = item->md;
+// 	aCfgItem obj = item->obj;
+// 
+// 	al->updateMD();
+// 	item->setText( 0, eName->text().stripWhiteSpace() );
+// 	md->setAttr( obj, mda_name, eName->text().stripWhiteSpace());
+// 	md->setSText( obj, md_description, eDescription->text() );
 }

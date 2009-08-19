@@ -24,6 +24,9 @@
    <layout class="QGridLayout" >
     <item row="0" column="0" >
      <widget class="QTabWidget" name="tabWidget10" >
+      <property name="currentIndex" >
+       <number>4</number>
+      </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Common</string>
@@ -75,7 +78,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab" >
+      <widget class="QWidget" name="tab1" >
        <attribute name="title" >
         <string>Client module</string>
        </attribute>
@@ -85,7 +88,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage1" >
        <attribute name="title" >
         <string>Server module</string>
        </attribute>
@@ -95,7 +98,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage2" >
        <attribute name="title" >
         <string>Aliases</string>
        </attribute>

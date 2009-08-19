@@ -49,12 +49,12 @@ class aDatabase;
  * 	\see aTemplate aReport
  * \_ru
  */
-class  ANANAS_EXPORT aReportBrowser :public Q3MainWindow
+class  ANANAS_EXPORT aReportBrowser :public QMainWindow
 {
 	Q_OBJECT
 public:
 	QWorkspace *ws;
-	Q3TextBrowser *textBrowser;
+	QTextBrowser *textBrowser;
 	aReportBrowser(  QWidget *parent = 0, const char *name = 0, Qt::WFlags f = Qt::WDestructiveClose );
 	void append( const QString &text );
 	void clear();
@@ -96,7 +96,7 @@ public:
 	aReportBrowser *browser;
 	RT_type type;
 
-	aReport( aCfgItem context, RT_type r_type = RT_text, aEngine * e = 0 );
+	aReport( DomCfgItem *context, RT_type r_type = RT_text, aEngine * e = 0 );
 	aReport( QString name, RT_type r_type = RT_text, aEngine * e = 0 );
 	virtual ~aReport();
 	virtual ERR_Code initObject();

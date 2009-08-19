@@ -1,68 +1,163 @@
 <ui version="4.0" >
  <class>dEditCat</class>
- <widget class="Q3MainWindow" name="dEditCat" >
+ <widget class="QMainWindow" name="dEditCat" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>465</width>
-    <height>297</height>
+    <width>474</width>
+    <height>355</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Catalogue</string>
   </property>
   <widget class="QWidget" name="widget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>465</width>
-     <height>297</height>
-    </rect>
-   </property>
    <layout class="QHBoxLayout" >
     <item>
      <widget class="QTabWidget" name="tabWidget2" >
       <property name="font" >
        <font/>
       </property>
+      <property name="currentIndex" >
+       <number>2</number>
+      </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Common</string>
        </attribute>
-       <layout class="QVBoxLayout" >
-        <item>
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QLabel" name="Label" >
-            <property name="text" >
-             <string>Name:</string>
-            </property>
-            <property name="wordWrap" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="eName" />
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QLabel" name="textLabel3" >
-          <property name="text" >
-           <string>Description:</string>
-          </property>
-          <property name="wordWrap" >
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Q3TextEdit" name="eDescription" />
-        </item>
-       </layout>
+       <widget class="QSplitter" name="splitter_2" >
+        <property name="geometry" >
+         <rect>
+          <x>5</x>
+          <y>5</y>
+          <width>411</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QLabel" name="label" >
+         <property name="text" >
+          <string>Name</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="eName" />
+       </widget>
+       <widget class="QPushButton" name="deleteButton" >
+        <property name="geometry" >
+         <rect>
+          <x>350</x>
+          <y>108</y>
+          <width>101</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>Delete</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="editButton" >
+        <property name="geometry" >
+         <rect>
+          <x>350</x>
+          <y>79</y>
+          <width>101</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>Edit</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="newButton" >
+        <property name="geometry" >
+         <rect>
+          <x>350</x>
+          <y>50</y>
+          <width>101</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>New</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_3" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>40</y>
+          <width>300</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text" >
+         <string>List field</string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="listField" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>60</y>
+          <width>331</width>
+          <height>160</height>
+         </rect>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="baseSize" >
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <column>
+         <property name="text" >
+          <string>Field</string>
+         </property>
+        </column>
+        <column>
+         <property name="text" >
+          <string>Type</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QTextBrowser" name="eDescription" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>240</y>
+          <width>411</width>
+          <height>71</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_2" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>220</y>
+          <width>411</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text" >
+         <string>Description</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="TabPage" >
        <attribute name="title" >
@@ -70,13 +165,7 @@
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="Q3Table" name="tAliases" >
-          <property name="numRows" >
-           <number>0</number>
-          </property>
-          <property name="numCols" >
-           <number>2</number>
-          </property>
+         <widget class="QTableWidget" name="tAliases" >
           <column>
            <property name="text" >
             <string>Lang</string>
@@ -91,59 +180,13 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
-       <attribute name="title" >
-        <string>Element string view</string>
-       </attribute>
-       <layout class="QGridLayout" >
-        <item row="1" column="0" >
-         <widget class="QSEditor" native="1" name="eStrViewF" >
-          <property name="enabled" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" >
-         <widget class="QComboBox" name="eSv" />
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="TabPage" >
-       <attribute name="title" >
-        <string>Group string view</string>
-       </attribute>
-       <layout class="QGridLayout" >
-        <item row="1" column="0" >
-         <widget class="QSEditor" native="1" name="eStrViewFG" >
-          <property name="enabled" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" >
-         <widget class="QComboBox" name="eSvG" />
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage2" >
        <attribute name="title" >
         <string>Access</string>
        </attribute>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="Q3Table" name="tRoles" >
-          <property name="numRows" >
-           <number>0</number>
-          </property>
-          <property name="numCols" >
-           <number>2</number>
-          </property>
-          <property name="showGrid" >
-           <bool>false</bool>
-          </property>
-          <property name="selectionMode" >
-           <enum>Q3Table::Multi</enum>
-          </property>
+         <widget class="QTableWidget" name="tRoles" >
           <column>
            <property name="text" >
             <string>Read</string>
@@ -165,29 +208,6 @@
  </widget>
  <layoutdefault spacing="5" margin="5" />
  <pixmapfunction>rcIcon</pixmapfunction>
- <customwidgets>
-  <customwidget>
-   <class>Q3MainWindow</class>
-   <extends>QWidget</extends>
-   <header>q3mainwindow.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Q3Table</class>
-   <extends>Q3Frame</extends>
-   <header>q3table.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Q3TextEdit</class>
-   <extends>Q3Frame</extends>
-   <header>q3textedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QSEditor</class>
-   <extends>QWidget</extends>
-   <header>qseditor.h</header>
-  </customwidget>
- </customwidgets>
  <includes>
   <include location="local" >mdtree.h</include>
   <include location="local" >aliaseditor.h</include>
@@ -196,71 +216,8 @@
   <include location="local" >qseditor.h</include>
   <include location="local" >qseditor.h</include>
  </includes>
- <resources/>
- <connections>
-  <connection>
-   <sender>eSv</sender>
-   <signal>activated(int)</signal>
-   <receiver>dEditCat</receiver>
-   <slot>eSv_activated(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>eSv</sender>
-   <signal>highlighted(int)</signal>
-   <receiver>dEditCat</receiver>
-   <slot>eSv_activated(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>eSvG</sender>
-   <signal>activated(int)</signal>
-   <receiver>dEditCat</receiver>
-   <slot>eSvG_activated(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>eSvG</sender>
-   <signal>highlighted(int)</signal>
-   <receiver>dEditCat</receiver>
-   <slot>eSvG_activated(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <resources>
+  <include location="designer.qrc" />
+ </resources>
+ <connections/>
 </ui>

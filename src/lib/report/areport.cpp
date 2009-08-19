@@ -27,7 +27,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-
+#include <QtCore>
+#include <QtGui>
 #include	<qlayout.h>
 #include	<q3toolbar.h>
 #include	<qaction.h>
@@ -59,11 +60,11 @@
 *	\_ru
 */
 aReportBrowser::aReportBrowser(  QWidget *parent, const char *name, Qt::WFlags f )
-:Q3MainWindow( parent, name, f )
+:QMainWindow( parent, name, f )
 {
 	QAction *a;
 
-	Q3ToolBar *t = new Q3ToolBar( this, "ReportTool" );
+	QToolBar *t = new QToolBar( this, "ReportTool" );
 	a = new QAction(
 	//QPixmap::fromMimeSource("print.png"),
 	QPixmap(":/images/print.png"),
@@ -76,7 +77,7 @@ aReportBrowser::aReportBrowser(  QWidget *parent, const char *name, Qt::WFlags f
 	connect( a, SIGNAL( activated() ), this, SLOT( print() ) );
 	t->show();
 
-	textBrowser = new Q3TextBrowser( this, "textBrowser" );
+	textBrowser = new QTextBrowser( this, "textBrowser" );
 	textBrowser->setTextFormat( Qt::RichText );
 	textBrowser->setFocus();
 //	textBrowser->showMaximized();
@@ -136,33 +137,33 @@ aReportBrowser::print()
 	QPrinter printer;
 	QPainter p;
 
-	if (!printer.setup()) return;
-	if ( p.begin( &printer ) ){
-            Q3PaintDeviceMetrics metrics( p.device() );
-            int dpiy = metrics.logicalDpiY();
-            int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
-            QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
-            Q3SimpleRichText richText( textBrowser->text(),
-                                      QFont(),
-                                      textBrowser->context(),
-                                      textBrowser->styleSheet(),
-                                      textBrowser->mimeSourceFactory(),
-                                      body.height() );
-            richText.setWidth( &p, body.width() );
-            QRect view( body );
-            int page = 1;
-            do {
-                richText.draw( &p, body.left(), body.top(), view, colorGroup() );
-                view.moveBy( 0, body.height() );
-                p.translate( 0 , -body.height() );
-                p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),
-                            view.bottom() + p.fontMetrics().ascent() + 5, QString::number( page ) );
-                if ( view.top()  >= richText.height() )
-                    break;
-                printer.newPage();
-                page++;
-            } while (TRUE);
-	}
+// 	if (!printer.setup()) return;
+// 	if ( p.begin( &printer ) ){
+//             QPaintDevice metrics;
+//             int dpiy = metrics::logicalDpiY();
+//             int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
+//             QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
+//             QSimpleRichText richText( textBrowser->text(),
+//                                       QFont(),
+//                                       textBrowser->context(),
+//                                       textBrowser->styleSheet(),
+//                                       textBrowser->mimeSourceFactory(),
+//                                       body.height() );
+//             richText.setWidth( &p, body.width() );
+//             QRect view( body );
+//             int page = 1;
+//             do {
+//                 richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+//                 view.moveBy( 0, body.height() );
+//                 p.translate( 0 , -body.height() );
+//                 p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),
+//                             view.bottom() + p.fontMetrics().ascent() + 5, QString::number( page ) );
+//                 if ( view.top()  >= richText.height() )
+//                     break;
+//                 printer.newPage();
+//                 page++;
+//             } while (TRUE);
+// 	}
 }
 
 
@@ -188,7 +189,7 @@ void aReportBrowser::languageChange()
 *	\param e - енжин.
 *	\_ru
 */
-aReport::aReport( aCfgItem context, RT_type report_type, aEngine * e )
+aReport::aReport( DomCfgItem *context, RT_type report_type, aEngine * e )
 :aObject( context, 0, 0, "aReport")
 {
 	engine = e;
@@ -514,7 +515,7 @@ aReport::path2workdir()
 #endif
 	if(md!=NULL)
 	{
-		res = md->rc.value("workdir");
+		res = "";//Вернуться md->rc.value("workdir");
 	}
 	aLog::print(aLog::Debug, tr("aReport working dir = %1").arg(res));
 	return res;

@@ -49,7 +49,7 @@ void eDBField::init()
 
 
 
-void eDBField::setData( QWidget *o, aCfg *md )
+void eDBField::setData( QWidget *o, DomCfgItem *md )
 {
 //    const QObject *o = sender();
     if ( o ) {
@@ -82,13 +82,13 @@ void eDBField::setData( QWidget *o, aCfg *md )
 
     widgetId = widget->getId();
     //fieldId = field->getId();
-    if ( widgetId ) widget->setMDObject( md->find( widgetId ) );
+    if ( widgetId ) widget->setMDObject( md->findObjectById( widgetId ) );
 
 //    printf( "parent widget id = %i\n", widgetId );
 //    printf( "field id = %i\n", fieldId );
 //    printf( "metadata id = %i\n", md->id( *widget->getMDObject() ) );
 
-    QStringList tlist = md->types( md_field, widget->getMDObject() );
+    QStringList tlist = md->types( QStringList() << md_field); //Вернутьсяwidget->getMDObject() );
     otypes.clear();
     eType->clear();
     for ( QStringList::Iterator it = tlist.begin(); it != tlist.end(); ++it ) {

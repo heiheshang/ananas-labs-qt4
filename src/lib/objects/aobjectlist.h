@@ -53,13 +53,13 @@ class  ANANAS_EXPORT aObjectList : public QObject
 	Q_OBJECT
 //	Q_PROPERTY( aObject currentObject READ currentObject )
 public:
-	aCfg * md;
-	aCfgItem obj;
-	aDatabase * db;
+	DomCfgItem *md;
+	DomCfgItem *obj;
+	aDatabase *db;
 
 	aObjectList( QObject *parent = 0, const char *name = 0 );
 	aObjectList( const QString &oname, aDatabase *adb, QObject *parent = 0, const char *name = 0 );
-	aObjectList( aCfgItem context, aDatabase *adb, QObject *parent = 0, const char *name = 0 );
+	aObjectList( DomCfgItem *context, aDatabase *adb, QObject *parent = 0, const char *name = 0 );
 	virtual ~aObjectList();
 
 	ERR_Code init();
@@ -96,11 +96,13 @@ public slots:
 	virtual QString displayString();
 
 protected:
-	virtual aCfgItem displayStringContext();
-	virtual ERR_Code setObject( aCfgItem newobject );
+	virtual DomCfgItem *displayStringContext();
+	virtual ERR_Code setObject( DomCfgItem *newobject );
 	virtual ERR_Code initObject();
 	bool isInited() { return vInited; };
-	void setInited( bool flag ){ vInited = flag; };
+	void setInited( bool flag
+
+ ){ vInited = flag; };
 private:
 	aDataTable *table;
 	bool vInited, selectFlag, filtred;

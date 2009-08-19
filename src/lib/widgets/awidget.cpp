@@ -27,17 +27,18 @@
 ** not clear to you.
 **
 **********************************************************************/
-
+#include <QtCore>
+#include <QtGui>
 #include <qobject.h>
-#include <q3sqlcursor.h>
-#include <q3sqlpropertymap.h>
-#include <qdialog.h>
-#include <qlineedit.h>
+//#include <q3sqlcursor.h>
+//#include <q3sqlpropertymap.h>
+//#include <qdialog.h>
+//#include <qlineedit.h>
 //Added by qt3to4:
-#include <Q3SqlForm>
-#include <QLabel>
-#include <QKeyEvent>
-#include "adatabase.h"
+//#include <Q3SqlForm>
+//#include <QLabel>
+//#include <QKeyEvent>
+//#include "adatabase.h"
 #include "awidget.h"
 #include "wfield.h"
 #include "wdbfield.h"
@@ -68,6 +69,7 @@ aWidget::aWidget( QWidget *parent, const char *name, Qt::WFlags fl )
 	engine = 0;
 	vFormMode = 0;
 	vInited = false;
+	setObjectName("aWidget");
 }
 
 /*!
@@ -90,7 +92,7 @@ aWidget::aWidget( const QString &itemname, aDatabase *adb, QWidget *parent, cons
 	engine = 0;
 	vFormMode = 0;
 	if ( adb ) {
-		obj = adb->cfg.find( itemname );
+		obj = adb->cfg->findByName( itemname );
 		init( adb );
 	}
 }
@@ -107,13 +109,14 @@ aWidget::aWidget( const QString &itemname, aDatabase *adb, QWidget *parent, cons
  * 	\param fl - флаги, используемые конструктором базового класса.
  * \_ru
  */
-aWidget::aWidget( aCfgItem context, aDatabase *adb, QWidget *parent, const char *name, Qt::WFlags fl )
+aWidget::aWidget( DomCfgItem *context, aDatabase *adb, QWidget *parent, const char *name, Qt::WFlags fl )
 :QWidget( parent, name, fl )
 {
 	vId = 0;
         dbobj = 0;
 	vInited = false;
 	engine = 0;
+	item = 0;
 	obj = context;
 	vFormMode = 0;
 	init( adb );
@@ -136,7 +139,7 @@ aWidget::~aWidget()
  *\_ru
  */
 aObject *
-aWidget::createDBObject(  aCfgItem , aDatabase * )
+aWidget::createDBObject(  DomCfgItem * , aDatabase * )
 {
 	return 0;
 }
@@ -152,8 +155,8 @@ aWidget::createDBObject(  aCfgItem , aDatabase * )
  *	Пока ничего не делает. Возвращает 0;
  *\_ru
  */
-Q3ToolBar*
-aWidget::createToolBar( Q3MainWindow * )
+QToolBar*
+aWidget::createToolBar( QMainWindow * )
 {
 	return 0;
 }
@@ -190,7 +193,7 @@ aWidget::init( aDatabase *adb )
 void
 aWidget::initObject( aDatabase *adb )
 {
-	aCfgItem fg, f;
+	DomCfgItem *fg, *f;
 	QString tname;
 
 	aLog::print(aLog::Debug, tr("aWidget init widget %1 form mode %2").arg(name()).arg(formMode()) );
@@ -198,15 +201,15 @@ aWidget::initObject( aDatabase *adb )
 	setInited( true );
 
 	//<для чего?
-	Q3SqlPropertyMap *pm = new Q3SqlPropertyMap();
+	//QSqlPropertyMap *pm = new QSqlPropertyMap();
 	//>
 
 
 	db = adb;
-	md = 0;
+	item = 0;
 	if ( db )
 	{
-		md = &db->cfg;
+		item = db->cfg;
 	}
 	else
 	{
@@ -214,28 +217,29 @@ aWidget::initObject( aDatabase *adb )
 		return;
 	}
 
-	if ( obj.isNull() )
+	if ( obj==0 )
 	{
-		obj = md->find( getId() );
+		obj = item->findObjectById( QString::number(getId()));
 	}
 
 
 	//<для чего?
-	form = new Q3SqlForm( this );
-	pm->insert("wDBField","value");
-	form->installPropertyMap( pm );
+	//form = new QSqlForm( this );
+	//pm->insert("wDBField","value");
+	//form->installPropertyMap( pm );
 	//>
 
 
-	if ( obj.isNull() )
+	if ( obj==0 )
 	{
 		aLog::print(aLog::Error, tr("aWidget init: invalid meta object") );
 		return;
 	}
 	dbobj = createDBObject( obj, adb );
-	QObjectList l = this->queryList( "QWidget" );
-	QListIterator<QObject*>  it( l );
-	QObject *obj;
+	//QObjectList l = this->queryList( "QWidget" );
+	QList<QWidget *> l = this->findChildren<QWidget *>();
+	QListIterator<QWidget*>  it( l );
+	QWidget *obj;
 	while ( it.hasNext() )
 	{
 		obj = it.next();
@@ -385,7 +389,7 @@ aWidget::setOpenEditor( bool fn )
  *\_ru
  */
 void
-aWidget::setObjectData( QWidget *object, aCfg *md )
+aWidget::setObjectData( QWidget *object, DomCfgItem *md )
 {
         emit( setData( object, md ) );
 }
@@ -416,18 +420,27 @@ aWidget::getObjectData( QWidget *object )
  *	Возвращает объект конфигурации для виджета верхнего уровня.
  *\_ru
  */
-aCfg*
-aWidget::getMd()
+void aWidget::setMdWidget(DomCfgItem* m)
 {
-	aCfg *md = 0;
-	QWidget *mw = topLevelWidget();
-	if (mw->name() == QString("ananas-designer_mainwindow") )
-	{
-		connect( this, SIGNAL( getMd( aCfg ** ) ), mw, SLOT( getMd( aCfg ** ) ));
-		emit ( getMd( &md ) );
-	}
-	return md;
+ printf("Сигнал принят aWidget::setMdWidget");
+ item=m;
 }
+ DomCfgItem*
+ aWidget::getMd()
+ {
+ 	DomCfgItem *md = 0;
+ 	QWidget *mw = topLevelWidget();
+qDebug() << "aWidget::getMd()\n"
+	 << "Имя родителя "
+	 <<  mw->objectName() << "\n";
+
+
+  	if (mw->objectName() == QString("ananas-designer_mainwindow") )
+  	{
+  		connect( this, SIGNAL( getMd( DomCfgItem ** ) ), mw, SLOT( getMd( DomCfgItem ** ) ));  		emit ( getMd( md ) );
+  	}
+ 	return md;
+ }
 
 
 
@@ -480,7 +493,7 @@ aWidget::widgetEditor()
 void
 aWidget::widgetEditor(  QWidget *object, QDialog *editor )
 {
-        aCfg *md = 0;
+        DomCfgItem *md = 0;
 	QWidget *mw = object->topLevelWidget();
         aWidget o( mw );
 	if ( mw->name() == QString( "ananas-designer_mainwindow" ) )
@@ -555,10 +568,10 @@ aWidget::parentForm( QWidget *w )
  *\~russian
  *\~
  */
-aCfgItem *
+DomCfgItem *
 aWidget::getMDObject()
 {
-    return &obj;
+    return obj;
 }
 
 
@@ -569,7 +582,7 @@ aWidget::getMDObject()
  *\~
  */
 void
-aWidget::setMDObject( aCfgItem object )
+aWidget::setMDObject( DomCfgItem *object )
 {
     obj = object;
 }
@@ -696,8 +709,9 @@ aWidget::Update()
 	if ( dbobj )
 	{
 
-		QObjectList l = this->queryList( "wDBField" );
-		QListIterator<QObject*> it( l );
+		//QObjectList l = this->queryList( "wDBField" );
+		QList<QWidget *> l = this->findChildren<QWidget *>("wDBField");
+		QListIterator<QWidget*> it( l );
 		aWidget *obj;
 		while ( it.hasNext() )
 		{
@@ -731,10 +745,12 @@ ERR_Code
 aWidget::Refresh()
 {
 	QString fname;
-	QObjectList l = this->queryList( "wDBField" );
-	QListIterator<QObject*> it( l );
-	QObjectList tl = this->queryList( "wDBTable" );
-	QListIterator<QObject*> tit( tl );
+	//QObjectList l = this->queryList( "wDBField" );
+	QList<QWidget *> l = this->findChildren<QWidget *>("wDBField");
+	QListIterator<QWidget*> it( l );
+	//QObjectList tl = this->queryList( "wDBTable" );
+	QList<QWidget *> tl = this->findChildren<QWidget *>("wDBTable");
+	QListIterator<QWidget*> tit( tl );
 	aWidget *obj;
 	while ( it.hasNext() ){
 		obj = qobject_cast<aWidget*>(it.next());
@@ -745,11 +761,11 @@ aWidget::Refresh()
 	//--delete l; // delete the list, not the objects
 	//--l=0;
 
-    Q3DataTable* obj2;
-	while ( tit.hasNext() ){
-		obj2 = qobject_cast<Q3DataTable*>(tit.next());
-		obj2->refresh();
-	}
+    //QTableView* obj2;
+	//while ( tit.hasNext() ){
+	//	obj2 = qobject_cast<QTableView*>(tit.next());
+	//	obj2->refresh();
+	//}
 	//--delete tl; // delete the list, not the objects
 
 	return err_noerror;
@@ -809,7 +825,7 @@ aWidget::value( const QString & nameWidget )
 		} else if (!strcmp(w->className(),"QCheckBox")){
 			res=((QCheckBox*)w)->text();
 		} else if (!strcmp(w->className(),"QDateEdit")){
-			res=((Q3DateEdit*)w)->date().toString(Qt::ISODate);
+			res=((QDateEdit*)w)->date().toString(Qt::ISODate);
 		}
 	} else {
 	//	debug_message(tr("Error! Can't find widget by name==`%s`\n"),(const char*) name.local8Bit());
@@ -860,7 +876,7 @@ aWidget::setValue( const QString & nameWidget, const QVariant &value )
 		} else if (!strcmp(w->className(),"QCheckBox")){
 			((QCheckBox*)w)->setText(value.toString() );
 		} else if (!strcmp(w->className(),"QDateEdit")){
-			((Q3DateEdit*)w)->setDate( value.toDate() );
+			((QDateEdit*)w)->setDate( value.toDate() );
 		}
 	} else {
 		//debug_message(tr("aForm::SetValue() Error! Can't find widget by name==`%s`\n"),(const char*) name.local8Bit());

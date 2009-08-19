@@ -30,6 +30,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="currentIndex" >
+       <number>3</number>
+      </property>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
         <string>Common</string>
@@ -100,7 +103,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab" >
+      <widget class="QWidget" name="tab1" >
        <attribute name="title" >
         <string>Aliases</string>
        </attribute>
@@ -137,7 +140,7 @@
               <property name="sizeType" >
                <enum>QSizePolicy::Expanding</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -157,7 +160,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -173,7 +178,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -189,7 +196,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -205,7 +214,9 @@
                <string/>
               </property>
               <property name="icon" >
-               <iconset/>
+               <iconset>
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -217,7 +228,7 @@
               <property name="sizeType" >
                <enum>QSizePolicy::Expanding</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>56</height>
@@ -231,7 +242,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="TabPage" >
+      <widget class="QWidget" name="TabPage1" >
        <attribute name="title" >
         <string>Access</string>
        </attribute>

@@ -51,9 +51,11 @@ public:
 	virtual QDialog* 	createEditor( QWidget *parent );
 	virtual QString 	displayString();
 	virtual bool 		isContainer() { return true; };
-        virtual aObject*	createDBObject(  aCfgItem obj, aDatabase *adb );
-	virtual Q3ToolBar*	createToolBar( Q3MainWindow *parent );
+        virtual aObject*	createDBObject(  DomCfgItem *obj, aDatabase *adb );
+	virtual QToolBar*	createToolBar( QMainWindow *parent );
 	void setFormMode( int Mode );
+	DomCfgItem* item;
+	//virtual DomCfgItem* getMd();
 public slots:
 	virtual ERR_Code Select( qulonglong id );
 	virtual ERR_Code SelectGroup( qulonglong id );
@@ -65,13 +67,14 @@ public slots:
 	int update();
 	int markDelete();
 	void selectionChanged(const qulonglong);
-
+	//void getMdS(DomCfgItem* i);
 private:
 
 	void NewValues();
 signals:
 	void newSelectionFilter(const QString &);
 	void newSelectionGroupId( const qulonglong );
+	void getCurrentMd(DomCfgItem* m);
 
 };
 

@@ -19,11 +19,5 @@ INCLUDEPATH	+= ../../lib
 LIBS	+= -L../../../lib -lananas4
 
 LANGUAGE	= C++
-win32:DESTDIR = ..
-
-unix{
-        libext.path = $(LIBDIR)/ananas
-        libext.files = libaextxml.so
-        INSTALLS += libext
-}
-
+DESTDIR     = ..
+#win32:DLLDESTDIR	= ..

@@ -50,10 +50,10 @@
  *
  *\_ru
  */
-aIRegister::aIRegister( aCfgItem context, aDatabase * adb )
+aIRegister::aIRegister( DomCfgItem *context, aDatabase * adb )
 : aObject( context, adb )
 {
-	concrete = !context.isNull();
+	concrete = context!=0;
 	initObject();
 }
 
@@ -118,7 +118,7 @@ aIRegister::initObject()
 	ERR_Code err = aObject::initObject();
 	if ( err )
 		return err;
-	return tableInsert( db->tableDbName(*md,obj), obj );
+	return tableInsert( db->tableDbName(md,obj), obj );
 }
 
 
@@ -142,7 +142,7 @@ aIRegister::initObject()
 int
 aIRegister::SetFilter( const QString & name, const QVariant & value )
 {
-	if ( (md->findName( md->find(obj,md_dimensions,0), md_field, name  )).isNull() )
+	if ( (md->find( md_dimensions))!=0 )
 		return err_incorrecttype;
 	return aObject::SetFilter( name, value );
 }
@@ -200,8 +200,8 @@ aIRegister::GetDocument()
 {
 	//TODO: проверить, не происходит ли утечек памяти
 	qulonglong doc_id = table()->sysValue("idd").toULongLong();
-	aCfgItem o = md->find(db->uidType(doc_id));
-	if(!o.isNull())
+	DomCfgItem *o = md->findObjectById(QString::number(db->uidType(doc_id)));
+	if(o!=0)
 	{
 		aDocument * d = new aDocument(o, db);
 		if(d)
@@ -317,8 +317,8 @@ bool
 aIRegister::deleteDocument( aDocument * doc )
 {
 	QString tdbname;
-	aCfgItem iReg, iRegs = md->find(md->find(md->find(mdc_metadata),md_registers,0),md_iregisters,0);
-	if ( iRegs.isNull() )
+	DomCfgItem *iReg, *iRegs = md->find(md_iregisters);
+	if ( iRegs==0 )
 	{
 		aLog::print(aLog::Error, tr("aIRegister metaobject is null"));
 		return false;
@@ -329,15 +329,15 @@ aIRegister::deleteDocument( aDocument * doc )
 		aLog::print(aLog::Error, tr("aIRegister deleted document have invalid idd"));
 		return false;
 	}
-	uint n = md->count( iRegs, md_iregister );
-	for ( uint i = 0; i < n; i++  )
-	{
-		iReg = md->find( iRegs, md_iregister, i );
-		if ( iReg.isNull() ) continue;
-		if ( md->attr( iReg, mda_no_unconduct)=="1") continue;
-		tdbname = db->tableDbName( db->cfg, iReg );
-		db->db()->exec(QString("DELETE FROM %1 WHERE idd=%2").arg(tdbname).arg(idd));
-	}
+	uint n = iRegs->childCount( );
+// 	for ( uint i = 0; i < n; i++  )
+// 	{
+// 		iReg = md->find( iRegs, md_iregister, i );
+// 		if ( iReg.isNull() ) continue;
+// 		if ( md->attr( iReg, mda_no_unconduct)=="1") continue;
+// 		tdbname = db->tableDbName( db->cfg, iReg );
+// 		db->db()->exec(QString("DELETE FROM %1 WHERE idd=%2").arg(tdbname).arg(idd));
+// 	}
 	return true;
 }
 
@@ -361,21 +361,21 @@ bool
 aIRegister::deleteTable( qulonglong iddt)
 {
 	QString tdbname;
-	aCfgItem iReg, iRegs = md->find(md->find(md->find(mdc_metadata),md_registers,0),md_iregisters,0);
-	if ( iRegs.isNull() )
+	DomCfgItem *iReg, *iRegs = md->find(md_iregisters);
+	if ( iRegs==0 )
 	{
 		aLog::print(aLog::Error, tr("aIRegister metaobject is null"));
 		return false;
 	}
-	uint n = md->count( iRegs, md_iregister );
-	for ( uint i = 0; i < n; i++  )
-	{
-		iReg = md->find( iRegs, md_iregister, i );
-		if ( iReg.isNull() ) continue;
-		if ( md->attr( iReg, mda_no_unconduct)=="1") continue;
-		tdbname = db->tableDbName( db->cfg, iReg );
-		db->db()->exec(QString("DELETE FROM %1 WHERE iddt=%2").arg(tdbname).arg(iddt));
-	}
+// 	uint n = md->count( iRegs, md_iregister );
+// 	for ( uint i = 0; i < n; i++  )
+// 	{
+// 		iReg = md->find( iRegs, md_iregister, i );
+// 		if ( iReg.isNull() ) continue;
+// 		if ( md->attr( iReg, mda_no_unconduct)=="1") continue;
+// 		tdbname = db->tableDbName( db->cfg, iReg );
+// 		db->db()->exec(QString("DELETE FROM %1 WHERE iddt=%2").arg(tdbname).arg(iddt));
+// 	}
 	return true;
 }
 

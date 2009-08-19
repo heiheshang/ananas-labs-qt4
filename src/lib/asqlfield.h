@@ -68,7 +68,7 @@ public:
 	QString tName;
 	QWidget *editorWidget;
 
-	aSQLField( aCfg *newmd, aCfgItem newcontext );
+	aSQLField( DomCfgItem *newmd, DomCfgItem *newcontext );
 	aSQLField( const QString &name = QString::null, const QString &type = QString::null, const QString &tname = QString::null );
 	~aSQLField();
 

@@ -85,7 +85,7 @@ signals:
 	void destroyed_form();
 private:
 	QString vValue;
-	aCfg* md;
+	DomCfgItem* md;
 	int catId;
 	QWidget *ws;
 	aDatabase* db;

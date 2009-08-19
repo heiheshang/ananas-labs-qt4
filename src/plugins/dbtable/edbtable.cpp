@@ -91,7 +91,7 @@ if (ListCol->count()) ListCol->setCurrentItem(ListCol->count()-1);
 void eDBTable::ColumnDel()
 {
 
-int idx;
+/*int idx;
 QString str;
 idx = ListCol->currentItem();
 if (idx != -1 && ListCol->count()>0)
@@ -105,12 +105,12 @@ if (idx != -1 && ListCol->count()>0)
 	cwidth.remove(cwidth.at(idx));
 	ListCol->removeItem(idx);
 //	table->removeColumn(idx);
-}
+}*/
 }
 
 void eDBTable::ColumnL()
 {
- int idx;
+ /*int idx;
  QString str;
  QStringList::Iterator it;
  	idx = ListCol->currentItem();
@@ -144,13 +144,13 @@ void eDBTable::ColumnL()
 		ListCol->removeItem(idx);
 		ListCol->insertItem(str,idx-1);
 		ListCol->setSelected(idx-1,true);
-	}
+	}*/
 }
 
 
 void eDBTable::ColumnR()
 {
- uint idx;
+ /*uint idx;
  QString str;
  QStringList::Iterator it;
  	idx = ListCol->currentItem();
@@ -185,11 +185,11 @@ void eDBTable::ColumnR()
 		ListCol->insertItem(str,idx+1);
 		ListCol->setSelected(idx+1,true);
 	}
-
+*/
 }
 void eDBTable::ColumnSel(int col)
 {
-QString str,s;
+/*QString str,s;
 int ind = 0;
 QStringList lst;
 	eColHeader->blockSignals(true);
@@ -274,7 +274,7 @@ QStringList lst;
 
 void eDBTable::ColumnUpd()
 {
-QStringList lst;
+/*QStringList lst;
 int id;
 Q3ValueList<int> listTableId;
 	id = table->getTableId(ComboBoxTable->currentItem()-1);
@@ -304,13 +304,13 @@ Q3ValueList<int> listTableId;
 	}
 	//fname = table->fname;
 	findDeletedFields(id,idlist);
-
+*/
 }
 
 
 void eDBTable::getData( wDBTable *t )
 {
-QStringList lst;
+/*QStringList lst;
 QString str, str2;
 int i;
 const Q3SqlFieldInfo *f;
@@ -344,19 +344,19 @@ const Q3SqlFieldInfo *f;
 	else
 	{
 		t->setProperty("TableInd",-1);
-	}
+	}*/
 }
 
 
-void eDBTable::setData( wDBTable * t, aCfg *md )
+void eDBTable::setData( wDBTable * t, DomCfgItem *md )
 
 {
-QStringList sl;
+/*QStringList sl;
 QString ft,h,n;
 int idTable;
 bool ok;
 QStringList lst,lst_full;
-aCfgItem own;
+DomCfgItem *own;
 aWidget *wo;
          table = t;
 //        md->print();
@@ -436,7 +436,7 @@ aWidget *wo;
 
 void eDBTable::ColumnTextUpd( const QString &s )
 {
-CHECK_POINT
+/*CHECK_POINT
 
 	int idx;
 	idx = ListCol->currentItem();
@@ -444,20 +444,20 @@ CHECK_POINT
 	ListCol->blockSignals( TRUE );
 	ListCol->changeItem(s, ListCol->currentItem());
 	ListCol->blockSignals( FALSE );
-
+*/
 }
 
 
 void eDBTable::doOK()
 {
-	getData(table);
-	accept();
+/*	getData(table);
+	accept();*/
 }
 
 
 void eDBTable::ColumnAdd()
 {
-QString s;
+/*QString s;
 QString idx;
 QStringList::Iterator it;
 	addfdialog e( this->topLevelWidget());
@@ -478,27 +478,27 @@ QStringList::Iterator it;
 		it = deletedFieldsId.find(idx);
 		deletedFieldsId.remove(it);
 //		table->addColumn(s,s,100);
-	}
+	}*/
 }
 
 
 void eDBTable::ColWidthChange( int value )
 {
-	int ind;
+/*	int ind;
 	QString num;
 	ind = ListCol->currentItem();
 	if(ind!=-1)
 	{
 		cwidth[ind] = num.setNum(value);
 	}
-
+*/
 }
 
 
 QStringList
 eDBTable::findDeletedFields( int t_num ,QStringList idls)
 {
-	QStringList lst_full;
+/*	QStringList lst_full;
 	deletedFields.clear();
 	//formiruem list udalennix poley
 	lst_full = table->getFields(t_num,true);
@@ -511,7 +511,7 @@ eDBTable::findDeletedFields( int t_num ,QStringList idls)
 			deletedFields << table->getFieldName(lst_full[i].toInt());
 		}
 	}
-return deletedFields;
+return deletedFields;*/
 }
 
 

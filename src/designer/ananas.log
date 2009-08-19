@@ -1,0 +1,24 @@
+2009-02-03 16:50:20 DEBUG dSelectDB: Чтение настроек для группы с именем New group
+2009-02-03 16:50:20 ERROR aTests: Файл myrc не существует
+2009-02-03 16:50:22 INFO dSelectDB: Сохранение настроек
+2009-03-21 15:33:01 DEBUG dSelectDB: Чтение настроек для группы с именем Торговля
+2009-03-21 15:33:01 DEBUG map[dbpass] = ananas
+2009-03-21 15:33:01 DEBUG map[workdir] = /home/oper/Documents/ananas_base
+2009-03-21 15:33:01 DEBUG map[dbhost] = localhost
+2009-03-21 15:33:01 DEBUG map[dbtitle] = ananas
+2009-03-21 15:33:01 DEBUG map[dbuser] = ananas
+2009-03-21 15:33:01 DEBUG map[dbtype] = postgres
+2009-03-21 15:33:01 DEBUG map[configfile] = /home/oper/Documents/ananas_base/trade
+2009-03-21 15:33:01 DEBUG map[dbname] = ananas
+2009-03-21 15:33:01 DEBUG map[dbport] = 5432
+2009-03-21 15:33:01 DEBUG map[configfile] = /home/basa_torg/basa_torg.cfg
+2009-03-21 15:33:01 DEBUG map[dbhost] = localhost
+2009-03-21 15:33:01 DEBUG map[dbname] = basa_torg
+2009-03-21 15:33:01 DEBUG map[dbpass] = 
+2009-03-21 15:33:01 DEBUG map[dbport] = 
+2009-03-21 15:33:01 DEBUG map[dbtitle] = Дальком. Оптовая торговля
+2009-03-21 15:33:01 DEBUG map[dbtype] = mysql
+2009-03-21 15:33:01 DEBUG map[dbuser] = root
+2009-03-21 15:33:01 DEBUG map[workdir] = /home/basa_torg
+2009-03-21 15:33:06 INFO dSelectDB: Сохранение настроек
+2009-03-21 15:33:07 ERROR aDatabase: Открытие соединения с ananas

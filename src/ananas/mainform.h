@@ -34,20 +34,21 @@
 #include <qvariant.h>
 #include <qworkspace.h>
 #include <qsinterpreter.h>
-#include <qdialog.h>
+//#include <qdialog.h>
 #include <qstringlist.h>
 #include <qworkspace.h>
-#include <q3mainwindow.h>
-#include <q3vbox.h>
+//#include <qmainwindow.h>
+//#include <QWidget>
 #include <qapplication.h>
 #include <qsettings.h>
 //Added by qt3to4:
-#include <QPixmap>
-#include <Q3ActionGroup>
-#include <Q3GridLayout>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
-#include <Q3PopupMenu>
+#include <QtGui>
+//#include <QPixmap>
+//#include <QActionGroup>
+//#include <QGridLayout>
+//#include <QHBoxLayout>
+//#include <QVBoxLayout>
+//#include <QMenu>
 #include "ananas.h"
 #include "amenubar.h"
 #include "atoolbar.h"
@@ -55,13 +56,13 @@
 #include "engine.h"
 
 
-class Q3VBoxLayout;
-class Q3HBoxLayout;
-class Q3GridLayout;
+class QVBoxLayout;
+class QHBoxLayout;
+class QGridLayout;
 class QAction;
-class Q3ActionGroup;
-class Q3ToolBar;
-class Q3PopupMenu;
+class QActionGroup;
+class QToolBar;
+class QPopupMenu;
 
 /*!
  * \ru
@@ -70,17 +71,17 @@ class Q3PopupMenu;
  * \_ru
  */
 
-class MainForm : public Q3MainWindow {
+class MainForm : public QMainWindow {
 	Q_OBJECT
 
 public:
 	MainForm( QWidget* parent = 0, const char* name = 0, Qt::WFlags fl = Qt::WType_TopLevel );
 	~MainForm();
 	aEngine engine;
-	aCfg *md;
+	DomCfgItem *md;
 
 	AMenuBar* menubar;
-	Q3PopupMenu *windowsMenu;
+	QMenu *windowsMenu;
 	QWorkspace* ws;
 	aWindowsList* wl;
 	QString rcfile;

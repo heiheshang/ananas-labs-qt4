@@ -34,57 +34,83 @@
 #include "atoolbar.h"
 //Added by qt3to4:
 #include <QPixmap>
-
-aToolBar::aToolBar( aCfg *cfg, aCfgItem &obj, aEngine *e, Q3MainWindow* parent , const char* name )
-: Q3ToolBar( parent, name )
+#include "alog.h"
+aToolBar::aToolBar( DomCfgItem *obj, aEngine *e, QMainWindow* parent , const char* name )
+: QToolBar( name ,parent )
 {
-	md = cfg;
+	md = obj;
 	en = e;
-	ReadTool( obj );
+	DomCfgItem *o=0;
+	QDomNode nodel = obj->node();
+	DomCfgItemInterfaces *mdl = new DomCfgItemInterfaces(nodel,0,0);
+ 	o = mdl->root()->find(md_interface)->find(md_toolbars);
+	for (int i=0;i<o->childCount();i++) {
+		if (o->child(i)->attr(mda_name)==name)
+			ReadTool(o->child(i));
+	}
 }
 
 aToolBar::~aToolBar(){
 }
 
 void
-aToolBar::ReadTool( aCfgItem &obj )
+aToolBar::ReadTool( DomCfgItem *obj )
 {
-    aCfgItem aobj, apix;	// action and pixmap XML data
+    DomCfgItem *aobj, *apix,*pict;	// action and pixmap XML data
     QString aKey;	// key sequence
     long pid;	// action id
+    QPixmap		pix;
+    //aobj = md->firstChild( obj );	//from first child action
+    for (int i=0;i<obj->childCount();i++) {		// foreach not null
+	aobj = obj->child(i);
 
-    aobj = md->firstChild( obj );	//from first child action
-    while ( !aobj.isNull() ) {		// foreach not null
-	aKey = md->sText ( aobj, md_key );	//key sequence
-	pid = md->id( aobj );	// action id
-	apix = md->findChild(
-		md->find(
-			md->text( md->findChild( aobj, md_comaction, 0 ) ).toLong() ),
-		            md_active_picture,
-                  		0
-		);	// first action pixmap cfg object
-	QPixmap pix( md->binary( apix ) );	// pixmap
-	QAction *a = new QAction(
+	if (aobj->nodeName()!=md_command) continue;
+	for (int j=0;j<aobj->childCount();j++) {
+	pict=0;
+	//if (aobj->child(j)->nodeName()!=md_command) continue;
+	aKey = aobj->child(j)->attr (md_key);	//key sequence
+	//pid = aobj->child(j)->attr(mda_id).toInt();	// action id
+	if (aobj->child(j)->nodeName()==md_comaction) {
+			pid = aobj->child(j)->nodeValue().toLong();
+			QDomNode nodel = md->node();
+			apix = new DomCfgItemActions(nodel,0,0);
+			pict = apix->root()->findObjectById(pid)->child(md_active_picture);
+	}
+QAction *a=0;
+//aLog::print(aLog::Debug,"QAction "+aobj->attr(mda_name)+"\n");
+if (pict!=0) {
+	pix.loadFromData( pict->binary());
+	a = new QAction(
 		QIcon(pix), // pixmap
-		md->attr( aobj, mda_name), // name
+		aobj->child(j)->attr(mda_name), // name
 		aKey, // key sequence
 		this, // owner
-		md->attr( aobj, mda_name) // name
+		aobj->attr(mda_name) // name
 	);	// create new action
+	}
+else
+	a = new QAction(
+		aobj->child(j)->attr(mda_name), // name
+		aKey, // key sequence
+		this, // owner
+		aobj->attr(mda_name) // name
+	);
 	actions.insert( pid, a );	// add action to dict
-	a->addTo( this );	// put action into toolbar
+	addAction( a );	// put action into toolbar
 	connect( a, SIGNAL(activated()), this, SLOT(on_Item()) );	// connect to slot
-	aobj = md->nextSibling( aobj );	// get next action
+	}
+	//aobj = md->nextSibling( aobj );	// get next action
     }
 }
 
 void
 aToolBar::on_Item()
 {
-    Q3IntDictIterator<QAction> it( actions );	//dict iterator
-    for ( ; it.current(); ++it ) {	// foreach action
-	if ( it.current() == sender() ) {	// sender object
-	    en->on_MenuBar( it.currentKey() );	// call slot
+    QHashIterator<int,QAction*> it( actions );	//dict iterator
+    while (it.hasNext()) {
+	it.next();
+	if ( it.value() == sender() ) {	// sender object
+	    //Вернуться en->on_MenuBar( it.key() );	// call slot
 	    break;	// break cycle
 	}
     }

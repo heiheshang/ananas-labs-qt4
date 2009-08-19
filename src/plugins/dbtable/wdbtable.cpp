@@ -58,36 +58,116 @@
 #include "wdbtable.h"
 #include "edbtable.h"
 
+wdbtableViewModel::wdbtableViewModel(DomCfgItem *document, QObject *parent)
+    : QAbstractTableModel(parent)
+{
+    item = document;
+    parentObj = parent;
+    colCount=0;
+}
 
+wdbtableViewModel::~wdbtableViewModel()
+{
+    delete item;
+}
+
+
+QVariant wdbtableViewModel::headerData(int section, Qt::Orientation orientation,int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+	QStringList headers = static_cast<wDBTable*> (parentObj)->getDefHeaders();
+//printf("DefHeaders");printf(QString::number(hl.count()));printf("//\n");
+	//printf(QString::number(section));printf("\n");
+	//return headers[0];
+	//for(int i=0; i<headers.count(); i++)
+	//{
+	if (headers.count()>0) {
+	printf(headers[section]);printf("\n");
+		return headers[section];
+	}
+	//}
+         //return QString("HEADER");
+    }
+
+    return QVariant();
+}
+
+QModelIndex wdbtableViewModel::index(int row, int column, const QModelIndex &parent)
+            const
+{
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
+if (row==0 ) {
+	return createIndex(row, column, new QString("123"));
+}
+
+}
+
+
+QVariant wdbtableViewModel::data(const QModelIndex &index, int role) const
+{
+if ( !index.isValid() )
+        return QVariant();
+if ( role == Qt::DecorationRole )
+{
+        const QString *item = static_cast<QString*> ( index.internalPointer() );
+
+        return item;
+
+}
+if ( role == Qt::DisplayRole )
+{
+        const QString *item = static_cast<QString*> ( index.internalPointer() );
+        return item;
+}
+return QVariant();
+}
+
+int wdbtableViewModel::rowCount(const QModelIndex &parent) const
+{
+    return 0;
+}
+void wdbtableViewModel::setColumnCount(int column)
+{
+colCount=column;
+emit headerDataChanged (Qt::Horizontal,column,column);
+emit layoutChanged ();
+}
+int wdbtableViewModel::columnCount(const QModelIndex &parent) const
+{
+printf("wdbtableViewModel::columnCount ");printf(QString::number(colCount));printf("\n");
+return colCount;
+}
 /*!
  * \en	Constructor. \_en
  * \ru	Конструктор.
  * 	Задает значение ширины по умолчанию для столбца = 100. \_ru
  */
 wDBTable::wDBTable( QString objtype,  QWidget *parent, const char *name )
-    : Q3DataTable( parent, name )
+    : QTableView(parent)
 {
 //	vId = 0;
 //	verticalHeader()->hide();
-	setLeftMargin(0);
-	setNullText("");
+//	setLeftMargin(0);
+//	setNullText("");
 	objtype = "";
 	defColWidth = 100; //default column width
+	item=0;
 	tableInd = -1;
 	inEditMode = false;
 	searchWidget = 0;
 	searchMode = false;
 	searchString = "";
-	connect( this, SIGNAL(cursorChanged ( QSql::Op ) ), this, SLOT(lineUpdate( QSql::Op ) ) );
-	connect( this, SIGNAL(currentChanged ( int, int ) ), this, SLOT(lineChange( int, int ) ) );
-	connect( this, SIGNAL(beforeInsert ( QSqlRecord* ) ), this, SLOT(lineInsert( QSqlRecord* ) ) );
-	connect( this, SIGNAL(valueChanged ( int, int )  ), this, SLOT(updateTableCellHandler(int, int ) ) );
-	connect( this, SIGNAL(doubleClicked ( int, int, int, const QPoint&) ), this, SLOT(doubleClickEventHandler(int,int,int, const QPoint&)));
+	setObjectName("wDBTable");
+	//connect(this,SIGNAL(getCurrentMd(DomCfgItem*)),parent,SLOT(getMd(DomCfgItem*)));
+	//connect( this, SIGNAL(cursorChanged ( QSql::Op ) ), this, SLOT(lineUpdate( QSql::Op ) ) );
+	//connect( this, SIGNAL(currentChanged ( int, int ) ), this, SLOT(lineChange( int, int ) ) );
+	//connect( this, SIGNAL(beforeInsert ( QSqlRecord* ) ), this, SLOT(lineInsert( QSqlRecord* ) ) );
+	//connect( this, SIGNAL(valueChanged ( int, int )  ), this, SLOT(updateTableCellHandler(int, int ) ) );
+	//connect( this, SIGNAL(doubleClicked ( int, int, int, const QPoint&) ), this, SLOT(doubleClickEventHandler(int,int,int, const QPoint&)));
 	init();
 
-
-	aLog::print(aLog::Debug, tr("wDBTable init ok"));
-//	printf("ok init wdbtable\n");
+	qDebug() << "ok init wdbtable\n";
 
 }
 
@@ -226,7 +306,7 @@ wDBTable::setDefFields(QStringList lst)
 }
 
 /*!
- *	\~english
+ *	\~engwdbtableViewModellish
  *	Sets list of field headers.
  *	\~russian
  *	Установка списка заголовков полей.
@@ -236,6 +316,10 @@ void
 wDBTable::setDefHeaders(QStringList lst)
 {
 	hname = lst;
+	//for (int i=0;i<lst.count();i++){
+printf("Устанавливаем колонки ");printf(QString::number(lst.count()));printf("\n");
+	static_cast<wdbtableViewModel*> (data)->setColumnCount(lst.count()-1);
+	//}
 }
 
 /*!
@@ -249,6 +333,9 @@ void
 wDBTable::setColWidth(QStringList lst)
 {
 	colWidth = lst;
+	for (int i=0;i<lst.count()-1;i++){
+		setColumnWidth(i,lst[i].toInt());
+	}
 }
 
 /*!
@@ -315,10 +402,11 @@ void
 wDBTable::OpenEditor()
 {
 	//getBindList();
+printf("wDBTable::OpenEditor()\n");
 	setAvailableTables();
 	eDBTable e( this->topLevelWidget());
 	checkFields();
-	e.setData(this,md);
+	e.setData(this,item);
 	if ( e.exec()==QDialog::Accepted )
 	{
 		e.getData(this);
@@ -337,11 +425,17 @@ wDBTable::OpenEditor()
  */
 wDBTable::~wDBTable()
 {
-	delete cur;
+	//delete cur;
 	cur=0;
 }
 
-
+DomCfgItem* wDBTable::getMd()
+{
+printf("wDBTable::getMd()\n");
+ if (item==0)
+	item = static_cast<aWidget*>(parentWidget())->getMd();
+ return item;
+}
 
 /*!
  *	\~english
@@ -354,41 +448,72 @@ wDBTable::~wDBTable()
 void
 wDBTable::init()// aDatabase *adb )
 {
+qDebug() << "1 wDBTable::init()\n";
 	int id=0;
-	aCfgItem o, o_table;
-	aCfgItem mditem, docitem;
+	DomCfgItem *o, *o_table;
+	DomCfgItem *mditem, *docitem;
 
 	// set up pixmap for calculated fields
 
-	cur = new Q3SqlCursor("cur",false);
-	md = aWidget::parentContainer(this)->getMd();
-	if ( md )
+	//cur = new Q3SqlCursor("cur",false);
+qDebug() << "========================\n";
+qDebug() << objectName();
+qDebug() << "========================\n";
+	aWidget *container = aWidget::parentContainer(this);
+	if (container) {
+	item = container->getMd();
+
+	if ( item )
 	{
 		id = aWidget::parentContainer(this)->getId();
-		o = md->find(id);
-		QString objClass = md->objClass(o);
+qDebug() << "id=";
+qDebug() << QString::number(id);
+qDebug() << "\n";
+		o = item->findObjectById(id);
+		QString objClass = o->node().nodeName();
+qDebug() << "Объект " << objClass << "\n";
 		if(objClass==md_document)
 		{
-			o = md->findChild(o,md_tables); // object tables
+			o = o->child(md_tables); // object tables
 			tables = o;
 		}
 		if(objClass==md_journal){
-			o = md->findChild(o, md_columns);
+			o = o->child(md_columns);
 			tables = o;
 		}
 		if(objClass==md_catalogue)
 		{
 //			verticalHeader()->hide();
-			o = md->findChild(o,md_element);
+			o = o->child(md_element);
 			tables = o;
 		}
 	}
 	else
 	{
 //		verticalHeader()->hide();
-//		printf("name engin\n");
-	}
+		qDebug() << "name engin\n";
 
+	}
+	}
+	data = new wdbtableViewModel(item,this);
+	QItemSelectionModel *selections = new QItemSelectionModel(data);
+	setModel(data);
+	//setHeaderHidden(true);
+	setSelectionModel(selections);
+	//setUniformRowHeights(true);
+	//header()->setStretchLastSection(false);
+	viewport()->setAttribute(Qt::WA_StaticContents);
+	//header()->setResizeMode(QHeaderView::Stretch);
+	setAttribute(Qt::WA_MacShowFocusRect, false);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	setWindowFlags(Qt::Widget);
+ //QStringList hl = getDefHeaders();
+//printf("DefHeaders");printf(QString::number(hl.count()));printf("//\n");
+//for(int i=0; i<hl.count(); i++)
+//	{
+//		printf(hl[i]);printf("\n");
+//	}
+qDebug() << "wDBTable::init() создали\n";
 }
 
 
@@ -402,23 +527,25 @@ wDBTable::init()// aDatabase *adb )
 void
 wDBTable::setAvailableTables()
 {
-aCfgItem o_table, o = tables;
+printf("wDBTable::setAvailableTables()\n");
+DomCfgItem *o_table, *o = tables;
 QString str;
 QStringList listIdTable;
 int res;
-Q3ValueList<int> vList = getBindList();
+QList<int> vList = getBindList();
 
-	if(o.isNull()) return;
-	QString objClass = md->objClass(o);
+	if(o==0) return;
+	QString objClass = o->node().nodeName();
 	//printf("obj class `%s'\n",objClass.ascii());
 	list_available_tables.clear();
 	if(objClass==md_tables)
 	{
-		res = md->countChild(o,md_table); // ind kol_vo tables in obj tables
+		res = o->childCount(); // ind kol_vo tables in obj tables
 		for(int i=0; i<res; i++)
 		{
-			o_table = md->findChild(o,md_table,i);
-			listIdTable << QString("%1").arg(md->id(o_table));
+		if (o->node().nodeName()!=md_table) continue;
+			o_table = o->child(i);
+			listIdTable << QString("%1").arg(o_table->attr(mda_id));
 			//printf("id = %li\n", md->id(o_table));
 		}
 	}
@@ -444,7 +571,7 @@ Q3ValueList<int> vList = getBindList();
 			str ="* ";
 		else
 			str ="";
-		list_available_tables << str + md->attr(md->find(listIdTable[i].toInt()),mda_name); // add tables name in  combo box
+		list_available_tables << str + item->findObjectById(listIdTable[i].toInt())->attr(mda_name); // add tables name in  combo box
 	}
 }
 
@@ -459,7 +586,8 @@ Q3ValueList<int> vList = getBindList();
 void
 wDBTable::lineUpdate( QSql::Op mode)
 {
-QSqlRecord *rec = sqlCursor()->editBuffer();//currentRecord();
+printf("wDBTable::lineUpdate( QSql::Op mode)");
+/*QSqlRecord *rec = sqlCursor()->editBuffer();//currentRecord();
 	switch(mode)
 	{
 		case QSql::Update:
@@ -476,7 +604,7 @@ QSqlRecord *rec = sqlCursor()->editBuffer();//currentRecord();
 	}
 	//if(!rec) return;
 	//printf(" emit saveLine\n");
-	emit(saveLine(rec));
+	emit(saveLine(rec));*/
 }
 
 
@@ -493,7 +621,8 @@ QSqlRecord *rec = sqlCursor()->editBuffer();//currentRecord();
 void
 wDBTable::paintField ( QPainter * p, const QSqlField * field, const QRect & cr, bool selected )
 {
-	if(field->name().left(5)=="text_") return;
+printf("wDBTable::paintField\n");
+/*	if(field->name().left(5)=="text_") return;
         if ( sqlCursor()->isCalculated( field->name() ) ){
         	if ( field->name()=="system_icon" )
 	        	p->drawPixmap( QRect( 0, 0, cr.width(), cr.height() ), systemIcon() );
@@ -513,7 +642,7 @@ wDBTable::paintField ( QPainter * p, const QSqlField * field, const QRect & cr, 
 		Q3DataTable::paintField( p, &f, cr, selected );
 		return;
 	}
-	Q3DataTable::paintField( p, field, cr, selected );
+	Q3DataTable::paintField( p, field, cr, selected );*/
 }
 
 
@@ -528,7 +657,8 @@ wDBTable::paintField ( QPainter * p, const QSqlField * field, const QRect & cr, 
 QPixmap
 wDBTable::systemIcon()
 {
-        aWidget *container = aWidget::parentContainer( this );
+printf("wDBTable::systemIcon()\n");
+        /*aWidget *container = aWidget::parentContainer( this );
         QString ctype="";
         QPixmap pm;
         Q3SqlCursor *r = sqlCursor();
@@ -591,7 +721,7 @@ wDBTable::systemIcon()
 	        	                if ( df ) pm = t_cat_gd;
 				}
         }
-        return pm;
+        return pm;*/
 }
 
 
@@ -612,67 +742,69 @@ wDBTable::systemIcon()
 void
 wDBTable::setFields(int idTable)
 {
-CHECK_POINT
-	int field_count,j;
-	int i; //,tableCount;
-	//QSqlCursor *cur;
-	const Q3SqlFieldInfo *field;
-	QString str;
-	QStringList Cwidth, list_fields,list_id;
-	aCfgItem o, o_table, o_field;
-	QString mdtag=QString(md_field);
-
-	list_fields.clear();
-	o = tables; // object tables
-	QString objClass = md->objClass(o);
-	//printf("table parent obj class '%s'\n", (const char*)objClass);
-	if(objClass==md_tables)
-	{
-		o_table = md->find(idTable);
-	}
-	else
-	if(objClass==md_columns)
-	{
-		o_table = o;
-		mdtag=QString(md_column);
-	}
-	else
-	if(objClass==md_element)
-	{
-		o_table = o;
-	}
-	colWidth.clear();
-	i=0;
-	while(i<numCols())
-	{
-		removeColumn(0);
-	}
-	cur->clear();
-	if(!o_table.isNull())
-	{
-		field_count = md->countChild(o_table,mdtag);
-		//printf("table name '%s'\n",(const char*)md->attr(o_table,mda_name));
-		//printf("table id '%s'\n",(const char*)md->attr(o_table,mda_id));
-		for (j=0; j<field_count; j++)
-		{
-			o_field = md->findChild(o_table,mdtag,j);
-			//printf("field %i name '%s'\n",j,(const char*)md->attr(o_field,mda_name));
-			//printf("field %i id '%s'\n",j,(const char*)md->attr ( o_field, mda_id ));
-			list_fields << md->attr(o_field,mda_name);
-			list_id << md->attr(o_field,mda_id);
-			str.setNum(j);
-			field = new Q3SqlFieldInfo(md->attr(o_field,"name"));
-			cur->append(*field);
-			setSqlCursor(cur);
-			addColumn(field->name(),field->name(),property("DefaultColWidth").toInt());
-			refresh(RefreshColumns);
-			Cwidth << property("DefaultColWidth").toString();
-		}
-	}
-	setProperty("DefFields",list_fields);
-	setProperty("DefHeaders",list_fields);
-	setProperty("ColWidth",Cwidth);
-	setProperty("DefIdList",list_id);
+printf("wDBTable::setFields(int idTable)\n");
+// CHECK_POINT
+// 	int field_count,j;
+// 	int i; //,tableCount;
+// 	//QSqlCursor *cur;
+// 	const Q3SqlFieldInfo *field;
+// 	QString str;
+// 	QStringList Cwidth, list_fields,list_id;
+// 	DomCfgItem *o, *o_table, *o_field;
+// 	QString mdtag=QString(md_field);
+// 
+// 	list_fields.clear();
+// 	o = tables; // object tables
+// 	QString objClass = o->node().nodeName();
+// 	//printf("table parent obj class '%s'\n", (const char*)objClass);
+// 	if(objClass==md_tables)
+// 	{
+// 		o_table = item->findObjectById(idTable);
+// 	}
+// 	else
+// 	if(objClass==md_columns)
+// 	{
+// 		o_table = o;
+// 		mdtag=QString(md_column);
+// 	}
+// 	else
+// 	if(objClass==md_element)
+// 	{
+// 		o_table = o;
+// 	}
+// 	colWidth.clear();
+// 	i=0;
+// 	while(i<numCols())
+// 	{
+// 		removeColumn(0);
+// 	}
+// 	cur->clear();
+// 	if(o_table!=0)
+// 	{
+// 		field_count = o_table->childCount();
+// 		//printf("table name '%s'\n",(const char*)md->attr(o_table,mda_name));
+// 		//printf("table id '%s'\n",(const char*)md->attr(o_table,mda_id));
+// 		for (j=0; j<field_count; j++)
+// 		{
+// 		if (o_table->node().nodeName()!=mdtag) continue;
+// 			o_field = o_table->child(j);
+// 			//printf("field %i name '%s'\n",j,(const char*)md->attr(o_field,mda_name));
+// 			//printf("field %i id '%s'\n",j,(const char*)md->attr ( o_field, mda_id ));
+// 			list_fields << o_field->attr(mda_name);
+// 			list_id << o_field->attr(mda_id);
+// 			str.setNum(j);
+// 			field = new Q3SqlFieldInfo(o_field->attr("name"));
+// 			cur->append(*field);
+// 			setSqlCursor(cur);
+// 			addColumn(field->name(),field->name(),property("DefaultColWidth").toInt());
+// 			refresh(RefreshColumns);
+// 			Cwidth << property("DefaultColWidth").toString();
+// 		}
+// 	}
+// 	setProperty("DefFields",list_fields);
+// 	setProperty("DefHeaders",list_fields);
+// 	setProperty("ColWidth",Cwidth);
+// 	setProperty("DefIdList",list_id);
 }
 
 
@@ -690,24 +822,25 @@ CHECK_POINT
 int
 wDBTable::getTableId(int numTable)
 {
+printf("wDBTable::getTableId(int numTable)\n");
 	int res = -1;
-	aCfgItem o, o_table;
+	DomCfgItem *o, *o_table;
 	if ( numTable == -1 ) return res;
 	o = tables; // object tables
-	QString objClass = md->objClass(o);
+	QString objClass = o->nodeName();
 	if(objClass==md_tables)
 	{
-		o_table = md->findChild(o,md_table,numTable);
-		res = md->id(o_table);
+		o_table = o->child(md_table,numTable);
+		res = o_table->attr(mda_id).toInt();
 	}
 	if(objClass==md_columns)
 	{
-		res = md->id(o);
+		res = o->attr(mda_id).toInt();
 		//printf("parent name %s\n", (const char*)md->attr(md->parent(o),mda_name));
 	}
 	if(objClass==md_element)
 	{
-		res = md->id(o);
+		res = o->attr(mda_id).toInt();
 	}
 	//printf("get table id=%i\n", res);
 	return res;
@@ -730,20 +863,22 @@ wDBTable::getTableId(int numTable)
 int
 wDBTable::getTableInd(int id)
 {
+printf("wDBTable::getTableInd(int id)\n");
 int j,tableCount;
-aCfgItem o, o_table;
+DomCfgItem *o, *o_table;
 	o = tables; // object tables
-	QString objClass = md->objClass(o);
+	QString objClass = o->nodeName();
 	if(objClass==md_columns || objClass==md_element)
 	{
 		//printf("TableInd=%i\n",tableInd);
 		return tableInd;
 	}
-	tableCount = md->count(o,md_table);
+	tableCount = item->childCount();
 	for(j=tableCount-1; j>=0; j--)
 	{
-		o_table = md->findChild(o,md_table,j);
-		if(md->id(o_table)==id) break;
+		o_table = item->child(j);
+		if (o_table->nodeName()!=md_table) continue;
+		if(o_table->attr(mda_id).toInt()==id) break;
 	}
 return j;
 }
@@ -768,13 +903,14 @@ return j;
 QStringList
 wDBTable::getFields(int idTable, bool GetId)
 {
+printf("wDBTable::getFields(int idTable, bool GetId)\n");
 	QStringList lst;
 	if (idTable==-1) {
 		return lst;
 	}
 
 	int items_count,j;//,tableCount;
-	aCfgItem o, o_table, o_item;
+	DomCfgItem *o, *o_table, *o_item;
 	QString	mdtag=md_field;
 
 
@@ -783,10 +919,10 @@ wDBTable::getFields(int idTable, bool GetId)
 //	o_table = md->objTable( wo->getId(), idTable );
 
 	o = tables; // object tables
-	QString objClass = md->objClass(o);
+	QString objClass = o->nodeName();
 	if(objClass==md_tables)
 	{
-		o_table = md->find(idTable);
+		o_table = item->findObjectById(idTable);
 	}
 	else
 	if(objClass==md_columns)
@@ -799,16 +935,17 @@ wDBTable::getFields(int idTable, bool GetId)
 	{
 		o_table = o;
 	}
-	if(!o_table.isNull())
+	if(o_table!=0)
 	{
-		items_count = md->countChild(o_table,mdtag);
+		items_count = o_table->childCount();
 		for (j=0; j<items_count; j++)
 		{
-			o_item = md->findChild(o_table,mdtag,j);
+			o_item = o_table->child(j);
+			if (o_item->nodeName()!=mdtag) continue;
 			if(GetId)
-			  lst << md->attr(o_item,mda_id);
+			  lst << o_item->attr(mda_id);
 			else
-			  lst << md->attr(o_item,mda_name);
+			  lst << o_item->attr(mda_name);
 		}
 	}
 	else {
@@ -831,17 +968,18 @@ return lst;
 QString
 wDBTable::getFieldType(long id)
 {
-	aCfgItem o;
+printf("wDBTable::getFieldType(long id)\n");
+	DomCfgItem *o;
 	QString str="";
 
-	QString objClass = md->objClass(tables);
+	QString objClass = tables->nodeName();
 	if(objClass==md_columns) {
 		id= journalFieldId(id);
 	}
-	o = md->find(id);
-	if(!o.isNull())
+	o = item->findObjectById(id);
+	if(o!=0)
 	{
-		str = md->attr(o,mda_type);
+		str = o->attr(mda_type);
 	}
 return str;
 }
@@ -860,12 +998,13 @@ return str;
 QString
 wDBTable::getFieldName(long id)
 {
-	aCfgItem o;
+printf("wDBTable::getFieldName(long id)\n");
+	DomCfgItem *o;
 	QString str="";
-	o = md->find(id);
-	if(!o.isNull())
+	o = item->findObjectById(id);
+	if(o!=0)
 	{
-		str = md->attr(o,mda_name);
+		str = o->attr(mda_name);
 	}
 return str;
 }
@@ -886,6 +1025,7 @@ return str;
 void
 wDBTable::checkFields()
 {
+printf("wDBTable::checkFields()\n");
 	QStringList fl,hl,cl,il;
 	unsigned int i;
 	QString str;
@@ -926,12 +1066,6 @@ wDBTable::checkFields()
 
 
 
-
-
-
-
-
-
 /*!
  *\~english
  *	Initialisation the widget on form loaded in engine.
@@ -942,11 +1076,11 @@ wDBTable::checkFields()
 void
 wDBTable::init(aDatabase *adb, aEngine *e )
 {
-
-	aLog::print(aLog::Debug, tr("wDBTable init in engine "));
+/*
+	printf("wDBTable init in engine\n");
 //	printf("begin init wdbtable\n");
 	unsigned int countField,i;
-	aCfgItem o, own;
+	DomCfgItem *o, *own;
 	QString str, ctype;
 	QStringList lst,lstHead,lstWidth;
 	int tid;
@@ -965,7 +1099,7 @@ wDBTable::init(aDatabase *adb, aEngine *e )
 	engine = e;
 	setConfirmDelete(true);
 	db = adb;
-	md = &adb->cfg;
+	md = adb->cfg;
 	tid = property("TableInd").toInt();
 	container = aWidget::parentContainer( this );
 	if ( !container )
@@ -975,20 +1109,21 @@ wDBTable::init(aDatabase *adb, aEngine *e )
 	}
 	else
 	{
-		o = md->objTable( container->getId(), tid );
-		if ( o.isNull() )
-		{
-			//debug_message("Table not found\n");
-			aLog::print(aLog::Error, tr("wDBTable init meta object not found "));
-		}
-		ctype = container->className();
-		aLog::print(aLog::Info, tr("wDBTable container type is %1 ").arg(ctype));
-
-		setContainerType(ctype);
+//Вернуться
+// 		o = md->objTable( container->getId(), tid );
+// 		if ( o.isNull() )
+// 		{
+// 			//debug_message("Table not found\n");
+// 			aLog::print(aLog::Error, tr("wDBTable init meta object not found "));
+// 		}
+// 		ctype = container->className();
+// 		aLog::print(aLog::Info, tr("wDBTable container type is %1 ").arg(ctype));
+// 
+// 		setContainerType(ctype);
 	}
 
 	//o  = md->find(property("TableInd").toInt());
-	if ( o.isNull() )
+	if ( o==0 )
 	{
 		aLog::print(aLog::Error, tr("wDBTable init meta object not found "));
 		return;
@@ -1057,7 +1192,7 @@ wDBTable::init(aDatabase *adb, aEngine *e )
 	if ( containerType() == "wJournal" ) {
 		addColumn( "system_icon", "", 20 );
 		setColumnReadOnly( 0, true );
-		if (md->objClass(*(container->getMDObject()))==md_journal && !((aDocJournal*) container->dataObject())->type() ) {
+		if ((container->getMDObject())->nodeName()==md_journal && !((aDocJournal*) container->dataObject())->type() ) {
 			// we have common journal
 			// Insert journal system columns.
 			addColumn( "ddate", tr("Date"), 100 );
@@ -1086,7 +1221,7 @@ wDBTable::init(aDatabase *adb, aEngine *e )
 
 
 	//refresh(RefreshColumns);
-	if (md->objClass(*(container->getMDObject()))!=md_journal || ((aDocJournal*) container->dataObject())->type() ) {
+	if (container->getMDObject()->nodeName()!=md_journal || ((aDocJournal*) container->dataObject())->type() ) {
 		// we have not common journal
 		for(i=0; i<lst.count();i++)
 		{
@@ -1108,7 +1243,7 @@ wDBTable::init(aDatabase *adb, aEngine *e )
 	}
 	refresh(RefreshAll);
 	setWFieldEditor();
-	aLog::print(aLog::Debug, tr("wDBTable init in engine ok"));
+	aLog::print(aLog::Debug, tr("wDBTable init in engine ok"));*/
 }
 
 
@@ -1126,12 +1261,13 @@ wDBTable::init(aDatabase *adb, aEngine *e )
 void
 wDBTable::setWFieldEditor()
 {
-	 aEditorFactory * f = new  aEditorFactory(this,"");
-	 f->setMd(md);
-	 Q3SqlPropertyMap * m = new Q3SqlPropertyMap();
-	 m->insert("wField", "value");
-	 installPropertyMap(m);
-	 installEditorFactory(f);
+printf("wDBTable::setWFieldEditor()\n");
+// 	 aEditorFactory * f = new  aEditorFactory(this,"");
+// 	 f->setMd(item);
+// 	 Q3SqlPropertyMap * m = new Q3SqlPropertyMap();
+// 	 m->insert("wField", "value");
+// 	 installPropertyMap(m);
+// 	 installEditorFactory(f);
 }
 
 
@@ -1146,6 +1282,7 @@ wDBTable::setWFieldEditor()
 QWidget*
 aEditorFactory::createEditor(QWidget * parent, const QSqlField * field)
 {
+printf("aEditorFactory::createEditor\n");
 //--WFlags fl=0;
 wField * tmp;
 wDBTable *t=0;
@@ -1175,11 +1312,11 @@ wField::tEditorType type = wField::Unknown;
 				//stmp = str.section(' ',1,1);
 				tid = atoi(str.section(' ',1,1).ascii());
 //				printf("tid =%d\n",tid);
-				aCfgItem o = md->find(tid);
-				if(!o.isNull())
+				DomCfgItem *o = md->findObjectById(tid);
+				if(o!=0)
 				{
 					//gets object class
-					str = md->objClass(o);
+					str = o->nodeName();
 //					printf("otupe = %s\n",str.ascii());
 					if(str == md_catalogue)
 						// and set editor
@@ -1209,8 +1346,9 @@ wField::tEditorType type = wField::Unknown;
 
 }
 void
-aEditorFactory::setMd(aCfg * cfg)
+aEditorFactory::setMd(DomCfgItem * cfg)
 {
+printf("aEditorFactory::setMd(DomCfgItem * cfg)\n");
 	md = cfg;
 }
 
@@ -1223,10 +1361,11 @@ aEditorFactory::setMd(aCfg * cfg)
  *	\~
  *	\return \~english list of id binding table. \~russian список таблиц \~
  */
-Q3ValueList<int>
+QList<int>
 wDBTable::getBindList()
 {
-aCfgItem obj;
+printf("QList<int>wDBTable::getBindList()\n");
+DomCfgItem *obj;
 QObjectList wList;
 int id;
 wDBTable* wtable;
@@ -1267,7 +1406,7 @@ return listBindings;
 QVariant
 wDBTable::Value( const QString &colname )
 {
-	aLog::print(aLog::Error, tr("wDBTable: function Value() call"));
+	printf("wDBTable: function Value() call\n");
 	return QVariant("");
 }
 
@@ -1287,7 +1426,8 @@ wDBTable::Value( const QString &colname )
 void
 wDBTable::lineChange(int, int)
 {
-	QSqlRecord * rec = currentRecord();
+printf("wDBTable::lineChange(int, int)\n");
+/*	QSqlRecord * rec = currentRecord();
 	if ( !rec ) return;
 	qulonglong id = 0;
 	if(rec->contains("id")) id = rec->value("id").toLongLong();
@@ -1296,7 +1436,7 @@ wDBTable::lineChange(int, int)
 		//if(rec->contains("idd")) id = rec->value("idd").toLongLong();
 	//}
 	aLog::print(aLog::Info, tr("wDBTable: select document %1").arg(id));
-	emit( selectRecord( id ) );
+	emit( selectRecord( id ) );*/
 }
 
 
@@ -1308,7 +1448,7 @@ wDBTable::lineChange(int, int)
 void
 wDBTable::lineInsert(QSqlRecord* rec){
 
-	if (containerType() == "wDocument")
+	/*if (containerType() == "wDocument")
 	{
 		if(rec->contains("idd")) rec->setValue("idd",QVariant(doc_id));
 		if(rec->contains("ln")) rec->setValue("ln",numRows()-1);
@@ -1316,7 +1456,7 @@ wDBTable::lineInsert(QSqlRecord* rec){
 	if(containerType() == "wCatalogue")
 	{
 		if(rec->contains("idg")) rec->setValue("idg",QVariant(cat_group_id));
-	}
+	}*/
 }
 
 
@@ -1331,11 +1471,11 @@ wDBTable::lineInsert(QSqlRecord* rec){
 bool
 wDBTable::deleteCurrent()
 {
-	bool res;
+	/*bool res;
 	res = Q3DataTable::deleteCurrent();
 	emit(updateCurr(currentRow(),currentColumn()));
 	return res;
-
+*/
 }
 
 
@@ -1349,7 +1489,7 @@ wDBTable::deleteCurrent()
 void
 wDBTable::keyPressEvent ( QKeyEvent *e )
 {
-	qulonglong id;
+/*	qulonglong id;
 
 	aWidget *container = NULL;
 	if ( searchMode == FALSE && e->text().at( 0 ).isPrint() )
@@ -1397,7 +1537,7 @@ wDBTable::keyPressEvent ( QKeyEvent *e )
 			break;
 		}
 	}
-	Q3DataTable::keyPressEvent( e );
+	Q3DataTable::keyPressEvent( e );*/
 }
 
 
@@ -1413,8 +1553,8 @@ wDBTable::keyPressEvent ( QKeyEvent *e )
 void
 wDBTable::newFilter(const QString & flt)
 {
-	setFilter(flt);
-	refresh();
+/*	setFilter(flt);
+	refresh();*/
 }
 
 /*!
@@ -1427,14 +1567,14 @@ wDBTable::newFilter(const QString & flt)
 void
 wDBTable::newDataId(const qulonglong id)
 {
-	if(containerType() == "wDocument")
+	/*if(containerType() == "wDocument")
 	{
 		setId(id);
 	}
 	if(containerType() == "wCatalogue")
 	{
 		cat_group_id = id;
-	}
+	}*/
 }
 
 
@@ -1449,7 +1589,7 @@ void
 wDBTable::EditElement()
 {
 
-	ANANAS_UID id = 0;
+	/*ANANAS_UID id = 0;
 //	wGroupTreeItem * item = ( wGroupTreeItem * ) tree->currentItem();
 	aForm * f = 0;
 
@@ -1464,40 +1604,42 @@ wDBTable::EditElement()
 //				f->closeAfterSelect = true;
 			}
 		}
-	}
+	}*/
 }
 
 
 long
 wDBTable::journalFieldId(long columnId){
-	aCfgItem item;
+	/*DomCfgItem *item;
 
-	item= md->find(md->find(columnId),md_fieldid);
-	return md->text(item).toLong();
-
+	//item= md->find(md->find(columnId),md_fieldid);
+//Вернуться
+	item = md->findObjectById(columnId)->find(md_fieldid);
+	return item->node().nodeValue().toLong();
+*/
 }
 
 QString
 wDBTable::journalFieldName(long columnId)
 {
-	aCfgItem item;
-	item= md->find(md->find(columnId),md_fieldid);
-	item = md->find(md->text(item).toLong());
-	if(!item.isNull())
+/*	DomCfgItem *item;
+	item= md->findObjectById(columnId)->find(md_fieldid);
+	item = md->findObjectById(item->node().nodeValue().toLong());
+	if(item!=0)
 	{
-		QString s = md->attr(item,mda_type);
+		QString s = item->attr(mda_type);
 		QChar ch = s[0];
 		if(ch.upper()=='O')
 		{
-			return QString("text_uf%1").arg(md->attr(item,mda_id));
+			return QString("text_uf%1").arg(item->attr(mda_id));
 		}
 		else
 		{
-			return QString("uf%1").arg(md->attr(item,mda_id));
+			return QString("uf%1").arg(item->attr(mda_id));
 		}
 	}
 	return "uf0";
-
+*/
 }
 
 /*!
@@ -1512,8 +1654,8 @@ void
 wDBTable::updateTableCellHandler(int r, int c)
 {
 //	printf(">>>>update curr row %d  col %d!\n",r,c);
-	lastEditedRow= r;
-	lastEditedCol= c;
+//	lastEditedRow= r;
+//	lastEditedCol= c;
 }
 
 /*!
@@ -1526,13 +1668,13 @@ wDBTable::updateTableCellHandler(int r, int c)
 bool
 wDBTable::updateCurrent()
 {
-	bool res = Q3DataTable::updateCurrent();
-	if(res)
-	{
+//	bool res = Q3DataTable::updateCurrent();
+//	if(res)
+//	{
 //		printf(">>>>real update curr row %d  col %d!\n",lastEditedRow, lastEditedCol);
-		emit(updateCurr(lastEditedRow,lastEditedCol));
-	}
-return res;
+//		emit(updateCurr(lastEditedRow,lastEditedCol));
+//	}
+//return res;
 }
 
 
@@ -1567,21 +1709,21 @@ wDBTable::activateNextCell()
 QWidget *
 wDBTable::beginUpdate ( int row, int col, bool replace )
 {
-	wField  *wd;
+/*	wField  *wd;
 	wd = (wField*)Q3DataTable::beginUpdate(row,col,replace);
 	if(wd)
 	{
 		//inEditMode = true;
 		wd->selectAll();
 	}
-	return wd;
+	return wd;*/
 }
 
 
 void
 wDBTable::doubleClickEventHandler(int /*rol*/, int /*col*/, int /*button*/, const QPoint &/*mousePos*/)
 {
-	if(containerType() =="wCatalogue" || containerType() == "wJournal")
+	/*if(containerType() =="wCatalogue" || containerType() == "wJournal")
 	{
 		if(currentRecord())
 		{
@@ -1589,7 +1731,7 @@ wDBTable::doubleClickEventHandler(int /*rol*/, int /*col*/, int /*button*/, cons
 			emit( selected( id ) );
 		}
 	}
-
+*/
 }
 
 /**
@@ -1601,7 +1743,7 @@ wDBTable::doubleClickEventHandler(int /*rol*/, int /*col*/, int /*button*/, cons
 
 QSql::Confirm
 wDBTable::confirmEdit( QSql::Op m ) {
-	if ( m == QSql::Delete ) {
+/*	if ( m == QSql::Delete ) {
 		if ( 0 == QMessageBox::question(
             this,
             tr("Remove record?"),
@@ -1615,7 +1757,7 @@ wDBTable::confirmEdit( QSql::Op m ) {
         }
 	} else {
 		return Q3DataTable::confirmEdit( m );
-	}
+	}*/
 }
 
 /**
@@ -1627,7 +1769,7 @@ wDBTable::confirmEdit( QSql::Op m ) {
 
 bool
 wDBTable::beginInsert() {
-	if ( !sqlCursor() || isReadOnly() || !numCols() )
+	/*if ( !sqlCursor() || isReadOnly() || !numCols() )
 		return FALSE;
     if ( !sqlCursor()->canInsert() )
 		return FALSE;
@@ -1636,7 +1778,7 @@ wDBTable::beginInsert() {
 	endEdit( currentRow(), currentColumn(), false, false);
 	setCurrentCell( numRows(), 0 );
 	return result;
-
+*/
 }
 
 
@@ -1650,7 +1792,7 @@ wDBTable::beginInsert() {
 void
 wDBTable::contentsContextMenuEvent ( QContextMenuEvent * e )
 {
-	Q3Table::contentsContextMenuEvent( e );
+/*	Q3Table::contentsContextMenuEvent( e );
 	QString str, ctype;
 
 	if ( containerType() == "wDocument" || containerType() == "wCatalogue" ) {
@@ -1723,22 +1865,22 @@ wDBTable::contentsContextMenuEvent ( QContextMenuEvent * e )
 							}
 	}
 	e->accept();
-
+*/
 }
 
 
 void
 wDBTable::updateItem( ANANAS_UID db_uid )
 {
-	refresh();
-	emit currentChanged( currentRecord() );
+//	refresh();
+//	emit currentChanged( currentRecord() );
 }
 
 
 int
 wDBTable::Select( ANANAS_UID db_uid )
 {
-	aSQLTable *t = ( aSQLTable *) sqlCursor();
+/*	aSQLTable *t = ( aSQLTable *) sqlCursor();
 
 //	printf("id = %Li\n",db_uid);
 	ANANAS_UID cur_id = 0;
@@ -1756,7 +1898,7 @@ wDBTable::Select( ANANAS_UID db_uid )
 	if ( found ) {
 		setCurrentCell( row, curc );
 	} else setCurrentCell( curr, curc );
-	return 0;
+	return 0;*/
 }
 
 
@@ -1764,7 +1906,7 @@ bool
 wDBTable::searchColumn( const QString & text, bool FromCurrent, bool Forward )
 {
 
-	QString s;
+	/*QString s;
 	uint curr = currentRow(), curc=currentColumn(), row = 0, idx;
 	bool found = FALSE;
 	aSQLTable *t = ( aSQLTable *) sqlCursor();
@@ -1784,7 +1926,7 @@ wDBTable::searchColumn( const QString & text, bool FromCurrent, bool Forward )
 	if ( found ) {
 		setCurrentCell( row, curc );
 	};
-	return found;
+	return found;*/
 }
 
 
@@ -1792,22 +1934,22 @@ wDBTable::searchColumn( const QString & text, bool FromCurrent, bool Forward )
 void
 wDBTable::searchOpen( const QString & text )
 {
-	searchWidget = new aSearchWidget( aWidget::parentContainer( this ), this );
+	/*searchWidget = new aSearchWidget( aWidget::parentContainer( this ), this );
 	searchMode = TRUE;
 	searchWidget->setFocus();
-	searchWidget->search( text );
+	searchWidget->search( text );*/
 }
 
 
 void
 wDBTable::searchClose()
 {
-	if ( searchWidget ) {
+	/*if ( searchWidget ) {
 		setFocus();
 		searchWidget->deleteLater();
 		searchMode = FALSE;
 		searchWidget = 0;
-	}
+	}*/
 }
 
 
@@ -1827,19 +1969,19 @@ wDBTable::searchClose()
 aSearchWidget::aSearchWidget( QWidget *parent, wDBTable *table )
 : Q3Frame( parent )
 {
-	t = table;
-	ftext = "";
-	setFrameStyle( Q3Frame::PopupPanel | Q3Frame::Raised );
-	setFocusPolicy( Qt::StrongFocus );
-	new Q3HBoxLayout( this, 0, 0 );
-	l = new QLineEdit( this );
-        l->installEventFilter( this );
-	setFocusProxy( l );
-	layout()->add( l );
-//	move (0,0);
-	move( 3+t->x()+t->columnPos( t->currentColumn()), t->y()+1/*+t->height()*/);
-	resize( t->columnWidth( t->currentColumn() )-2, 25 );
-	connect( l, SIGNAL( textChanged( const QString & ) ), this, SLOT( setText( const QString & ) ) );
+// 	t = table;
+// 	ftext = "";
+// 	setFrameStyle( Q3Frame::PopupPanel | Q3Frame::Raised );
+// 	setFocusPolicy( Qt::StrongFocus );
+// 	new Q3HBoxLayout( this, 0, 0 );
+// 	l = new QLineEdit( this );
+//         l->installEventFilter( this );
+// 	setFocusProxy( l );
+// 	layout()->add( l );
+// //	move (0,0);
+// 	move( 3+t->x()+t->columnPos( t->currentColumn()), t->y()+1/*+t->height()*/);
+// 	resize( t->columnWidth( t->currentColumn() )-2, 25 );
+// 	connect( l, SIGNAL( textChanged( const QString & ) ), this, SLOT( setText( const QString & ) ) );
 }
 
 
@@ -1859,43 +2001,43 @@ aSearchWidget::search( const QString &t )
 void
 aSearchWidget::setText( const QString &text )
 {
-	if ( t->searchColumn( text ) ) ftext = text;
-	else l->setText( ftext );
+// 	if ( t->searchColumn( text ) ) ftext = text;
+// 	else l->setText( ftext );
 }
 
 
 bool
 aSearchWidget::eventFilter( QObject *obj, QEvent *ev )
 {
-	if ( obj == l ) {
-		if ( ev->type() == QEvent::FocusOut ) {
-			t->searchClose();
-			return TRUE;
-		}
-		if ( ev->type() == QEvent::KeyPress ) {
-		QKeyEvent *e = ( QKeyEvent *) ev;
-			switch ( e->key() ){
-			case Qt::Key_Return:
-			case Qt::Key_Escape:
-				//printf("OK\n");
-				t->searchClose();
-				break;
-			case Qt::Key_Up:
-				t->searchColumn( ftext, TRUE, FALSE );
-				break;
-			case Qt::Key_Down:
-				t->searchColumn( ftext, TRUE, TRUE );
-				break;
-			default:
-				return FALSE;
-				break;
-			}
-                return TRUE;
-            } else {
-                return FALSE;
-            }
-        } else {
-            // pass the event on to the parent class
-            return Q3Frame::eventFilter( obj, ev );
-        }
+// 	if ( obj == l ) {
+// 		if ( ev->type() == QEvent::FocusOut ) {
+// 			t->searchClose();
+// 			return TRUE;
+// 		}
+// 		if ( ev->type() == QEvent::KeyPress ) {
+// 		QKeyEvent *e = ( QKeyEvent *) ev;
+// 			switch ( e->key() ){
+// 			case Qt::Key_Return:
+// 			case Qt::Key_Escape:
+// 				//printf("OK\n");
+// 				t->searchClose();
+// 				break;
+// 			case Qt::Key_Up:
+// 				t->searchColumn( ftext, TRUE, FALSE );
+// 				break;
+// 			case Qt::Key_Down:
+// 				t->searchColumn( ftext, TRUE, TRUE );
+// 				break;
+// 			default:
+// 				return FALSE;
+// 				break;
+// 			}
+//                 return TRUE;
+//             } else {
+//                 return FALSE;
+//             }
+//         } else {
+//             // pass the event on to the parent class
+//             return Q3Frame::eventFilter( obj, ev );
+//         }
 }
